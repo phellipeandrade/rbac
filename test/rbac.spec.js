@@ -6,7 +6,7 @@ import {
   USER,
   ADMIN,
   SUPERVISOR,
-  SYSADMIN,
+  SUPERADMIN,
   PRODUCTS_DELETE,
   PRODUCTS_EDIT,
   PRODUCTS_FIND
@@ -34,7 +34,7 @@ const defaultRoles = {
     can: [{name: PRODUCTS_DELETE, when: belongsToAccount }],
     inherits: [SUPERVISOR]
   },
-  [SYSADMIN]: {
+  [SUPERADMIN]: {
     can: [PRODUCTS_FIND, PRODUCTS_EDIT, PRODUCTS_DELETE]
   }
 };
@@ -150,28 +150,28 @@ describe('RBAC', () => {
 
   });
 
-  describe('sysadmin role', () => {
+  describe('superadmin role', () => {
 
-    it('[sysadmin] should have permission [products:find]', async () => {
-      const result = await RBAC.can(SYSADMIN, PRODUCTS_FIND);
-
-      expect(result).to.be.true;
-    });
-
-    it('[sysadmin] should have permission [products:edit]', async () => {
-      const result = await RBAC.can(SYSADMIN, PRODUCTS_EDIT);
+    it('[superadmin] should have permission [products:find]', async () => {
+      const result = await RBAC.can(SUPERADMIN, PRODUCTS_FIND);
 
       expect(result).to.be.true;
     });
 
-    it('[sysadmin] should have permission [products:delete]', async () => {
-      const result = await RBAC.can(SYSADMIN, PRODUCTS_DELETE);
+    it('[superadmin] should have permission [products:edit]', async () => {
+      const result = await RBAC.can(SUPERADMIN, PRODUCTS_EDIT);
 
       expect(result).to.be.true;
     });
 
-    it('[sysadmin] should not have permission [wrong:operation]', async () => {
-      const result = await RBAC.can(SYSADMIN, 'wrong:operation');
+    it('[superadmin] should have permission [products:delete]', async () => {
+      const result = await RBAC.can(SUPERADMIN, PRODUCTS_DELETE);
+
+      expect(result).to.be.true;
+    });
+
+    it('[superadmin] should not have permission [wrong:operation]', async () => {
+      const result = await RBAC.can(SUPERADMIN, 'wrong:operation');
 
       expect(result).to.be.false;
     });
