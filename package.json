@@ -1,8 +1,8 @@
 {
-  "name": "rbac",
+  "name": "@rbac/rbac",
   "version": "1.0.0",
   "description": "Blazzing Fast, Zero dependency, Hierarchical Role-Based Access Control for Node.js",
-  "main": "lib/webpack-library-starter.js",
+  "main": "lib/@rbac/rbac.js",
   "scripts": {
     "build": "webpack --env dev && webpack --env build && npm run test",
     "dev": "webpack --progress --colors --watch --env dev",

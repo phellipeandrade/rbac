@@ -20,6 +20,11 @@
 
 ## Getting Started
 
+#### Install 
+
+`yarn install @rbac/rbac` or `npm install @rbac/rbac`
+
+
 RBAC is a curried function thats initialy takes an object with configurations, 
 then returns another function that takes an object with roles, 
 finnaly returns an object that holds "can" property that is a function.
