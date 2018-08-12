@@ -1,0 +1,37 @@
+]777;notify;Command completed;terminal-recorder --help]0;phandrade@callister:~]7;file://callister/home/phandrade[phandrade@callister ~]$ npm [K[K[K[Kyarn run record
+[2K[1G[1myarn run v1.9.4[22m
+[2K[1G[31merror[39m Couldn't find a package.json file in "/home/phandrade"
+[2K[1G[34minfo[39m Visit [1mhttps://yarnpkg.com/en/docs/cli/run[22m for documentation about this command.
+]777;notify;Command completed;yarn run record]0;phandrade@callister:~]7;file://callister/home/phandrade[phandrade@callister ~]$ ls
+[0m[01;34mDesktop[0m  [01;34mDocuments[0m  [01;34mDownloads[0m  [01;34mMusic[0m  [01;34mPictures[0m  [01;34mPublic[0m  [01;34msnap[0m  [01;34mTemplates[0m  [01;34mVideos[0m
+]777;notify;Command completed;ls]0;phandrade@callister:~]7;file://callister/home/phandrade[phandrade@callister ~]$ cd /usrc[K/[K[K[K[K[K[K /Documen[K[K[K[K[K[K[K[KDocuments/GIT
+]777;notify;Command completed;cd Documents/GIT]0;phandrade@callister:~/Documents/GIT]7;file://callister/home/phandrade/Documents/GIT[phandrade@callister GIT]$ ls
+[0m[01;34mcomercio-regional-api[0m  [01;34mkibana[0m    [01;34mrbac[0m        [01;34mttygif[0m
+[01;34menabled_plugins[0m        [01;34mrabbitmq[0m  [01;34msamconnect[0m  [01;34mwebpack-library-starter[0m
+]777;notify;Command completed;ls]0;phandrade@callister:~/Documents/GIT]7;file://callister/home/phandrade/Documents/GIT[phandrade@callister GIT]$ cd rca[K[Kbac/
+]777;notify;Command completed;cd rbac/]0;phandrade@callister:~/Documents/GIT/rbac]7;file://callister/home/phandrade/Documents/GIT/rbac[phandrade@callister rbac]$ ls
+[0m[01;34mcoverage[0m  logs.txt      package-lock.json  [01;34msrc[0m                     webpack.config.js
+[01;34mlib[0m       [01;34mnode_modules[0m  README.md          [01;34mterminal-recorder-html[0m  yarn-error.log
+LICENSE   package.json  [01;34mrecord[0m             [01;34mtest[0m                    yarn.lock
+]777;notify;Command completed;ls]0;phandrade@callister:~/Documents/GIT/rbac]7;file://callister/home/phandrade/Documents/GIT/rbac[phandrade@callister rbac]$ npm run record[K[K[K[K[K[K[K[K[K[K[K[K[K[Kyarn run record
+[2K[1G[1myarn run v1.9.4[22m
+[2K[1G[2m$ node -r @babel/register ./record/index.js[22m
+[33m-----------------------------------------------------------------------------------------[0m 
+[1;34m [1;37mRBAC[1;34m ROLE: [[1;33muser[1;34m] OPERATION: [[1;33mproducts:find[1;34m] PERMISSION: [[1;32mtrue[1;34m][0m 
+[33m-----------------------------------------------------------------------------------------[0m 
+[33m-----------------------------------------------------------------------------------------[0m 
+[1;34m [1;37mRBAC[1;34m ROLE: [[1;33muser[1;34m] OPERATION: [[1;33mproducts:edit[1;34m] PERMISSION: [[1;31mfalse[1;34m][0m 
+[33m-----------------------------------------------------------------------------------------[0m 
+[2K[1GDone in 0.28s.
+]777;notify;Command completed;yarn run record]0;phandrade@callister:~/Documents/GIT/rbac]7;file://callister/home/phandrade/Documents/GIT/rbac[phandrade@callister rbac]$ ]777;notify;Command completed;yarn run record]0;phandrade@callister:~]7;file://callister/home/phandrade[phandrade@callister ~]$ cd /home/phandrade/Documents/GIT/rbac
+]777;notify;Command completed;cd /home/phandrade/Documents/GIT/rbac]0;phandrade@callister:~/Documents/GIT/rbac]7;file://callister/home/phandrade/Documents/GIT/rbac[phandrade@callister rbac]$ yarn run record
+[2K[1G[1myarn run v1.9.4[22m
+[2K[1G[2m$ node -r @babel/register ./record/index.js[22m
+[33m-----------------------------------------------------------------------------------------[0m 
+[1;34m [1;37mRBAC[1;34m ROLE: [[1;33muser[1;34m] OPERATION: [[1;33mproducts:find[1;34m] PERMISSION: [[1;32mtrue[1;34m][0m 
+[33m-----------------------------------------------------------------------------------------[0m 
+[33m-----------------------------------------------------------------------------------------[0m 
+[1;34m [1;37mRBAC[1;34m ROLE: [[1;33muser[1;34m] OPERATION: [[1;33mproducts:edit[1;34m] PERMISSION: [[1;31mfalse[1;34m][0m 
+[33m-----------------------------------------------------------------------------------------[0m 
+[2K[1GDone in 0.28s.
+]777;notify;Command completed;yarn run record]0;phandrade@callister:~/Documents/GIT/rbac]7;file://callister/home/phandrade/Documents/GIT/rbac[phandrade@callister rbac]$ 

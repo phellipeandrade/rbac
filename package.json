@@ -6,6 +6,7 @@
   "scripts": {
     "build": "webpack --env dev && webpack --env build && npm run test",
     "dev": "webpack --progress --colors --watch --env dev",
+    "record": "node -r @babel/register ./record/index.js",
     "test": "NODE_ENV=test mocha --require @babel/register --colors ./test/*.spec.js",
     "test:watch": "NODE_ENV=test mocha --require @babel/register --colors -w ./test/*.spec.js"
   },
@@ -16,7 +17,11 @@
   "keywords": [
     "rbac",
     "authorization",
+    "hierarchical",
+    "privacy",
+    "role",
     "security",
+    "permission",
     "acl"
   ],
   "author": "Phellipe Andrade",
