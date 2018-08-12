@@ -1,7 +1,7 @@
 /* global describe, it, before */
 
 import chai from 'chai';
-import rbac from '../lib/rbac';
+import rbac from '../lib/@rbac/rbac';
 import {
   USER,
   ADMIN,
