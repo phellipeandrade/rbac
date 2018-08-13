@@ -84,7 +84,11 @@ const roles = {
 
 want more? checkout [examples](examples/index.js) folder.
 
+## Roadmap
 
+- [ ] Wildcard support
+- [ ] Regex support
+- [ ] Update roles in runtime
 
 ## Contributing
 
