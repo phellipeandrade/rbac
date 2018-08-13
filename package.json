@@ -1,6 +1,6 @@
 {
   "name": "@rbac/rbac",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Blazzing Fast, Zero dependency, Hierarchical Role-Based Access Control for Node.js",
   "main": "lib/@rbac/rbac.js",
   "scripts": {
