@@ -7,6 +7,8 @@
   Hierarchical Role-Based Access Control for Node.js
 </h1>
 
+[![CircleCI](https://circleci.com/gh/phellipeandrade/rbac/tree/master.svg?style=svg)](https://circleci.com/gh/phellipeandrade/rbac/tree/master)
+
 * ⏱ LightWeight
 * 🔥 Blazzing Fast
 * ⚡️️  Zero dependency
@@ -22,12 +24,12 @@
 
 #### Install 
 
-`yarn install @rbac/rbac` or `npm install @rbac/rbac`
+`yarn add @rbac/rbac` or `npm install @rbac/rbac`
 
 
-RBAC is a curried function thats initialy takes an object with configurations, 
+RBAC is a curried function thats initially takes an object with configurations, 
 then returns another function that takes an object with roles, 
-finnaly returns an object that holds "can" property that is a function.
+finally returns an object that holds "can" property that is a function.
 
 You can use it by many ways, below are one of them:
 
@@ -36,7 +38,7 @@ You can use it by many ways, below are one of them:
 
 | Property     	| Type          	| Params                                                      	| Default       	| Description                             	|
 |--------------	|---------------	|-------------------------------------------------------------	|---------------	|-----------------------------------------	|
-| logger       	| **Function**  	| role: **String**<br/>operation: **String**<br/>result: **String** 	| defaultLogger 	| Function that log operations to console 	|
+| logger       	| **Function**  	| role: **String**<br/>operation: **String**<br/>result: **Boolean** 	| defaultLogger 	| Function that log operations to console 	|
 | enableLogger 	| **Boolean**   	|                                                             	| true          	| Enable or disable logger                	|
 
 #### Creating some roles
@@ -112,4 +114,4 @@ This project is under MIT License [https://opensource.org/licenses/MIT]
 
   This project scaffold was built with a modified version of [webpack-library-starter](https://github.com/krasimir/webpack-library-starter)
 
-  Thanks for Karl Düüna ([DeadAlready](https://github.com/DeadAlready)) and his awesome [post on medium](https://blog.nodeswat.com/implement-access-control-in-node-js-8567e7b484d1)
+  Thanks to Karl Düüna ([DeadAlready](https://github.com/DeadAlready)) and his awesome [post on medium](https://blog.nodeswat.com/implement-access-control-in-node-js-8567e7b484d1)
