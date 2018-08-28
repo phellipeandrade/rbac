@@ -30,3 +30,26 @@ export const defaultLogger = (role, operation, result) => {
     console.log('\x1b[33m%s\x1b[0m ', underline());
   } catch (e) {}
 };
+
+export const validators = {
+  role: (role) => {
+    if (typeof role !== 'string') {
+      throw new TypeError('Expected first parameter to be string : role');
+    }
+  },
+  roles: (roles) => {
+    if (typeof roles !== 'object') {
+      throw new TypeError('Expected an object as input');
+    }
+  },
+  operation: (operation) => {
+    if (typeof operation !== 'string') {
+      throw new TypeError('Expected second parameter to be string : operation');
+    }
+  },
+  foundedRole: (foundedRole) => {
+    if (!foundedRole) {
+      throw new Error('Undefined role');
+    }
+  }
+};
