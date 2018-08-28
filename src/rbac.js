@@ -1,11 +1,17 @@
-import { isFunction, isPromise, defaultLogger } from './helpers';
+import { isFunction, isPromise, defaultLogger, validators } from './helpers';
 
-const can = (config = {
-  logger: defaultLogger,
-  enableLogger: true
-}) => (mappedRoles) => (role, operation, params) => {
+const can = (
+  config = {
+    logger: defaultLogger,
+    enableLogger: true
+  }
+) => mappedRoles => (role, operation, params) =>
+  new Promise((resolve, reject) => {
+    const foundedRole = mappedRoles[role];
 
-  return new Promise((resolve, reject) => {
+    validators.role(role);
+    validators.operation(operation);
+    validators.foundedRole(foundedRole);
 
     const resolvePromise = (role, result) => {
       if (config.enableLogger) {
@@ -14,80 +20,58 @@ const can = (config = {
       return resolve(result);
     };
 
-    if (typeof role !== 'string') {
-      throw new TypeError('Expected first parameter to be string : role');
-    }
+    const resolveInherits = inherits =>
+      Promise.all(inherits.map(parent =>
+        can({ enableLogger: false })(mappedRoles)(parent, operation, params)))
+        .then(result => resolvePromise(role, result.includes(true)))
+        .catch(() => resolvePromise(role, false));
 
-    if (typeof operation !== 'string') {
-      throw new TypeError('Expected second parameter to be string : operation');
-    }
+    const resolveResult = (result) => {
+      if (!result) {
+        return foundedRole.inherits ?
+          resolveInherits(foundedRole.inherits) : resolvePromise(role, false);
+      }
+      return resolvePromise(role, Boolean(result));
+    };
 
-    const FoundedRole = mappedRoles[role];
-
-    if (!FoundedRole) {
-      throw new Error('Undefined role');
-    }
-
-    if (isPromise(FoundedRole.can[operation])) {
-      return FoundedRole.can[operation]
-        .then(result => {
-          if (!result) {
-            if (FoundedRole.inherits) {
-              return Promise
-                .all(FoundedRole.inherits.map(parent =>
-                  can({ enableLogger: false })(mappedRoles)(parent, operation, params)))
-                .then(result => resolvePromise(role, result.indexOf(true) > -1))
-                .catch(() => resolvePromise(role, false));
-            }
-            return resolvePromise(role, false);
-          }
-          return resolvePromise(role, Boolean(result));
-        })
+    if (isPromise(foundedRole.can[operation])) {
+      return foundedRole.can[operation]
+        .then(result => resolveResult(result))
         .catch(() => resolvePromise(role, false));
     }
 
-    if (isFunction(FoundedRole.can[operation])) {
-      return FoundedRole.can[operation](params, (err, result) => {
+    if (isFunction(foundedRole.can[operation])) {
+      return foundedRole.can[operation](params, (err, result) => {
         if (err) return reject(err);
-        if (!result) {
-          if (FoundedRole.inherits) {
-            return Promise
-              .all(FoundedRole.inherits.map(parent =>
-                can({ enableLogger: false })(mappedRoles)(parent, operation, params)))
-              .then(result => resolvePromise(role, result.indexOf(true) > -1))
-              .catch(() => resolvePromise(role, false));
-          }
-          return resolvePromise(role, false);
-        }
-        return resolvePromise(role, true);
+        return resolveResult(result);
       });
     }
 
-    if (!FoundedRole.can[operation]) {
-      if (!FoundedRole.inherits) return resolvePromise(role, false);
-      return Promise
-        .all(FoundedRole.inherits.map(parent =>
-          can({ enableLogger: false })(mappedRoles)(parent, operation, params)))
-        .then(result => resolvePromise(role, result.indexOf(true) > -1))
-        .catch(() => resolvePromise(role, false));
+    if (!foundedRole.can[operation]) {
+      if (!foundedRole.inherits) return resolvePromise(role, false);
+      return resolveInherits(foundedRole.inherits);
     }
 
-    if (FoundedRole.can[operation]) return resolvePromise(role, true);
+    if (foundedRole.can[operation]) return resolvePromise(role, true);
 
     return resolvePromise(role, false);
   });
-};
 
-const roleCanMap = (roleCan) => roleCan.reduce((acc, operation) =>
-  (typeof operation === 'string' ?
-    { ...acc, [operation]: 1 } :
-    { ...acc, [operation.name]: operation.when }), {});
+const roleCanMap = roleCan =>
+  roleCan.reduce(
+    (acc, operation) =>
+      typeof operation === 'string' ?
+        { ...acc, [operation]: 1 } :
+        { ...acc, [operation.name]: operation.when },
+    {}
+  );
 
 const mapRoles = roles => {
-  if (typeof roles !== 'object') throw new TypeError('Expected an object as input');
+  validators.roles(roles);
   return Object.entries(roles).reduce((acc, role) => {
     const [roleName, roleValue] = role;
-    return { ...acc,
+    return {
+      ...acc,
       [roleName]: {
         can: roleCanMap(roleValue.can),
         inherits: roleValue.inherits
