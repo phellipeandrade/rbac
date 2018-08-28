@@ -65,26 +65,32 @@ describe('RBAC', () => {
   describe('user role', () => {
     it('[user] should have permission [products:find]', async () => {
       const result = await RBAC.can(USER, PRODUCTS_FIND);
-
       expect(result).to.be.true;
     });
 
     it('[user] should not have permission [wrong:operation]', async () => {
       const result = await RBAC.can(USER, 'wrong:operation');
-
       expect(result).to.be.false;
     });
 
     it('[user] should not have [supervisor] permissions [products:edit]', async () => {
       const result = await RBAC.can(USER, PRODUCTS_EDIT);
-
       expect(result).to.be.false;
     });
 
     it('[user] should not have admin permissions [products:delete]', async () => {
       const result = await RBAC.can(USER, PRODUCTS_DELETE);
-
       expect(result).to.be.false;
+    });
+
+    it('[user] should have permission when string regex is passed', async () => {
+      const result = await RBAC.can(USER, '/prod/');
+      expect(result).to.be.true;
+    });
+
+    it('[user] should have permission when regex is passed', async () => {
+      const result = await RBAC.can(USER, /products/);
+      expect(result).to.be.true;
     });
   });
 
@@ -174,6 +180,16 @@ describe('RBAC', () => {
       const result = await RBAC.can(SUPERADMIN, 'wrong:operation');
 
       expect(result).to.be.false;
+    });
+
+    it('[superadmin] should have permission when string regex is passed', async () => {
+      const result = await RBAC.can(SUPERADMIN, '/products/gi');
+      expect(result).to.be.true;
+    });
+
+    it('[superadmin] should have permission when regex is passed', async () => {
+      const result = await RBAC.can(SUPERADMIN, /products/gi);
+      expect(result).to.be.true;
     });
 
   });

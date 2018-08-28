@@ -1,4 +1,4 @@
-import { isFunction, isPromise, defaultLogger, validators } from './helpers';
+import { isFunction, isPromise, defaultLogger, validators, regexFromOperation } from './helpers';
 
 const can = (
   config = {
@@ -8,7 +8,7 @@ const can = (
 ) => mappedRoles => (role, operation, params) =>
   new Promise((resolve, reject) => {
     const foundedRole = mappedRoles[role];
-
+    const regexOperation = regexFromOperation(operation);
     validators.role(role);
     validators.operation(operation);
     validators.foundedRole(foundedRole);
@@ -19,6 +19,8 @@ const can = (
       }
       return resolve(result);
     };
+
+    if (foundedRole.can[operation] === 1) return resolvePromise(role, true);
 
     const resolveInherits = inherits =>
       Promise.all(inherits.map(parent =>
@@ -33,6 +35,12 @@ const can = (
       }
       return resolvePromise(role, Boolean(result));
     };
+
+    if (regexOperation) {
+      const result = Object.keys(foundedRole.can)
+        .some(operation => regexOperation.test(operation));
+      return resolvePromise(role, result);
+    }
 
     if (isPromise(foundedRole.can[operation])) {
       return foundedRole.can[operation]
@@ -51,8 +59,6 @@ const can = (
       if (!foundedRole.inherits) return resolvePromise(role, false);
       return resolveInherits(foundedRole.inherits);
     }
-
-    if (foundedRole.can[operation]) return resolvePromise(role, true);
 
     return resolvePromise(role, false);
   });

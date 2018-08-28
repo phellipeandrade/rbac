@@ -1,12 +1,11 @@
-export const isPromise = (value) =>
-  value && Object.prototype.toString.call(value) === '[object Promise]';
+const is = (value, expected) =>
+  value && Object.prototype.toString.call(value) === expected;
 
-export const isFunction = (value) =>
-  value && Object.prototype.toString.call(value) === '[object Function]';
+export const isPromise = (value) => is(value, '[object Promise]');
+export const isFunction = (value) => is(value, '[object Function]');
 
 export const underline = () => {
   let line = '';
-
   for (let i = 0; i < process.stdout.columns - 1; i++) {
     line = `${line}-`;
   }
@@ -20,16 +19,15 @@ export const defaultLogger = (role, operation, result) => {
   const fRole = `\x1b[1;33m${role}\x1b[1;34m`;
   const fOperation = `\x1b[1;33m${operation}\x1b[1;34m`;
   const rbacname = '\x1b[1;37mRBAC\x1b[1;34m';
-
-  try {
-    console.log('\x1b[33m%s\x1b[0m ', underline()); // yellow
-    console.log(
-      '\x1b[1;34m%s\x1b[0m ',
-      ` ${rbacname} ROLE: [${fRole}] OPERATION: [${fOperation}] PERMISSION: [${fResult}]`
-    );
-    console.log('\x1b[33m%s\x1b[0m ', underline());
-  } catch (e) {}
+  console.log('\x1b[33m%s\x1b[0m ', underline()); // yellow
+  console.log(
+    '\x1b[1;34m%s\x1b[0m ',
+    ` ${rbacname} ROLE: [${fRole}] OPERATION: [${fOperation}] PERMISSION: [${fResult}]`
+  );
+  console.log('\x1b[33m%s\x1b[0m ', underline());
 };
+
+export const isRegex = (value) => value instanceof RegExp;
 
 export const validators = {
   role: (role) => {
@@ -43,8 +41,8 @@ export const validators = {
     }
   },
   operation: (operation) => {
-    if (typeof operation !== 'string') {
-      throw new TypeError('Expected second parameter to be string : operation');
+    if (typeof operation !== 'string' && !isRegex(operation)) {
+      throw new TypeError('Expected second parameter to be string or regex : operation');
     }
   },
   foundedRole: (foundedRole) => {
@@ -53,3 +51,16 @@ export const validators = {
     }
   }
 };
+
+export const regexFromOperation = (value) => {
+  if (isRegex(value)) return value;
+  try {
+    const flags = value.replace(/.*\/([gimy]*)$/, '$1');
+    const pattern = value.replace(new RegExp('^/(.*?)/' + flags + '$'), '$1');
+    const regex = new RegExp(pattern, flags);
+    return regex;
+  } catch (e) {
+    return null;
+  }
+};
+
