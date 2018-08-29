@@ -26,7 +26,7 @@ const can = (
     validators.foundedRole(foundedRole);
 
     const resolvePromise = (role, result) => {
-      if (config.enableLogger) config.logger(role, operation, result);
+      if (config.enableLogger) (config.logger || defaultLogger)(role, operation, result);
       return resolve(result);
     };
 

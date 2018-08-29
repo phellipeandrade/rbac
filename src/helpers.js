@@ -21,13 +21,9 @@ const replaceGlobToRegex = (glob) => glob
 
 const joinGlobs = (globs) => '((' + globs.map(replaceGlobToRegex).join(')|(') + '))';
 
-export const underline = () => {
-  let line = '';
-  for (let i = 0; i < process.stdout.columns - 1; i++) {
-    line = `${line}-`;
-  }
-  return line;
-};
+const arraySequence = (n) => Array.apply(null, {length: n });
+
+export const underline = () => arraySequence(process.stdout.columns - 1).reduce((acc) => `${acc}-`, '');
 
 export const defaultLogger = (role, operation, result) => {
   const fResult = result ?

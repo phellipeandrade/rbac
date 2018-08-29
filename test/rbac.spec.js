@@ -60,7 +60,7 @@ describe('RBAC lib aspects', () => {
 });
 
 describe('RBAC', () => {
-  const RBAC = rbac({ enableLogger: false })(defaultRoles);
+  const RBAC = rbac({ enableLogger: true })(defaultRoles);
 
   describe('user role', () => {
     it('[user] should have permission [products:find]', async () => {
