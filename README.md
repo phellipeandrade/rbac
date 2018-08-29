@@ -80,18 +80,18 @@ const roles = {
 #### Check if user can do some operation
 ![step 03](./img/03.png)
 
-| Param  	| Type        	| Example                  	| Description                                                    	|
-|--------	|-------------	|--------------------------	|----------------------------------------------------------------	|
-| First  	| **String**  	| ```'admin'```            	| Array of strings, list of operations that user can do          	|
-| Second 	| **String**  	| ```'products:find'```    	| Operation to validate                                          	|
-| third  	| **Any**     	| ```{registered: true}``` 	| **Optional** Params that will flow to "when" callback Function 	|
+| Param  	| Type        	                                 | Example                  	| Description                                                    	|
+|--------	|----------------------------------------------- |--------------------------	|----------------------------------------------------------------	|
+| First  	| **String**  	                                 | ```'admin'```            	| Array of strings, list of operations that user can do          	|
+| Second 	| **String**, **Glob (Wildcard)**, **Regex**     | ```'products:find'```    	| Operation to validate                                          	|
+| third  	| **Any**     	                                 | ```{registered: true}``` 	| **Optional** Params that will flow to "when" callback Function 	|
 
 want more? checkout [examples](examples/index.js) folder.
 
 ## Roadmap
 
-- [ ] Wildcard support
-- [ ] Regex support
+- [X] Wildcard support
+- [X] Regex support
 - [ ] Update roles in runtime
 
 ## Contributing
