@@ -1,4 +1,14 @@
-import { isFunction, isPromise, defaultLogger, validators, regexFromOperation } from './helpers';
+import {
+  isFunction,
+  isPromise,
+  isString,
+  isGlob,
+  globToRegex,
+  checkRegex,
+  defaultLogger,
+  validators,
+  regexFromOperation
+} from './helpers';
 
 const can = (
   config = {
@@ -9,18 +19,20 @@ const can = (
   new Promise((resolve, reject) => {
     const foundedRole = mappedRoles[role];
     const regexOperation = regexFromOperation(operation);
+    const isGlobOperation = isGlob(operation);
+
     validators.role(role);
     validators.operation(operation);
     validators.foundedRole(foundedRole);
 
     const resolvePromise = (role, result) => {
-      if (config.enableLogger) {
-        config.logger(role, operation, result);
-      }
+      if (config.enableLogger) config.logger(role, operation, result);
       return resolve(result);
     };
 
-    if (foundedRole.can[operation] === 1) return resolvePromise(role, true);
+    if (isString(operation) && foundedRole.can[operation] === 1) {
+      return resolvePromise(role, true);
+    }
 
     const resolveInherits = inherits =>
       Promise.all(inherits.map(parent =>
@@ -36,10 +48,12 @@ const can = (
       return resolvePromise(role, Boolean(result));
     };
 
-    if (regexOperation) {
-      const result = Object.keys(foundedRole.can)
-        .some(operation => regexOperation.test(operation));
-      return resolvePromise(role, result);
+    if (regexOperation || isGlobOperation) {
+      return resolvePromise(
+        role,
+        checkRegex(isGlobOperation ? globToRegex(operation) :
+          regexOperation, foundedRole.can)
+      );
     }
 
     if (isPromise(foundedRole.can[operation])) {

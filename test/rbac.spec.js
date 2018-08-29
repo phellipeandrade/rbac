@@ -60,7 +60,7 @@ describe('RBAC lib aspects', () => {
 });
 
 describe('RBAC', () => {
-  const RBAC = rbac()(defaultRoles);
+  const RBAC = rbac({ enableLogger: false })(defaultRoles);
 
   describe('user role', () => {
     it('[user] should have permission [products:find]', async () => {
@@ -92,6 +92,17 @@ describe('RBAC', () => {
       const result = await RBAC.can(USER, /products/);
       expect(result).to.be.true;
     });
+
+    it('[user] should have permission when glob is passed', async () => {
+      const result = await RBAC.can(USER, 'products*');
+      expect(result).to.be.true;
+    });
+
+    it('[user] should  not have permission when glob is passed', async () => {
+      const result = await RBAC.can(USER, 'products:del*');
+      expect(result).to.be.false;
+    });
+
   });
 
   describe('supervisor role', () => {
@@ -190,6 +201,16 @@ describe('RBAC', () => {
     it('[superadmin] should have permission when regex is passed', async () => {
       const result = await RBAC.can(SUPERADMIN, /products/gi);
       expect(result).to.be.true;
+    });
+
+    it('[superadmin] should have permission when glob is passed', async () => {
+      const result = await RBAC.can(SUPERADMIN, 'products*');
+      expect(result).to.be.true;
+    });
+
+    it('[superadmin] should have not permission when wrong glob is passed', async () => {
+      const result = await RBAC.can(SUPERADMIN, 'wrong*');
+      expect(result).to.be.false;
     });
 
   });

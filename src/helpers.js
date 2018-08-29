@@ -1,8 +1,25 @@
 const is = (value, expected) =>
   value && Object.prototype.toString.call(value) === expected;
 
+const isRegex = (value) => value instanceof RegExp;
+
+export const isGlob = (value) => typeof value === 'string' && value.includes('*');
 export const isPromise = (value) => is(value, '[object Promise]');
 export const isFunction = (value) => is(value, '[object Function]');
+export const isString = (value) => is(value, '[object String]');
+
+const globPatterns = {
+  '*': '([^/]+)',
+  '**': '(.+/)?([^/]+)',
+  '**/': '(.+/)?'
+};
+
+const replaceGlobToRegex = (glob) => glob
+  .replace(/\./g, '\\.')
+  .replace(/\*\*$/g, '(.+)')
+  .replace(/(?:\*\*\/|\*\*|\*)/g, (str) => globPatterns[str]);
+
+const joinGlobs = (globs) => '((' + globs.map(replaceGlobToRegex).join(')|(') + '))';
 
 export const underline = () => {
   let line = '';
@@ -26,8 +43,6 @@ export const defaultLogger = (role, operation, result) => {
   );
   console.log('\x1b[33m%s\x1b[0m ', underline());
 };
-
-export const isRegex = (value) => value instanceof RegExp;
 
 export const validators = {
   role: (role) => {
@@ -64,3 +79,8 @@ export const regexFromOperation = (value) => {
   }
 };
 
+export const globToRegex = (glob) =>
+  new RegExp('^' + (Array.isArray(glob) ? joinGlobs : replaceGlobToRegex)(glob) + '$');
+
+export const checkRegex = (regex, can) => Object.keys(can)
+  .some(operation => regex.test(operation));
