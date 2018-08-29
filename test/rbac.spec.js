@@ -98,7 +98,7 @@ describe('RBAC', () => {
       expect(result).to.be.true;
     });
 
-    it('[user] should  not have permission when glob is passed', async () => {
+    it('[user] should  not have permission when not allowed glob is passed', async () => {
       const result = await RBAC.can(USER, 'products:del*');
       expect(result).to.be.false;
     });
