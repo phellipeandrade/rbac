@@ -1,7 +1,7 @@
 /* global describe, it, before */
 
 import chai from 'chai';
-import rbac from '../lib/@rbac/rbac';
+import rbac from '../lib/@rbac/rbac.min';
 import {
   USER,
   ADMIN,
@@ -42,10 +42,6 @@ const defaultRoles = {
 describe('RBAC lib aspects', () => {
   it('RBAC config should be a function', () => {
     expect(rbac).to.be.a('function');
-  });
-
-  it('should return correct name', () => {
-    expect(rbac.name).to.be.equal('RBAC');
   });
 
   it('should return a function', () => {
