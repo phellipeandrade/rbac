@@ -51,35 +51,25 @@ const can = (
       return resolvePromise(role, Boolean(result));
     };
 
-    const resolveWhenPromise = (promise) =>
-      promise.then(result => resolveResult(result))
-        .catch(() => resolvePromise(role, false));
-
-    const resolveWhenFunction = (func) =>
-      func(params, (err, result) => {
-        if (err) return reject(err);
-        return resolveResult(result);
-      });
-
     const resolveWhen = (when) => {
-      if (!when) {
-        return resolvePromise(role, false);
-      }
-      if (isPromise(when)) {
-        return resolveWhenPromise(when);
-      }
-      if (isFunction(when)) {
-        return resolveWhenFunction(when);
-      }
       if (when === true) {
         return resolvePromise(role, true);
+      }
+      if (isPromise(when)) {
+        return when.then(result => resolveResult(result))
+          .catch(() => resolvePromise(role, false));
+      }
+      if (isFunction(when)) {
+        return when(params, (err, result) => {
+          if (err) return reject(err);
+          return resolveResult(result);
+        });
       }
       return resolvePromise(role, false);
     };
 
     if (regexOperation || isGlobOperation) {
-      return resolvePromise(
-        role,
+      return resolvePromise(role,
         checkRegex(isGlobOperation ? globToRegex(operation) :
           regexOperation, foundedRole.can)
       );
@@ -88,12 +78,7 @@ const can = (
     if (Object.keys(foundedRole.can).some(isGlob)) {
       const matchOperation = globsFromFoundedRole(foundedRole.can)
         .filter(x => x.regex.test(operation))[0];
-      if (matchOperation) {
-        if (matchOperation.when === true) {
-          return resolvePromise(role, true);
-        }
-        return resolveWhen(matchOperation.when);
-      }
+      if (matchOperation) return resolveWhen(matchOperation.when);
     }
 
     if (!matchOperationFromCan) {
