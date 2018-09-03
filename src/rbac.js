@@ -38,18 +38,13 @@ const can = (
     }
 
     const resolveInherits = inherits =>
-      Promise.all(inherits.map(parent =>
+      inherits ? Promise.all(inherits.map(parent =>
         can({ enableLogger: false })(mappedRoles)(parent, operation, params)))
         .then(result => resolvePromise(role, result.includes(true)))
-        .catch(() => resolvePromise(role, false));
+        .catch(() => resolvePromise(role, false)) : resolvePromise(role, false);
 
-    const resolveResult = (result) => {
-      if (!result) {
-        return foundedRole.inherits ?
-          resolveInherits(foundedRole.inherits) : resolvePromise(role, false);
-      }
-      return resolvePromise(role, Boolean(result));
-    };
+    const resolveResult = (result) =>
+      result ? resolvePromise(role, Boolean(result)) : resolveInherits(foundedRole.inherits);
 
     const resolveWhen = (when) => {
       if (when === true) {
@@ -71,8 +66,7 @@ const can = (
     if (regexOperation || isGlobOperation) {
       return resolvePromise(role,
         checkRegex(isGlobOperation ? globToRegex(operation) :
-          regexOperation, foundedRole.can)
-      );
+          regexOperation, foundedRole.can));
     }
 
     if (Object.keys(foundedRole.can).some(isGlob)) {
