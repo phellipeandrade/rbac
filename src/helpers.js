@@ -80,3 +80,10 @@ export const globToRegex = (glob) =>
 
 export const checkRegex = (regex, can) => Object.keys(can)
   .some(operation => regex.test(operation));
+
+export const globsFromFoundedRole = (can) =>
+  Object.keys(can).map(role => isGlob(role) && {
+    role,
+    regex: globToRegex(role),
+    when: can[role]
+  }).filter(Boolean);

@@ -2,15 +2,6 @@
 
 import chai from 'chai';
 import rbac from '../lib/@rbac/rbac.min';
-import {
-  USER,
-  ADMIN,
-  SUPERVISOR,
-  SUPERADMIN,
-  PRODUCTS_DELETE,
-  PRODUCTS_EDIT,
-  PRODUCTS_FIND
-} from './constants';
 
 chai.expect();
 
@@ -23,19 +14,22 @@ const PromisebelongsToAccount = new Promise((resolve) => {
 });
 
 const defaultRoles = {
-  [USER]: {
-    can: [PRODUCTS_FIND]
+  user: {
+    can: ['products:find']
   },
-  [SUPERVISOR]: {
-    can: [{name: PRODUCTS_EDIT, when: PromisebelongsToAccount }],
-    inherits: [USER]
+  supervisor: {
+    can: [{name: 'products:edit', when: PromisebelongsToAccount }],
+    inherits: ['user']
   },
-  [ADMIN]: {
-    can: [{name: PRODUCTS_DELETE, when: belongsToAccount }],
-    inherits: [SUPERVISOR]
+  admin: {
+    can: [{name: 'products:delete', when: belongsToAccount }],
+    inherits: ['supervisor']
   },
-  [SUPERADMIN]: {
-    can: [PRODUCTS_FIND, PRODUCTS_EDIT, PRODUCTS_DELETE]
+  superadmin: {
+    can: ['products:find', 'products:edit', 'products:delete']
+  },
+  superhero: {
+    can: ['products:*']
   }
 };
 
@@ -56,46 +50,46 @@ describe('RBAC lib aspects', () => {
 });
 
 describe('RBAC', () => {
-  const RBAC = rbac({ enableLogger: true })(defaultRoles);
+  const RBAC = rbac({ enableLogger: false })(defaultRoles);
 
   describe('user role', () => {
     it('[user] should have permission [products:find]', async () => {
-      const result = await RBAC.can(USER, PRODUCTS_FIND);
+      const result = await RBAC.can('user', 'products:find');
       expect(result).to.be.true;
     });
 
     it('[user] should not have permission [wrong:operation]', async () => {
-      const result = await RBAC.can(USER, 'wrong:operation');
+      const result = await RBAC.can('user', 'wrong:operation');
       expect(result).to.be.false;
     });
 
     it('[user] should not have [supervisor] permissions [products:edit]', async () => {
-      const result = await RBAC.can(USER, PRODUCTS_EDIT);
+      const result = await RBAC.can('user', 'products:edit');
       expect(result).to.be.false;
     });
 
     it('[user] should not have admin permissions [products:delete]', async () => {
-      const result = await RBAC.can(USER, PRODUCTS_DELETE);
+      const result = await RBAC.can('user', 'products:delete');
       expect(result).to.be.false;
     });
 
     it('[user] should have permission when string regex is passed', async () => {
-      const result = await RBAC.can(USER, '/prod/');
+      const result = await RBAC.can('user', '/prod/');
       expect(result).to.be.true;
     });
 
     it('[user] should have permission when regex is passed', async () => {
-      const result = await RBAC.can(USER, /products/);
+      const result = await RBAC.can('user', /products/);
       expect(result).to.be.true;
     });
 
     it('[user] should have permission when glob is passed', async () => {
-      const result = await RBAC.can(USER, 'products*');
+      const result = await RBAC.can('user', 'products*');
       expect(result).to.be.true;
     });
 
     it('[user] should  not have permission when not allowed glob is passed', async () => {
-      const result = await RBAC.can(USER, 'products:del*');
+      const result = await RBAC.can('user', 'products:del*');
       expect(result).to.be.false;
     });
 
@@ -104,25 +98,25 @@ describe('RBAC', () => {
   describe('supervisor role', () => {
 
     it('[supervisor] should have permission [products:edit]', async () => {
-      const result = await RBAC.can(SUPERVISOR, PRODUCTS_EDIT);
+      const result = await RBAC.can('supervisor', 'products:edit');
 
       expect(result).to.be.true;
     });
 
     it('[supervisor] should have [user] inherited permission [products:find]', async () => {
-      const result = await RBAC.can(SUPERVISOR, PRODUCTS_FIND);
+      const result = await RBAC.can('supervisor', 'products:find');
 
       expect(result).to.be.true;
     });
 
     it('[supervisor] should not have admin permission [products:delete]', async () => {
-      const result = await RBAC.can(SUPERVISOR, PRODUCTS_DELETE);
+      const result = await RBAC.can('supervisor', 'products:delete');
 
       expect(result).to.be.false;
     });
 
     it('[supervisor] should not have permission [wrong:operation]', async () => {
-      const result = await RBAC.can(SUPERVISOR, 'wrong:operation');
+      const result = await RBAC.can('supervisor', 'wrong:operation');
 
       expect(result).to.be.false;
     });
@@ -132,31 +126,31 @@ describe('RBAC', () => {
   describe('admin role', () => {
 
     it('[admin] should have permission [products:delete]', async () => {
-      const result = await RBAC.can(ADMIN, PRODUCTS_DELETE, true);
+      const result = await RBAC.can('admin', 'products:delete', true);
 
       expect(result).to.be.true;
     });
 
     it('[admin] should not have permission if when returns falsy [products:delete]', async () => {
-      const result = await RBAC.can(ADMIN, PRODUCTS_DELETE, false);
+      const result = await RBAC.can('admin', 'products:delete', false);
 
       expect(result).to.be.false;
     });
 
     it('[admin] should have [user] inherited permission [products:find]', async () => {
-      const result = await RBAC.can(ADMIN, PRODUCTS_FIND);
+      const result = await RBAC.can('admin', 'products:find');
 
       expect(result).to.be.true;
     });
 
     it('[admin] should have [supervisor] inherited permission [products:edit]', async () => {
-      const result = await RBAC.can(ADMIN, PRODUCTS_EDIT);
+      const result = await RBAC.can('admin', 'products:edit');
 
       expect(result).to.be.true;
     });
 
     it('[admin] should not have permission [wrong:operation]', async () => {
-      const result = await RBAC.can(ADMIN, 'wrong:operation');
+      const result = await RBAC.can('admin', 'wrong:operation');
 
       expect(result).to.be.false;
     });
@@ -166,48 +160,95 @@ describe('RBAC', () => {
   describe('superadmin role', () => {
 
     it('[superadmin] should have permission [products:find]', async () => {
-      const result = await RBAC.can(SUPERADMIN, PRODUCTS_FIND);
+      const result = await RBAC.can('superadmin', 'products:find');
 
       expect(result).to.be.true;
     });
 
     it('[superadmin] should have permission [products:edit]', async () => {
-      const result = await RBAC.can(SUPERADMIN, PRODUCTS_EDIT);
+      const result = await RBAC.can('superadmin', 'products:edit');
 
       expect(result).to.be.true;
     });
 
     it('[superadmin] should have permission [products:delete]', async () => {
-      const result = await RBAC.can(SUPERADMIN, PRODUCTS_DELETE);
+      const result = await RBAC.can('superadmin', 'products:delete');
 
       expect(result).to.be.true;
     });
 
     it('[superadmin] should not have permission [wrong:operation]', async () => {
-      const result = await RBAC.can(SUPERADMIN, 'wrong:operation');
+      const result = await RBAC.can('superadmin', 'wrong:operation');
 
       expect(result).to.be.false;
     });
 
     it('[superadmin] should have permission when string regex is passed', async () => {
-      const result = await RBAC.can(SUPERADMIN, '/products/gi');
+      const result = await RBAC.can('superadmin', '/products/gi');
       expect(result).to.be.true;
     });
 
     it('[superadmin] should have permission when regex is passed', async () => {
-      const result = await RBAC.can(SUPERADMIN, /products/gi);
+      const result = await RBAC.can('superadmin', /products/gi);
       expect(result).to.be.true;
     });
 
     it('[superadmin] should have permission when glob is passed', async () => {
-      const result = await RBAC.can(SUPERADMIN, 'products*');
+      const result = await RBAC.can('superadmin', 'products*');
       expect(result).to.be.true;
     });
 
     it('[superadmin] should have not permission when wrong glob is passed', async () => {
-      const result = await RBAC.can(SUPERADMIN, 'wrong*');
+      const result = await RBAC.can('superadmin', 'wrong*');
       expect(result).to.be.false;
     });
 
+  });
+
+  describe('superhero role', () => {
+
+    it('[superhero] should have permission [products:find]', async () => {
+      const result = await RBAC.can('superhero', 'products:find');
+
+      expect(result).to.be.true;
+    });
+
+    it('[superhero] should have permission [products:edit]', async () => {
+      const result = await RBAC.can('superhero', 'products:edit');
+
+      expect(result).to.be.true;
+    });
+
+    it('[superhero] should have permission [products:delete]', async () => {
+      const result = await RBAC.can('superhero', 'products:delete');
+
+      expect(result).to.be.true;
+    });
+
+    it('[superhero] should not have permission [wrong:operation]', async () => {
+      const result = await RBAC.can('superhero', 'wrong:operation');
+
+      expect(result).to.be.false;
+    });
+
+    it('[superhero] should have permission when string regex is passed', async () => {
+      const result = await RBAC.can('superhero', '/products/gi');
+      expect(result).to.be.true;
+    });
+
+    it('[superhero] should have permission when regex is passed', async () => {
+      const result = await RBAC.can('superhero', /products/gi);
+      expect(result).to.be.true;
+    });
+
+    it('[superhero] should have permission when glob is passed', async () => {
+      const result = await RBAC.can('superhero', 'products*');
+      expect(result).to.be.true;
+    });
+
+    it('[superhero] should have not permission when wrong glob is passed', async () => {
+      const result = await RBAC.can('superhero', 'wrong*');
+      expect(result).to.be.false;
+    });
   });
 });
