@@ -7,7 +7,8 @@ import {
   checkRegex,
   defaultLogger,
   validators,
-  regexFromOperation
+  regexFromOperation,
+  globsFromFoundedRole
 } from './helpers';
 
 const can = (
@@ -17,9 +18,11 @@ const can = (
   }
 ) => mappedRoles => (role, operation, params) =>
   new Promise((resolve, reject) => {
+
     const foundedRole = mappedRoles[role];
     const regexOperation = regexFromOperation(operation);
     const isGlobOperation = isGlob(operation);
+    const matchOperationFromCan = foundedRole.can[operation];
 
     validators.role(role);
     validators.operation(operation);
@@ -30,58 +33,61 @@ const can = (
       return resolve(result);
     };
 
-    if (isString(operation) && foundedRole.can[operation] === 1) {
+    if (isString(operation) && matchOperationFromCan === true) {
       return resolvePromise(role, true);
     }
 
     const resolveInherits = inherits =>
-      Promise.all(inherits.map(parent =>
+      inherits ? Promise.all(inherits.map(parent =>
         can({ enableLogger: false })(mappedRoles)(parent, operation, params)))
         .then(result => resolvePromise(role, result.includes(true)))
-        .catch(() => resolvePromise(role, false));
+        .catch(() => resolvePromise(role, false)) : resolvePromise(role, false);
 
-    const resolveResult = (result) => {
-      if (!result) {
-        return foundedRole.inherits ?
-          resolveInherits(foundedRole.inherits) : resolvePromise(role, false);
+    const resolveResult = (result) =>
+      result ? resolvePromise(role, Boolean(result)) : resolveInherits(foundedRole.inherits);
+
+    const resolveWhen = (when) => {
+      if (when === true) {
+        return resolvePromise(role, true);
       }
-      return resolvePromise(role, Boolean(result));
+      if (isPromise(when)) {
+        return when.then(result => resolveResult(result))
+          .catch(() => resolvePromise(role, false));
+      }
+      if (isFunction(when)) {
+        return when(params, (err, result) => {
+          if (err) return reject(err);
+          return resolveResult(result);
+        });
+      }
+      return resolvePromise(role, false);
     };
 
     if (regexOperation || isGlobOperation) {
-      return resolvePromise(
-        role,
+      return resolvePromise(role,
         checkRegex(isGlobOperation ? globToRegex(operation) :
-          regexOperation, foundedRole.can)
-      );
+          regexOperation, foundedRole.can));
     }
 
-    if (isPromise(foundedRole.can[operation])) {
-      return foundedRole.can[operation]
-        .then(result => resolveResult(result))
-        .catch(() => resolvePromise(role, false));
+    if (Object.keys(foundedRole.can).some(isGlob)) {
+      const matchOperation = globsFromFoundedRole(foundedRole.can)
+        .filter(x => x.regex.test(operation))[0];
+      if (matchOperation) return resolveWhen(matchOperation.when);
     }
 
-    if (isFunction(foundedRole.can[operation])) {
-      return foundedRole.can[operation](params, (err, result) => {
-        if (err) return reject(err);
-        return resolveResult(result);
-      });
-    }
-
-    if (!foundedRole.can[operation]) {
+    if (!matchOperationFromCan) {
       if (!foundedRole.inherits) return resolvePromise(role, false);
       return resolveInherits(foundedRole.inherits);
     }
 
-    return resolvePromise(role, false);
+    return resolveWhen(matchOperationFromCan);
   });
 
 const roleCanMap = roleCan =>
   roleCan.reduce(
     (acc, operation) =>
       typeof operation === 'string' ?
-        { ...acc, [operation]: 1 } :
+        { ...acc, [operation]: true } :
         { ...acc, [operation.name]: operation.when },
     {}
   );
