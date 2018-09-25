@@ -6,7 +6,7 @@ import {
   PRODUCTS_DELETE,
   PRODUCTS_EDIT,
   PRODUCTS_FIND
-} from '../test/constants';
+} from './constants';
 
 import rbac from '../src/rbac';
 

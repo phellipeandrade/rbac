@@ -13,9 +13,9 @@
 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=checkout%20RBAC%20project%20on%20Github!&url=https://github.com/phellipeandrade/rbac&hashtags=rbac,authorization,privacy,security,permission)
 
 
-* ⏱ LightWeight
-* 🔥 Blazzing Fast
-* ⚡️️  Zero dependency
+* ⏱ Lightweight
+* 🔥 Blazing Fast
+* ⚡️️ Zero dependency
 
 ## Features
 
@@ -35,20 +35,20 @@ RBAC is a curried function thats initially takes an object with configurations,
 then returns another function that takes an object with roles, 
 finally returns an object that holds "can" property that is a function.
 
-You can use it by many ways, below are one of them:
+You can use it in many ways, below is one of them:
 
 #### Setup RBAC config
 ![step 01](./img/01.png)
 
 | Property     	| Type          	| Params                                                      	| Default       	| Description                             	|
 |--------------	|---------------	|-------------------------------------------------------------	|---------------	|-----------------------------------------	|
-| logger       	| **Function**  	| role: **String**<br/>operation: **String**<br/>result: **Boolean** 	| defaultLogger 	| Function that log operations to console 	|
+| logger       	| **Function**  	| role: **String**<br/>operation: **String**<br/>result: **Boolean** 	| defaultLogger 	| Function that logs operations to console 	|
 | enableLogger 	| **Boolean**   	|                                                             	| true          	| Enable or disable logger                	|
 
 #### Creating some roles
 ![step 02](./img/002.png)
 
-RBAC expect an object with roles as properties names.
+RBAC expects an object with roles as property names.
 
 | Property 	| Type         	| Example                                        	| Description                                                                                                                                                                  	|
 |----------	|--------------	|------------------------------------------------	|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
@@ -64,14 +64,13 @@ const roles = {
   supervisor: {
     can: [{ name: 'products:find', when: (params, done) => {
       // done receives error as first argument and Truthy or Falsy value as second argument
-      done(error, false)
-    } }]
+      done(error, false);
+    }}]
   },
   admin: {
     can: [{name: 'products:*', when: new Promise((resolve) => {
       resolve(true);
-    })
-  }]
+    })}]
   }
 };
 
@@ -84,9 +83,9 @@ const roles = {
 |--------	|----------------------------------------------- |--------------------------	|----------------------------------------------------------------	|
 | First  	| **String**  	                                 | ```'admin'```            	| Array of strings, list of operations that user can do          	|
 | Second 	| **String**, **Glob (Wildcard)**, **Regex**     | ```'products:find'```    	| Operation to validate                                          	|
-| third  	| **Any**     	                                 | ```{registered: true}``` 	| **Optional** Params that will flow to "when" callback Function 	|
+| Third  	| **Any**     	                                 | ```{registered: true}``` 	| **Optional** Params that will flow to "when" callback Function 	|
 
-want more? checkout [examples](examples/index.js) folder.
+Want more? Check out the [examples](examples/) folder.
 
 ## Roadmap
 
@@ -99,11 +98,11 @@ want more? checkout [examples](examples/index.js) folder.
 #### Contributions are welcome!
 
 1. Build RBAC
-  * Run `yarn install` to get the RBAC's dependencies
+  * Run `yarn install` to get RBAC's dependencies
   * Run `yarn build` to produce minified version of RBAC.
 
 2. Development mode
-  * Having all the dependencies installed run `yarn dev`. This command will generate an non-minified version of your library and will run a watcher so you get the compilation on file change.
+  * Having all the dependencies installed run `yarn dev`. This command will generate a non-minified version of your library and will run a watcher so you get the compilation on file change.
 
 3. Running the tests
   * Run `yarn test` 

@@ -1,12 +1,12 @@
 {
   "name": "@rbac/rbac",
   "version": "1.1.0",
-  "description": "Blazzing Fast, Zero dependency, Hierarchical Role-Based Access Control for Node.js",
+  "description": "Blazing Fast, Zero dependency, Hierarchical Role-Based Access Control for Node.js",
   "main": "lib/@rbac/rbac.min.js",
   "scripts": {
     "build": "webpack --env dev && webpack --env build && npm run test",
     "dev": "webpack --progress --colors --watch --env dev",
-    "record": "node -r @babel/register ./record/index.js",
+    "examples": "node -r @babel/register ./examples/index.js",
     "test": "NODE_ENV=test mocha --require @babel/register --colors ./test/*.spec.js",
     "test:watch": "NODE_ENV=test mocha --require @babel/register --colors -w ./test/*.spec.js"
   },

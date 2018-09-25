@@ -1,3 +1,6 @@
+`./configuredRBAC.js`:
+
+```javascript
 import rbac from '@rbac/rbac';
 
 const rbacConfig = {
@@ -5,8 +8,12 @@ const rbacConfig = {
 };
 
 export const configuredRBAC = rbac(rbacConfig);
+```
 
-import configuredRBAC from '../your/folder/location';
+`./RBAC.js`:
+
+```javascript
+import configuredRBAC from './configuredRBAC';
 
 const roles = {
   user: {
@@ -26,9 +33,12 @@ const roles = {
 };
 
 export const RBAC = configuredRBAC(roles);
+```
 
+`./example.js`:
 
-import RBAC from '../your/configured-rbac/folder/location';
+```javascript
+import RBAC from './RBAC';
 
 const myUser = {
   name: 'John Doe',
@@ -47,4 +57,4 @@ RBAC.can(myUser.role, 'products:find')
  .catch(error => {
    somethingWentWrong();
  });
-
+```
