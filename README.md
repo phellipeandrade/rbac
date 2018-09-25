@@ -13,7 +13,7 @@
 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=checkout%20RBAC%20project%20on%20Github!&url=https://github.com/phellipeandrade/rbac&hashtags=rbac,authorization,privacy,security,permission)
 
 
-* ⏱ LightWeight
+* ⏱ Lightweight
 * 🔥 Blazing Fast
 * ⚡️️ Zero dependency
 
@@ -85,7 +85,7 @@ const roles = {
 | Second 	| **String**, **Glob (Wildcard)**, **Regex**     | ```'products:find'```    	| Operation to validate                                          	|
 | Third  	| **Any**     	                                 | ```{registered: true}``` 	| **Optional** Params that will flow to "when" callback Function 	|
 
-Want more? checkout [examples](examples/) folder.
+Want more? Check out the [examples](examples/) folder.
 
 ## Roadmap
 
