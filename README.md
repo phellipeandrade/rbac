@@ -24,6 +24,13 @@
 * Each role is given specific access rights for every operation
 * High granularity in assigning rights
 
+## Thanks
+
+  This project scaffold was built with a modified version of [webpack-library-starter](https://github.com/krasimir/webpack-library-starter)
+
+  Thanks to Karl Düüna ([DeadAlready](https://github.com/DeadAlready)) and his awesome [post on medium](https://blog.nodeswat.com/implement-access-control-in-node-js-8567e7b484d1)
+  
+  
 ## Getting Started
 
 #### Install 
@@ -116,9 +123,3 @@ Want more? Check out the [examples](examples/) folder.
 ## License
 
 This project is under MIT License [https://opensource.org/licenses/MIT]
-
-## Thanks
-
-  This project scaffold was built with a modified version of [webpack-library-starter](https://github.com/krasimir/webpack-library-starter)
-
-  Thanks to Karl Düüna ([DeadAlready](https://github.com/DeadAlready)) and his awesome [post on medium](https://blog.nodeswat.com/implement-access-control-in-node-js-8567e7b484d1)
