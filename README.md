@@ -59,9 +59,9 @@ RBAC expects an object with roles as property names.
 
 | Property 	| Type         	| Example                                        	| Description                                                                                                                                                                  	|
 |----------	|--------------	|------------------------------------------------	|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
-| can      	| **Array**    	| ```['products:*']```                        	| Array of strings, list of operations that user can do, since 1.1.0 also support glob                                                                                            |
-| when     	| **Boolean**  	| ```(params , done ) =>  done (null , true )``` 	| **Optional** Promise that should resolve in Truthy or Falsy or  Callback function that receives params and done as properties, should return done passing errors, and result 	|
-| inherits 	| **Array**    	| ```['user']```                                 	| **Optional** Array of strings, list of roles inherited by this role                                                                                                               	|
+| can      	| **Array**    	            | ```['products:*']```                        	| Array of strings, list of operations that user can do, since 1.1.0 also support glob                                                                                            |
+| when     	| **Function or Promise**  	| ```(params , done ) =>  done (null , true )``` 	| **Optional** Promise that should resolve in Truthy or Falsy or  Callback function that receives params and done as properties, should return done passing errors, and result 	|
+| inherits 	| **Array**    	            | ```['user']```                                 	| **Optional** Array of strings, list of roles inherited by this role                                                                                                               	|
 
 ###### IMPORTANT! **"when"** property should be either a Callback function that receives params and done or a Promise that should resolve in [Truthy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy) or [Falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) values. Example: 
 
