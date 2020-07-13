@@ -18,7 +18,7 @@ if (env === 'build') {
 
 const config = {
   mode: mode,
-  entry: __dirname + '/src/index.js',
+  entry: __dirname + '/src/index.ts',
   devtool: 'source-map',
   output: {
     path: __dirname + '/lib',
@@ -39,12 +39,17 @@ const config = {
         test: /(\.jsx|\.js)$/,
         loader: 'eslint-loader',
         exclude: /node_modules/
+      },
+      {
+        test: /(\.tsx|\.ts)$/,
+        loader: 'ts-loader',
+        exclude: /node_modules/
       }
     ]
   },
   resolve: {
     modules: [path.resolve('./node_modules'), path.resolve('./src')],
-    extensions: ['.json', '.js']
+    extensions: ['.json', '.js', '.ts']
   }
 };
 
