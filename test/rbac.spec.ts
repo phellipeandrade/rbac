@@ -3,26 +3,27 @@
 import chai from 'chai';
 import rbac from '../lib/@rbac/rbac.min';
 
-chai.expect();
-
 const expect = chai.expect;
 
-const belongsToAccount = (params, done) => done(null, params);
+
+const belongsToAccount = (params: any, done: (err: Error | null, result: boolean) => void): void => {
+  done(null, true);
+};
 
 const PromisebelongsToAccount = new Promise((resolve) => {
   resolve(true);
 });
 
-const defaultRoles = {
+const defaultRoles: Record<string, any> = {
   user: {
     can: ['products:find']
   },
   supervisor: {
-    can: [{name: 'products:edit', when: PromisebelongsToAccount }],
+    can: [{ name: 'products:edit', when: PromisebelongsToAccount }],
     inherits: ['user']
   },
   admin: {
-    can: [{name: 'products:delete', when: belongsToAccount }],
+    can: [{ name: 'products:delete', when: belongsToAccount }],
     inherits: ['supervisor']
   },
   superadmin: {
@@ -32,7 +33,6 @@ const defaultRoles = {
     can: ['products:*']
   }
 };
-
 describe('RBAC lib aspects', () => {
   it('RBAC config should be a function', () => {
     expect(rbac).to.be.a('function');

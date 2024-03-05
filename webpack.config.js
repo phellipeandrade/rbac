@@ -1,14 +1,16 @@
-/* global __dirname, require, module*/
+/* global __dirname, require, module */
 
 const path = require('path');
-const env = require('yargs').argv.env; // use --env with webpack 2
+const { argv } = require('yargs');
+const ESLintPlugin = require('eslint-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const pkg = require('./package.json');
 
 let libraryName = pkg.name;
 
 let outputFile, mode;
 
-if (env === 'build') {
+if (argv.env === 'build') {
   mode = 'production';
   outputFile = libraryName + '.min.js';
 } else {
@@ -18,10 +20,10 @@ if (env === 'build') {
 
 const config = {
   mode: mode,
-  entry: __dirname + '/src/index.js',
+  entry: path.join(__dirname, '/src/index.ts'), // Adjust according to your entry file
   devtool: 'source-map',
   output: {
-    path: __dirname + '/lib',
+    path: path.join(__dirname, '/lib'),
     filename: outputFile,
     library: libraryName,
     libraryTarget: 'umd',
@@ -31,20 +33,35 @@ const config = {
   module: {
     rules: [
       {
-        test: /(\.jsx|\.js)$/,
-        loader: 'babel-loader',
-        exclude: /(node_modules|bower_components)/
+        test: /(\.tsx|\.ts)$/,
+        use: 'ts-loader',
+        exclude: /node_modules/
       },
       {
         test: /(\.jsx|\.js)$/,
-        loader: 'eslint-loader',
-        exclude: /node_modules/
+        loader: 'babel-loader',
+        exclude: /(node_modules|bower_components)/
       }
     ]
   },
+  plugins: [
+    new ESLintPlugin({
+      extensions: ['js', 'jsx', 'ts', 'tsx']
+    })
+  ],
   resolve: {
     modules: [path.resolve('./node_modules'), path.resolve('./src')],
-    extensions: ['.json', '.js']
+    extensions: ['.ts', '.tsx', '.js']
+  },
+  optimization: {
+    minimize: mode === 'production',
+    minimizer: [new TerserPlugin({
+      terserOptions: {
+        format: {
+          comments: false
+        }
+      }
+    })]
   }
 };
 

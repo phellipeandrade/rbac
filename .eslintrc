@@ -3,29 +3,38 @@
   "env": {
     "browser": true,
     "es6": true,
-    "node": true
+    "node": true,
+    "mocha": true
   },
 
   "globals": {
-    "document": false,
-    "escape": false,
-    "navigator": false,
-    "unescape": false,
-    "window": false,
-    "describe": true,
-    "before": true,
-    "it": true,
-    "expect": true,
-    "sinon": true
+    "document": "readonly",
+    "escape": "readonly",
+    "navigator": "readonly",
+    "unescape": "readonly",
+    "window": "readonly",
+    "sinon": "readonly"
   },
 
-  "parser": "babel-eslint",
-
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
   "plugins": [
-    
+    "@typescript-eslint",
+    "prettier"
   ],
 
   "rules": {
+    "prettier/prettier": "error",
     "block-scoped-var": 2,
     "brace-style": [2, "1tbs", { "allowSingleLine": true }],
     "camelcase": [2, { "properties": "always" }],

@@ -3,12 +3,15 @@
   "version": "1.1.0",
   "description": "Blazing Fast, Zero dependency, Hierarchical Role-Based Access Control for Node.js",
   "main": "lib/@rbac/rbac.min.js",
+  "types": "lib/@rbac/rbac.min.ts",
   "scripts": {
-    "build": "webpack --env dev && webpack --env build && npm run test",
+    "build": "tsc && webpack --env build",
     "dev": "webpack --progress --colors --watch --env dev",
+    "lint": "eslint --fix src",
     "examples": "node -r @babel/register ./examples/index.js",
-    "test": "NODE_ENV=test mocha --require @babel/register --colors ./test/*.spec.js",
-    "test:watch": "NODE_ENV=test mocha --require @babel/register --colors -w ./test/*.spec.js"
+    "prettify": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
+    "test": "NODE_ENV=test mocha -r ts-node/register --colors ./test/*.spec.ts",
+    "test:watch": "NODE_ENV=test mocha --require ts-node/register --colors -w ./test/*.spec.ts"
   },
   "repository": {
     "type": "git",
@@ -31,25 +34,30 @@
   },
   "homepage": "https://github.com/phellipeandrade/rbac",
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.51",
-    "@babel/core": "^7.0.0-beta.51",
-    "@babel/plugin-transform-runtime": "^7.0.0-rc.1",
-    "@babel/preset-env": "^7.0.0-beta.51",
+    "@babel/core": "^7.24.0",
+    "@babel/eslint-parser": "^7.23.10",
     "@babel/register": "^7.0.0-beta.51",
-    "@babel/runtime": "^7.0.0-rc.1",
-    "babel-eslint": "^8.0.3",
-    "babel-loader": "^8.0.0-beta.4",
-    "babel-plugin-add-module-exports": "^0.2.1",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "chai": "^4.1.2",
-    "eslint": "^5.0.1",
-    "eslint-loader": "^2.0.0",
-    "jsdom": "11.11.0",
+    "@types/mocha": "^10.0.6",
+    "@typescript-eslint/eslint-plugin": "^7.1.1",
+    "@typescript-eslint/parser": "^7.1.1",
+    "chai": "^5.1.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-webpack-plugin": "^4.0.1",
+    "jsdom": "24.0.0",
     "jsdom-global": "3.0.2",
-    "mocha": "^4.0.1",
-    "uglifyjs-webpack-plugin": "^1.2.7",
-    "webpack": "^4.12.2",
-    "webpack-cli": "^3.0.8",
-    "yargs": "^10.0.3"
+    "mocha": "^10.3.0",
+    "prettier": "^3.2.5",
+    "terser-webpack-plugin": "^5.3.10",
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4",
+    "yargs": "^17.7.2"
+  },
+  "dependencies": {
+    "@types/node": "^20.11.24",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   }
 }
