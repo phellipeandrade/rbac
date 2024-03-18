@@ -1,48 +1,57 @@
+/* eslint-disable no-promise-executor-return */
+
 import {
-  isFunction,
-  isPromise,
-  isString,
-  isGlob,
-  globToRegex,
   checkRegex,
   defaultLogger,
-  validators,
-  regexFromOperation,
   globsFromFoundedRole,
+  globToRegex,
+  isFunction,
+  isGlob,
+  isPromise,
+  isString,
+  regexFromOperation,
+  validators,
 } from './helpers';
 
-interface OperationDefinition {
+type Operation = string;
+
+type Params = unknown; // Replace with a more specific type if known
+
+type DoneFunction = (error: Error | null, result: boolean) => void;
+
+type WhenFunction = (params: Params, done: DoneFunction) => void;
+
+type RoleCan = {
   name: string;
-  when:
-    | boolean
-    | ((
-        params?: any,
-        callback?: (err: Error | null, result: boolean) => void
-      ) => void)
-    | Promise<boolean>;
-}
+  when: boolean | WhenFunction | Promise<boolean>;
+};
 
-interface RoleDefinition {
-  can: {
-    [operation: string]:
-      | boolean
-      | ((
-          params?: any,
-          callback?: (err: Error | null, result: boolean) => void
-        ) => void)
-      | Promise<boolean>;
-  };
+type Role = {
+  can: Array<Operation | RoleCan>;
   inherits?: string[];
-}
+};
 
-interface Roles {
-  [role: string]: RoleDefinition;
-}
+type Roles = {
+  [roleName: string]: Role;
+};
 
-interface Config {
-  logger?: (role: string, operation: string, result: boolean) => void;
+type LoggerFunction = (
+  role: string,
+  operation: string,
+  result: boolean
+) => void;
+
+type Config = {
+  logger?: LoggerFunction;
   enableLogger?: boolean;
+};
+
+interface IRBAC {
+  can(role: string, operation: string, params?: Params): Promise<boolean>;
 }
+
+const isRoleCan = (item: Operation | RoleCan): item is RoleCan =>
+  typeof item !== 'string';
 
 const can =
   (
@@ -52,136 +61,155 @@ const can =
     }
   ) =>
   (mappedRoles: Roles) =>
-  (role: string, operation: string, params?: any): Promise<boolean> =>
+  (role: string, operation: string, params?: Params): Promise<boolean> =>
     new Promise((resolve, reject) => {
       const foundedRole = mappedRoles[role];
       const regexOperation = regexFromOperation(operation);
       const isGlobOperation = isGlob(operation);
-      const matchOperationFromCan = foundedRole?.can[operation];
 
       validators.role(role);
       validators.operation(operation);
       validators.foundedRole(foundedRole);
 
-      const resolvePromise = (role: string, result: boolean) => {
-        if (config.enableLogger)
-          (config.logger || defaultLogger)(role, operation, result);
+      const resolvePromise = (innerRole: string, result: boolean) => {
+        if (config.enableLogger && config.logger) {
+          config.logger(innerRole, operation, result);
+        }
         return resolve(result);
       };
 
-      if (isString(operation) && matchOperationFromCan === true) {
-        return resolvePromise(role, true);
-      }
-
-      const resolveInherits = (inherits?: string[]) =>
-        inherits
-          ? Promise.all(
-              inherits.map(parent =>
-                can({ enableLogger: false })(mappedRoles)(
-                  parent,
-                  operation,
-                  params
-                )
-              )
-            )
-              .then(result => resolvePromise(role, result.includes(true)))
-              .catch(() => resolvePromise(role, false))
-          : resolvePromise(role, false);
-
-      const resolveResult = (result: boolean) =>
-        result
-          ? resolvePromise(role, Boolean(result))
-          : resolveInherits(foundedRole.inherits);
-
-      const resolveWhen = (
-        when:
-          | boolean
-          | ((
-              params?: any,
-              callback?: (err: Error | null, result: boolean) => void
-            ) => void)
-          | Promise<boolean>
-      ) => {
+      const resolveWhen = (when: boolean | WhenFunction | Promise<boolean>) => {
         if (when === true) {
           return resolvePromise(role, true);
         }
         if (isPromise(when)) {
           return when
-            .then(result => resolveResult(result))
+            .then(result => resolvePromise(role, result))
             .catch(() => resolvePromise(role, false));
         }
         if (isFunction(when)) {
-          return when(params, (err, result) => {
-            if (err) return reject(err);
-            return resolveResult(result);
-          });
+          return (when as WhenFunction)(
+            params,
+            (err: Error | null, result: boolean) => {
+              if (err) return reject(err);
+              return resolvePromise(role, result);
+            }
+          );
         }
         return resolvePromise(role, false);
       };
 
+      if (isString(operation)) {
+        const matchOperationFromCan = foundedRole?.can.find(op =>
+          isRoleCan(op) ? op.name === operation : op === operation
+        );
+
+        if (matchOperationFromCan) {
+          if (typeof matchOperationFromCan === 'string') {
+            return resolvePromise(role, true);
+          }
+          if (isRoleCan(matchOperationFromCan)) {
+            return resolveWhen(matchOperationFromCan.when);
+          }
+        }
+      }
+
       if (regexOperation || isGlobOperation) {
+        const canRecord: Record<
+          string,
+          boolean | WhenFunction | Promise<boolean>
+        > = {};
+
+        foundedRole?.can.forEach(item => {
+          if (typeof item === 'string') {
+            canRecord[item] = true;
+          } else {
+            canRecord[item.name] = item.when;
+          }
+        });
+
         return resolvePromise(
           role,
           checkRegex(
             isGlobOperation
               ? globToRegex(operation)
               : (regexOperation as RegExp),
-            foundedRole.can
+            canRecord
           )
         );
       }
 
-      if (Object.keys(foundedRole.can).some(isGlob)) {
-        const matchOperation = globsFromFoundedRole(foundedRole.can).find(x =>
+      if (foundedRole && Object.keys(foundedRole.can).some(isGlob)) {
+        const canRecord: Record<
+          string,
+          boolean | WhenFunction | Promise<boolean>
+        > = {};
+
+        foundedRole.can.forEach(item => {
+          if (typeof item === 'string') {
+            canRecord[item] = true;
+          } else {
+            canRecord[item.name] = item.when;
+          }
+        });
+
+        const matchOperation = globsFromFoundedRole(canRecord).find(x =>
           x.regex.test(operation)
         );
-        if (matchOperation) return resolveWhen(matchOperation.when);
+
+        if (matchOperation) {
+          const when = matchOperation.when;
+
+          if (
+            typeof when === 'boolean' ||
+            isFunction(when) ||
+            isPromise(when)
+          ) {
+            return resolveWhen(when);
+          }
+        }
       }
 
-      if (!matchOperationFromCan) {
-        if (!foundedRole.inherits) return resolvePromise(role, false);
-        return resolveInherits(foundedRole.inherits);
-      }
-
-      return resolveWhen(matchOperationFromCan);
+      return foundedRole?.inherits
+        ? Promise.all(
+            foundedRole.inherits.map(inheritRole =>
+              can({ enableLogger: false })(mappedRoles)(
+                inheritRole,
+                operation,
+                params
+              )
+            )
+          )
+            .then(results =>
+              resolvePromise(
+                role,
+                results.some(result => result)
+              )
+            )
+            .catch(() => resolvePromise(role, false))
+        : resolvePromise(role, false);
     });
 
-const roleCanMap = (roleCan: {
-  [operation: string]:
-    | boolean
-    | ((
-        params?: any,
-        callback?: (err: Error | null, result: boolean) => void
-      ) => void)
-    | Promise<boolean>;
-}): OperationDefinition[] => {
-  return Object.entries(roleCan).map(([name, when]): OperationDefinition => {
-    return { name, when };
-  });
+const RBAC = (config?: Config): ((roles: Roles) => IRBAC) => {
+  return (roles: Roles) => {
+    validators.roles(roles);
+    return {
+      can: can(config)(roles),
+    };
+  };
 };
-
-const mapRoles = (roles: Roles): { [roleName: string]: RoleDefinition } => {
-  validators.roles(roles);
-  return Object.entries(roles).reduce(
-    (acc, [roleName, roleValue]) => ({
-      ...acc,
-      [roleName]: {
-        can: roleCanMap(roleValue.can),
-        inherits: roleValue.inherits,
-      },
-    }),
-    {}
-  );
-};
-
-const RBAC =
-  (config: Config) =>
-  (
-    roles: Roles
-  ): {
-    can: (role: string, operation: string, params?: any) => Promise<boolean>;
-  } => ({
-    can: can(config)(mapRoles(roles)),
-  });
 
 export default RBAC;
+
+export type {
+  Config,
+  DoneFunction,
+  IRBAC,
+  LoggerFunction,
+  Operation,
+  Params,
+  Role,
+  RoleCan,
+  Roles,
+  WhenFunction,
+};

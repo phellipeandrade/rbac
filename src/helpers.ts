@@ -1,25 +1,33 @@
+/* eslint-disable no-console */
 // Define types for your utility functions and other constructs
 
-type Predicate<T> = (value: any) => value is T;
+type Predicate<T> = (value: unknown) => value is T;
 
-const is = (value: any, expectedType: string): boolean =>
+const is = <T>(value: T, expectedType: string): boolean =>
   Object.prototype.toString.call(value) === expectedType;
 
-export const isRegex: Predicate<RegExp> = (value): value is RegExp =>
+export const isRegex: Predicate<string | RegExp> = (value): value is RegExp =>
   value instanceof RegExp;
 
 export const isGlob: Predicate<string> = (value): value is string =>
   typeof value === 'string' && value.includes('*');
 
-export const isPromise: Predicate<Promise<any>> = (
+export const isPromise: Predicate<Promise<unknown>> = (
   value
-): value is Promise<any> => is(value, '[object Promise]');
-export const isFunction: Predicate<Function> = (value): value is Function =>
-  is(value, '[object Function]');
+): value is Promise<unknown> => is(value, '[object Promise]');
+
+export const isFunction: Predicate<(...args: unknown[]) => unknown> = (
+  value
+): value is (...args: unknown[]) => unknown => is(value, '[object Function]');
+
 export const isString: Predicate<string> = (value): value is string =>
   is(value, '[object String]');
 
-const globPatterns: { [key: string]: string } = {
+interface GlobPatterns {
+  [key: string]: string;
+}
+
+const globPatterns: GlobPatterns = {
   '*': '([^/]+)',
   '**': '(.+/)?([^/]+)',
   '**/': '(.+/)?',
@@ -32,13 +40,10 @@ const replaceGlobToRegex = (glob: string): string =>
     .replace(/(?:\*\*\/|\*\*|\*)/g, str => globPatterns[str] || str);
 
 const joinGlobs = (globs: string[]): string =>
-  '((' + globs.map(replaceGlobToRegex).join(')|(') + '))';
-
-const arraySequence = (n: number): undefined[] =>
-  Array.from({ length: n }, () => undefined);
+  `((${globs.map(replaceGlobToRegex).join(')|(')}))`;
 
 export const underline = (): string =>
-  arraySequence(process.stdout.columns - 1).reduce(acc => `${acc}-`, '');
+  Array.from({ length: process.stdout.columns - 1 }, () => '-').join('');
 
 export const defaultLogger = (
   role: string,
@@ -65,7 +70,7 @@ export const validators = {
       throw new TypeError('Expected first parameter to be a string : role');
     }
   },
-  roles: (roles: object): void => {
+  roles: (roles: Record<string, unknown>): void => {
     if (typeof roles !== 'object') {
       throw new TypeError('Expected an object as input');
     }
@@ -77,7 +82,7 @@ export const validators = {
       );
     }
   },
-  foundedRole: (foundedRole: any): void => {
+  foundedRole: (foundedRole: unknown): void => {
     if (!foundedRole) {
       throw new Error('Undefined role');
     }
@@ -85,40 +90,60 @@ export const validators = {
 };
 
 export const regexFromOperation = (value: string | RegExp): RegExp | null => {
-  if (isRegex(value)) return value;
-  try {
-    const flags = value.replace(/.*\/([gimy]*)$/, '$1');
-    const pattern = value.replace(new RegExp('^/(.*?)/' + flags + '$'), '$1');
-    return new RegExp(pattern, flags);
-  } catch (e) {
-    return null;
+  // If the value is already a RegExp, return it directly.
+  if (value instanceof RegExp) {
+    return value;
   }
+
+  // If the value is a string, process it to potentially create a RegExp.
+  if (typeof value === 'string') {
+    try {
+      // Check if the string is in RegExp literal format, e.g., "/pattern/flags"
+      if (value.startsWith('/') && value.lastIndexOf('/') > 0) {
+        const lastSlashIndex = value.lastIndexOf('/');
+        const pattern = value.substring(1, lastSlashIndex);
+        const flags = value.substring(lastSlashIndex + 1);
+        return new RegExp(pattern, flags);
+      } else {
+        // Treat as a regular string
+        return new RegExp(value);
+      }
+    } catch (e) {
+      console.error('Failed to create RegExp from string:', e);
+      return null;
+    }
+  }
+
+  // Log an error if the value is neither a string nor a RegExp
+  console.error('Invalid input type for regexFromOperation:', typeof value);
+  return null;
 };
 
 export const globToRegex = (glob: string | string[]): RegExp =>
   new RegExp(
-    '^' +
-      (Array.isArray(glob)
+    `^${
+      Array.isArray(glob)
         ? joinGlobs(glob as string[])
-        : replaceGlobToRegex(glob as string)) +
-      '$'
+        : replaceGlobToRegex(glob as string)
+    }$`
   );
 
 export const checkRegex = (
   regex: RegExp,
-  can: { [operation: string]: any }
+  can: Record<string, unknown>
 ): boolean => Object.keys(can).some(operation => regex.test(operation));
 
-export const globsFromFoundedRole = (can: {
-  [operation: string]: any;
-}): Array<{ role: string; regex: RegExp; when: any }> =>
+type OperationItem = {
+  role: string;
+  regex: RegExp;
+  when: unknown;
+};
+
+export const globsFromFoundedRole = (
+  can: Record<string, unknown>
+): OperationItem[] =>
   Object.keys(can)
-    .map(
-      role =>
-        isGlob(role) && {
-          role,
-          regex: globToRegex(role),
-          when: can[role],
-        }
+    .map(role =>
+      isGlob(role) ? { role, regex: globToRegex(role), when: can[role] } : null
     )
-    .filter(Boolean);
+    .filter((item): item is OperationItem => item !== null);
