@@ -5,13 +5,13 @@
   "main": "lib/@rbac/rbac.min.js",
   "types": "lib/@rbac/rbac.min.ts",
   "scripts": {
-    "build": "tsc && webpack --env build",
+    "build": "tsc &amp;&amp; webpack --env build",
     "dev": "webpack --progress --colors --watch --env dev",
     "lint": "eslint --fix src",
     "examples": "node -r @babel/register ./examples/index.js",
     "prettify": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
-    "test": "NODE_ENV=test mocha -r ts-node/register --colors ./test/*.spec.ts",
-    "test:watch": "NODE_ENV=test mocha --require ts-node/register --colors -w ./test/*.spec.ts"
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "repository": {
     "type": "git",
@@ -37,6 +37,7 @@
     "@babel/core": "^7.24.0",
     "@babel/eslint-parser": "^7.23.10",
     "@babel/register": "^7.0.0-beta.51",
+    "@types/chai": "^4.3.16",
     "@types/mocha": "^10.0.6",
     "@typescript-eslint/eslint-plugin": "^7.1.1",
     "@typescript-eslint/parser": "^7.1.1",
@@ -50,14 +51,15 @@
     "mocha": "^10.3.0",
     "prettier": "^3.2.5",
     "terser-webpack-plugin": "^5.3.10",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.10.4",
+    "typescript": "^5.4.5",
     "webpack": "^5.90.3",
     "webpack-cli": "^5.1.4",
     "yargs": "^17.7.2"
   },
   "dependencies": {
     "@types/node": "^20.11.24",
-    "ts-loader": "^9.5.1",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "ts-loader": "^9.5.1"
   }
 }

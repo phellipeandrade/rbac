@@ -27,7 +27,7 @@ const config = {
     filename: outputFile,
     library: libraryName,
     libraryTarget: 'umd',
-    umdNamedDefine: true
+    umdNamedDefine: true,
   },
   target: 'node',
   module: {
@@ -35,34 +35,36 @@ const config = {
       {
         test: /(\.tsx|\.ts)$/,
         use: 'ts-loader',
-        exclude: /node_modules/
+        exclude: /node_modules/,
       },
       {
         test: /(\.jsx|\.js)$/,
         loader: 'babel-loader',
-        exclude: /(node_modules|bower_components)/
-      }
-    ]
+        exclude: /(node_modules|bower_components)/,
+      },
+    ],
   },
   plugins: [
     new ESLintPlugin({
-      extensions: ['js', 'jsx', 'ts', 'tsx']
-    })
+      extensions: ['js', 'jsx', 'ts', 'tsx'],
+    }),
   ],
   resolve: {
     modules: [path.resolve('./node_modules'), path.resolve('./src')],
-    extensions: ['.ts', '.tsx', '.js']
+    extensions: ['.ts', '.tsx', '.js'],
   },
   optimization: {
     minimize: mode === 'production',
-    minimizer: [new TerserPlugin({
-      terserOptions: {
-        format: {
-          comments: false
-        }
-      }
-    })]
-  }
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          format: {
+            comments: false,
+          },
+        },
+      }),
+    ],
+  },
 };
 
 module.exports = config;
