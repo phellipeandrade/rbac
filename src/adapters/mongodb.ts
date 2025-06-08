@@ -1,4 +1,14 @@
-const { MongoClient } = require('mongodb');
+let MongoClient: any;
+function loadMongoClient() {
+  if (!MongoClient) {
+    try {
+      MongoClient = require('mongodb').MongoClient;
+    } catch (err) {
+      throw new Error('Please install "mongodb" to use MongoRoleAdapter');
+    }
+  }
+  return MongoClient;
+}
 import type { Role, Roles } from '../types';
 import type { RoleAdapter } from './adapter';
 
@@ -13,7 +23,8 @@ export class MongoRoleAdapter<P = unknown> implements RoleAdapter<P> {
   private db?: any;
   private collectionName: string;
   constructor(private options: MongoAdapterOptions) {
-    this.client = new MongoClient(options.uri);
+    const Mongo = loadMongoClient();
+    this.client = new Mongo(options.uri);
     this.collectionName = options.collection;
   }
 

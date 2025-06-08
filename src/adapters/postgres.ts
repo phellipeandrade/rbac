@@ -1,4 +1,14 @@
-const { Client } = require('pg');
+let PG: any;
+function loadPG() {
+  if (!PG) {
+    try {
+      PG = require('pg');
+    } catch (err) {
+      throw new Error('Please install "pg" to use PostgresRoleAdapter');
+    }
+  }
+  return PG;
+}
 import type { Role, Roles } from '../types';
 import type { RoleAdapter } from './adapter';
 
@@ -11,6 +21,7 @@ export class PostgresRoleAdapter<P = unknown> implements RoleAdapter<P> {
   private client: any;
   private connected = false;
   constructor(private options: PostgresAdapterOptions) {
+    const { Client } = loadPG();
     this.client = new Client(options);
   }
 
