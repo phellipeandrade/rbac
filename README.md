@@ -26,7 +26,7 @@
 
 ## Thanks
 
-  This project scaffold was built with a modified version of [webpack-library-starter](https://github.com/krasimir/webpack-library-starter)
+  This project scaffold was initially based on [webpack-library-starter](https://github.com/krasimir/webpack-library-starter) and now uses **Vite** to generate the bundled output
 
   Thanks to Karl Düüna ([DeadAlready](https://github.com/DeadAlready)) and his awesome [post on medium](https://blog.nodeswat.com/implement-access-control-in-node-js-8567e7b484d1)
   
@@ -109,7 +109,7 @@ Want more? Check out the [examples](examples/) folder.
 
 1. Build RBAC
   * Run `npm install` (or `yarn install`) to get RBAC's dependencies
-  * Run `npm run build` to compile the library and produce the minified bundle.
+  * Run `npm run build` to compile the library and produce the minified bundle using Vite
 
 2. Development mode
   * Having all the dependencies installed run `yarn dev`. This command will generate a non-minified version of your library and will run a watcher so you get the compilation on file change.
@@ -118,7 +118,7 @@ Want more? Check out the [examples](examples/) folder.
   * Run `yarn test` 
 
 4. Scripts
-* `npm run build` - produces production version of your library under the `lib` folder and generates `lib/@rbac/rbac.min.js`
+* `npm run build` - produces production version of your library under the `lib` folder and generates `lib/@rbac/rbac.min.js` via Vite
 * `npm run dev` - produces development version of your library and runs a watcher
 * `npm test` - well ... it runs the tests :)
 * `npm run test:watch` - same as above but in a watch mode

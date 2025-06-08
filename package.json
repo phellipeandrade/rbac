@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "tsc && webpack --env build && npm run test",
+    "build": "tsc && vite build && npm run test",
     "dev": "tsc -w",
     "examples": "node -r @babel/register ./examples/index.js",
     "test": "NODE_ENV=test mocha --require @babel/register --colors ./test/*.spec.js",
@@ -40,19 +40,14 @@
     "@babel/runtime": "^7.0.0-rc.1",
     "@types/node": "^22.15.30",
     "babel-eslint": "^8.0.3",
-    "babel-loader": "^8.0.0-beta.4",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-transform-runtime": "^6.23.0",
     "chai": "^4.1.2",
     "eslint": "^5.0.1",
-    "eslint-loader": "^2.0.0",
     "jsdom": "11.11.0",
     "jsdom-global": "3.0.2",
     "mocha": "^4.0.1",
     "typescript": "^5.8.3",
-    "uglifyjs-webpack-plugin": "^1.2.7",
-    "webpack": "^4.12.2",
-    "webpack-cli": "^3.0.8",
-    "yargs": "^10.0.3"
+    "vite": "^6.3.5"
   }
 }
