@@ -110,26 +110,8 @@ jobs:
 workflows:
   test-workflow:
     jobs:
-      - build:
-          filters:
-            branches:
-              only:
-                - main
-                - master
-                - develop
-                - /feature\/.*/
-                - /hotfix\/.*/
-                - /release\/.*/
+      - build
       - test-npm:
           requires:
             - build
-          filters:
-            branches:
-              only:
-                - main
-                - master
-                - develop
-                - /feature\/.*/
-                - /hotfix\/.*/
-                - /release\/.*/
 
