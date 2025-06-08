@@ -216,6 +216,11 @@ respectively with a similar API.
 - Database adapters
 - Middlewares for Express, NestJS and Fastify
 
+## More Information
+
+- [Migration guide from v1 to v2](docs/migrating-v1-to-v2.md)
+- [Changelog](CHANGELOG.md)
+
 ## Contributing
 
 #### Contributions are welcome!
