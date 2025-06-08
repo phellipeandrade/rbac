@@ -56,10 +56,10 @@ jobs:
     steps:
       - checkout
 
-      # Restore build cache
-      - restore_cache:
-          keys:
-            - v2-build-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "package.json" }}
+      # Always run build first since lib is gitignored
+      - run:
+          name: Build Project
+          command: yarn build
 
       # Install database adapters in main project
       - run:
