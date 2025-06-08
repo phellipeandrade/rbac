@@ -1,4 +1,11 @@
-import * as helpers from './helpers';
+import {
+  defaultLogger,
+  regexFromOperation,
+  isGlob,
+  globToRegex,
+  checkRegex,
+  globsFromFoundedRole
+} from './helpers';
 import type {
   When,
   GlobFromRole,
@@ -12,9 +19,9 @@ import type {
 export type { RBACConfig, Role, Roles } from './types';
 
 const can =
-  <P>(config: RBACConfig = { logger: helpers.defaultLogger, enableLogger: true }) =>
+  <P>(config: RBACConfig = { logger: defaultLogger, enableLogger: true }) =>
   (mappedRoles: MappedRoles<P>) => {
-    const logger = config.logger || helpers.defaultLogger;
+    const logger = config.logger || defaultLogger;
 
     const log = (
       roleName: string,
@@ -36,23 +43,24 @@ const can =
     ): Promise<boolean> => {
       const foundedRole = mappedRoles[role];
 
-      helpers.validators.role(role);
-      helpers.validators.operation(operation);
-      helpers.validators.foundedRole(foundedRole);
+      if (!foundedRole) {
+        return log(role, operation, false, logEnabled);
+      }
+
 
       const direct = foundedRole.can[operation as string];
-      const regexOperation = helpers.regexFromOperation(operation);
-      const isGlobOperation = helpers.isGlob(operation);
+      const regexOperation = regexFromOperation(operation);
+      const isGlobOperation = isGlob(operation);
 
-      if (helpers.isString(operation) && direct === true) {
+      if (typeof operation === 'string' && direct === true) {
         return log(role, operation, true, logEnabled);
       }
 
       if (regexOperation || isGlobOperation) {
         const regex = isGlobOperation
-          ? helpers.globToRegex(operation as string)
+          ? globToRegex(operation as string)
           : (regexOperation as RegExp);
-        return log(role, operation, helpers.checkRegex(regex, foundedRole.can), logEnabled);
+        return log(role, operation, checkRegex(regex, foundedRole.can), logEnabled);
       }
 
       const matchGlob = foundedRole.globs.find(g => g.regex.test(String(operation)));
@@ -69,7 +77,7 @@ const can =
       async function evaluateWhen(when: When<P> | true | undefined): Promise<boolean> {
         if (when === true) return log(role, operation, true, logEnabled);
 
-        if (helpers.isFunction(when)) {
+        if (typeof when === 'function') {
           if ((when as Function).length >= 2) {
             return new Promise<boolean>((resolve, reject) => {
               (when as any)(params, (err: unknown, result?: boolean) => {
@@ -83,14 +91,14 @@ const can =
 
           try {
             const res = (when as any)(params);
-            const final = helpers.isPromise(res) ? await res : res;
+            const final = res instanceof Promise ? await res : res;
             return final ? log(role, operation, Boolean(final), logEnabled) : checkInherits();
           } catch {
             return log(role, operation, false, logEnabled);
           }
         }
 
-        if (helpers.isPromise(when)) {
+        if (when instanceof Promise) {
           try {
             const res = await when;
             return res ? log(role, operation, Boolean(res), logEnabled) : checkInherits();
@@ -116,29 +124,22 @@ const can =
   };
 
 const roleCanMap = <P>(roleCan: Role<P>['can']): Record<string, When<P> | true> =>
-  roleCan.reduce<Record<string, When<P> | true>>(
-    (acc, operation) =>
-      typeof operation === 'string'
-        ? { ...acc, [operation]: true }
-        : { ...acc, [operation.name]: operation.when },
-    {}
+  Object.fromEntries(
+    roleCan.map(op =>
+      typeof op === 'string' ? [op, true] : [op.name, op.when]
+    )
   );
 
-const mapRoles = <P>(roles: Roles<P>): MappedRoles<P> => {
-  helpers.validators.roles(roles);
-  return Object.entries(roles).reduce<MappedRoles<P>>((acc, role) => {
-    const [roleName, roleValue] = role;
-    const mappedCan = roleCanMap(roleValue.can);
-    return {
-      ...acc,
-      [roleName]: {
-        can: mappedCan,
-        inherits: roleValue.inherits,
-        globs: helpers.globsFromFoundedRole(mappedCan)
-      }
-    };
-  }, {} as MappedRoles<P>);
-};
+const mapRoles = <P>(roles: Roles<P>): MappedRoles<P> =>
+  Object.fromEntries(
+    Object.entries(roles).map(([name, role]) => {
+      const can = roleCanMap(role.can);
+      return [
+        name,
+        { can, inherits: role.inherits, globs: globsFromFoundedRole(can) }
+      ];
+    })
+  ) as MappedRoles<P>;
 
 const RBAC =
   <P>(config: RBACConfig = {}) =>
