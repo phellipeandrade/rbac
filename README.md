@@ -30,7 +30,7 @@
 
 ## Thanks
 
-  This project scaffold was initially based on [webpack-library-starter](https://github.com/krasimir/webpack-library-starter) and now uses **Vite** to generate the bundled output
+  This project now uses **Vite** to generate the bundled output
 
   Thanks to Karl Düüna ([DeadAlready](https://github.com/DeadAlready)) and his awesome [post on medium](https://blog.nodeswat.com/implement-access-control-in-node-js-8567e7b484d1)
   
