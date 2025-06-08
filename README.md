@@ -23,6 +23,10 @@
 * Scalable
 * Each role is given specific access rights for every operation
 * High granularity in assigning rights
+* Wildcard and regex support for operations
+* Optional database adapters (MongoDB, MySQL, PostgreSQL)
+* Express, NestJS and Fastify middlewares
+* Roles can be updated at runtime
 
 ## Thanks
 
@@ -172,6 +176,9 @@ respectively with a similar API.
 - [X] Wildcard support
 - [X] Regex support
 - [X] Update roles in runtime
+- [X] Async `when` callbacks
+- [X] Database adapters (MongoDB, MySQL, PostgreSQL)
+- [X] Middlewares for Express, NestJS and Fastify
 
 ## v2.0.0
 
