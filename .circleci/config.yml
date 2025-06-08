@@ -179,4 +179,13 @@ workflows:
                 - /hotfix\/.*/
                 - /release\/.*
 
-    when: on_pull_request
+    when:
+      pull-requests:
+        only: true
+      branches:
+        only:
+          - main
+          - develop
+          - /feature\/.*/
+          - /hotfix\/.*/
+          - /release\/.*/
