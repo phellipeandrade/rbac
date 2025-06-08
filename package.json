@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "tsc && vite build && npm run test",
+    "build": "tsc && vite build",
     "dev": "tsc -w",
     "examples": "node -r ts-node/register ./examples/index.ts",
     "test": "NODE_ENV=test mocha --require @babel/register --colors ./test/*.spec.js",
