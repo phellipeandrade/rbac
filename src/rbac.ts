@@ -1,25 +1,15 @@
 import * as helpers from './helpers';
-import type { When, GlobFromRole } from './helpers';
+import type {
+  When,
+  GlobFromRole,
+  RBACConfig,
+  Role,
+  Roles,
+  MappedRole,
+  MappedRoles
+} from './types';
 
-export interface RBACConfig {
-  logger?: (role: string, operation: string | RegExp, result: boolean) => void;
-  enableLogger?: boolean;
-}
-
-export interface Role<P = unknown> {
-  can: Array<string | { name: string; when: When<P> }>;
-  inherits?: string[];
-}
-
-export type Roles<P = unknown> = Record<string, Role<P>>;
-
-interface MappedRole<P = unknown> {
-  can: Record<string, When<P> | true>;
-  inherits?: string[];
-  globs: GlobFromRole<P>[];
-}
-
-type MappedRoles<P = unknown> = Record<string, MappedRole<P>>;
+export type { RBACConfig, Role, Roles } from './types';
 
 const can =
   <P>(config: RBACConfig = { logger: helpers.defaultLogger, enableLogger: true }) =>

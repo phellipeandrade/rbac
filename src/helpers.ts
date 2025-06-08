@@ -1,3 +1,5 @@
+import type { When, WhenCallback, GlobFromRole } from './types';
+
 const is = (value: unknown, expected: string): boolean =>
   !!value && Object.prototype.toString.call(value) === expected;
 
@@ -93,12 +95,6 @@ export const globToRegex = (glob: string | string[]): RegExp =>
 export const checkRegex = (regex: RegExp, can: Record<string, unknown>): boolean =>
   Object.keys(can).some(operation => regex.test(operation));
 
-export interface GlobFromRole<P = unknown> {
-  role: string;
-  regex: RegExp;
-  when: When<P> | true;
-}
-
 export const globsFromFoundedRole = <P = unknown>(can: Record<string, When<P> | true>): GlobFromRole<P>[] =>
   Object.keys(can)
     .map(role =>
@@ -110,9 +106,4 @@ export const globsFromFoundedRole = <P = unknown>(can: Record<string, When<P> | 
     )
     .filter(Boolean) as GlobFromRole<P>[];
 
-export type WhenCallback<P = unknown> = (
-  params: P,
-  done: (err: unknown, result?: boolean) => void
-) => void;
-
-export type When<P = unknown> = boolean | Promise<boolean> | WhenCallback<P>;
+export type { When, WhenCallback, GlobFromRole } from './types';

@@ -68,19 +68,24 @@ RBAC expects an object with roles as property names.
 
 ###### IMPORTANT! **"when"** property should be either a Callback function that receives params and done or a Promise that should resolve in [Truthy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy) or [Falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) values. Example: 
 
-``` javascript 
+```ts
+import type { Roles } from '@rbac/rbac';
 
-const roles = {
+interface Params {
+  registered: boolean;
+}
+
+const roles: Roles<Params> = {
   supervisor: {
     can: [{ name: 'products:find', when: (params, done) => {
       // done receives error as first argument and Truthy or Falsy value as second argument
-      done(error, false);
+      done(null, params.registered);
     }}]
   },
   admin: {
-    can: [{name: 'products:*', when: new Promise((resolve) => {
+    can: [{ name: 'products:*', when: new Promise((resolve) => {
       resolve(true);
-    })}]
+    }) }]
   }
 };
 

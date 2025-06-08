@@ -1,6 +1,6 @@
-`./configuredRBAC.js`:
+`./configuredRBAC.ts`:
 
-```javascript
+```ts
 import rbac from '@rbac/rbac';
 
 const rbacConfig = {
@@ -10,21 +10,23 @@ const rbacConfig = {
 export const configuredRBAC = rbac(rbacConfig);
 ```
 
-`./RBAC.js`:
+`./RBAC.ts`:
 
-```javascript
+```ts
 import configuredRBAC from './configuredRBAC';
 
-const roles = {
+import type { Roles } from '@rbac/rbac';
+
+const roles: Roles = {
   user: {
     can: ['products:find']
   },
   supervisor: {
-    can: [{name: 'products:find', when: PromiseThatReturnsTruthyOrFalsyValue }],
+    can: [{ name: 'products:find', when: PromiseThatReturnsTruthyOrFalsyValue }],
     inherits: ['user']
   },
   admin: {
-    can: [{name: 'products:delete', when: FunctionThatReturnsTruthyOrFalsyValue }],
+    can: [{ name: 'products:delete', when: FunctionThatReturnsTruthyOrFalsyValue }],
     inherits: ['supervisor']
   },
   superadmin: {
@@ -35,9 +37,9 @@ const roles = {
 export const RBAC = configuredRBAC(roles);
 ```
 
-`./example.js`:
+`./example.ts`:
 
-```javascript
+```ts
 import RBAC from './RBAC';
 
 const myUser = {
@@ -54,7 +56,7 @@ RBAC.can(myUser.role, 'products:find')
  .then(result => {
    doSomething(result);
  })
- .catch(error => {
-   somethingWentWrong();
- });
+  .catch(error => {
+    somethingWentWrong();
+  });
 ```
