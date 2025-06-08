@@ -9,7 +9,8 @@
     "dev": "tsc -w",
     "examples": "node -r @babel/register ./examples/index.js",
     "test": "NODE_ENV=test mocha --require @babel/register --colors ./test/*.spec.js",
-    "test:watch": "NODE_ENV=test mocha --require @babel/register --colors -w ./test/*.spec.js"
+    "test:watch": "NODE_ENV=test mocha --require @babel/register --colors -w ./test/*.spec.js",
+    "test:npm": "cd test/npm-test && npm install && npm test"
   },
   "repository": {
     "type": "git",

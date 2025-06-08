@@ -42,6 +42,31 @@ jobs:
             - dist
           key: v2-build-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "package.json" }}
 
+  test-npm:
+    docker:
+      - image: cimg/node:20.16.0
+    working_directory: ~/rbac
+
+    steps:
+      - checkout
+
+      # Restore build cache
+      - restore_cache:
+          keys:
+            - v2-build-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "package.json" }}
+
+      # Install test dependencies
+      - run:
+          name: Install Test Dependencies
+          command: |
+            cd test/npm-test
+            yarn install
+
+      # Run npm test
+      - run:
+          name: Test npm Package
+          command: yarn test:npm
+
 workflows:
 
   build-and-test:
@@ -55,7 +80,21 @@ workflows:
                 - /feature\/.*/
                 - /hotfix\/.*/
                 - /release\/.*/
+      - test-npm:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+                - /feature\/.*/
+                - /hotfix\/.*/
+                - /release\/.*
 
   pull-request:
     jobs:
       - build
+      - test-npm:
+          requires:
+            - build
