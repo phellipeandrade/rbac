@@ -99,14 +99,32 @@ const roles: Roles<Params> = {
 | First  	| **String**  	                                 | ```'admin'```            	| Array of strings, list of operations that user can do          	|
 | Second 	| **String**, **Glob (Wildcard)**, **Regex**     | ```'products:find'```    	| Operation to validate                                          	|
 | Third  	| **Any**     	                                 | ```{registered: true}``` 	| **Optional** Params that will flow to "when" callback Function 	|
+### Update roles at runtime
 
+RBAC exposes two helpers to modify the role definition at runtime. `addRole` adds a new role and `updateRoles` merges new definitions with the existing ones.
+
+```ts
+import RBAC from '@rbac/rbac'
+
+const base = RBAC({ enableLogger: false })({
+  user: { can: ['products:find'] }
+})
+
+base.addRole('editor', { can: ['products:update'], inherits: ['user'] })
+await base.can('editor', 'products:update') // true
+
+base.updateRoles({
+  user: { can: ['products:find', 'products:create'] }
+})
+await base.can('user', 'products:create') // true
+```
 Want more? Check out the [examples](examples/) folder.
 
 ## Roadmap
 
 - [X] Wildcard support
 - [X] Regex support
-- [ ] Update roles in runtime
+- [X] Update roles in runtime
 
 ## v2.0.0
 

@@ -129,8 +129,32 @@ const mapRoles = <P>(roles: Roles<P>): MappedRoles<P> => {
 
 const RBAC =
   <P>(config: RBACConfig = {}) =>
-  (roles: Roles<P>) => ({
-    can: can<P>(config)(mapRoles(roles))
-  });
+  (roles: Roles<P>) => {
+    let allRoles = { ...roles };
+    let mappedRoles = mapRoles(allRoles);
+    const checker = can<P>(config);
+
+    const canFn = (
+      role: string,
+      operation: string | RegExp,
+      params?: P
+    ) => checker(mappedRoles)(role, operation, params);
+
+    const updateRoles = (newRoles: Roles<P>): void => {
+      allRoles = { ...allRoles, ...newRoles };
+      mappedRoles = mapRoles(allRoles);
+    };
+
+    const addRole = (roleName: string, roleDef: Role<P>): void => {
+      allRoles = { ...allRoles, [roleName]: roleDef };
+      mappedRoles = mapRoles(allRoles);
+    };
+
+    return {
+      can: canFn,
+      updateRoles,
+      addRole
+    };
+  };
 
 export default RBAC;

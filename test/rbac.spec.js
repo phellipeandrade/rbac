@@ -251,4 +251,22 @@ describe('RBAC', () => {
       expect(result).to.be.false;
     });
   });
+
+  describe('runtime role updates', () => {
+    it('should allow permissions for a role added at runtime', async () => {
+      RBAC.addRole('editor', { can: ['products:update'], inherits: ['user'] });
+      const resEdit = await RBAC.can('editor', 'products:update');
+      const resFind = await RBAC.can('editor', 'products:find');
+      expect(resEdit).to.be.true;
+      expect(resFind).to.be.true;
+    });
+
+    it('should respect updated roles when using can', async () => {
+      RBAC.updateRoles({
+        user: { can: ['products:find', 'products:create'] }
+      });
+      const resCreate = await RBAC.can('user', 'products:create');
+      expect(resCreate).to.be.true;
+    });
+  });
 });

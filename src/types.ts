@@ -30,3 +30,9 @@ export interface MappedRole<P = unknown> {
 }
 
 export type MappedRoles<P = unknown> = Record<string, MappedRole<P>>;
+
+export interface RBACInstance<P = unknown> {
+  can: (role: string, operation: string | RegExp, params?: P) => Promise<boolean>;
+  updateRoles: (roles: Roles<P>) => void;
+  addRole: (roleName: string, role: Role<P>) => void;
+}
