@@ -152,3 +152,23 @@ async function run(): Promise<void> {
 run().catch(console.error);
 ```
 
+
+`./multiTenant.ts`:
+
+```ts
+import rbac, { MongoRoleAdapter, createTenantRBAC } from '@rbac/rbac';
+
+async function run(): Promise<void> {
+  const adapter = new MongoRoleAdapter({
+    uri: 'mongodb://localhost:27017',
+    dbName: 'rbac',
+    collection: 'roles'
+  });
+
+  await adapter.addRole('user', { can: ['products:find'] }, 'tenant-a');
+  const rbacTenantA = await createTenantRBAC(adapter, 'tenant-a');
+  await rbacTenantA.can('user', 'products:find'); // true
+}
+
+run().catch(console.error);
+```
