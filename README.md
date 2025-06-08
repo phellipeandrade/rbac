@@ -216,6 +216,15 @@ respectively with a similar API.
 - Database adapters
 - Middlewares for Express, NestJS and Fastify
 
+## Benchmarks
+
+Run `npm run bench` to execute performance tests.
+
+```
+$ npm run bench
+Benchmark ops/sec: 50045 (direct), 24450 (inherited), 48475 (glob)
+```
+
 ## More Information
 
 - [Migration guide from v1 to v2](docs/migrating-v1-to-v2.md)
@@ -240,6 +249,7 @@ respectively with a similar API.
 * `npm run dev` - produces development version of your library and runs a watcher
 * `npm test` - well ... it runs the tests :)
 * `npm run test:watch` - same as above but in a watch mode
+* `npm run bench` - run the benchmark suite
 
 ## License
 

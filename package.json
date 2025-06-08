@@ -10,7 +10,8 @@
     "examples": "node -r ts-node/register ./examples/index.ts",
     "test": "NODE_ENV=test mocha --require @babel/register --colors ./test/*.spec.js",
     "test:watch": "NODE_ENV=test mocha --require @babel/register --colors -w ./test/*.spec.js",
-    "test:npm": "cd test/npm-test && npm install && npm test"
+    "test:npm": "cd test/npm-test && npm install && npm test",
+    "bench": "node ./benchmarks/perf.js"
   },
   "repository": {
     "type": "git",
@@ -50,7 +51,10 @@
     "jsdom-global": "3.0.2",
     "mocha": "^4.0.1",
     "typescript": "^5.8.3",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "ts-node": "^10.9.2",
+    "benny": "^3.7.1",
+    "asciichart": "^1.5.25"
   },
   "dependencies": {
     "zod": "^3.25.56"
