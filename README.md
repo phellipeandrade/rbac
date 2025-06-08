@@ -149,6 +149,24 @@ Adapters available:
 - `MySQLRoleAdapter`
 - `PostgresRoleAdapter`
 
+### Multi-tenant RBAC
+
+Adapters can optionally receive a `tenantId` parameter to store and retrieve
+roles for different tenants. When omitted, the adapter falls back to a default
+tenant so existing single-tenant usage keeps working. Use `createTenantRBAC` to
+instantiate an RBAC instance scoped to a tenant:
+
+```ts
+import { MongoRoleAdapter, createTenantRBAC } from '@rbac/rbac';
+
+const adapter = new MongoRoleAdapter({ uri: 'mongodb://localhost:27017', dbName: 'mydb', collection: 'roles' });
+
+await adapter.addRole('user', { can: ['products:find'] }, 'tenant-a');
+
+const rbacTenantA = await createTenantRBAC(adapter, 'tenant-a');
+await rbacTenantA.can('user', 'products:find'); // true
+```
+
 Want more? Check out the [examples](examples/) folder.
 
 ### Middlewares

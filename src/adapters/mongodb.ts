@@ -22,6 +22,7 @@ export class MongoRoleAdapter<P = unknown> implements RoleAdapter<P> {
   private client: any;
   private db?: any;
   private collectionName: string;
+  private defaultTenant = 'default';
   constructor(private options: MongoAdapterOptions) {
     const Mongo = loadMongoClient();
     this.client = new Mongo(options.uri);
@@ -36,22 +37,31 @@ export class MongoRoleAdapter<P = unknown> implements RoleAdapter<P> {
     return this.db.collection(this.collectionName);
   }
 
-  async getRoles(): Promise<Roles<P>> {
+  async getRoles(tenantId?: string): Promise<Roles<P>> {
     const col = await this.getCollection();
-    const docs = await col.find({}).toArray();
-    return (docs as any[]).reduce<Roles<P>>((acc, doc) => ({ ...acc, [doc.name]: (doc as any).role }), {} as Roles<P>);
+    const docs = await col
+      .find({ tenantId: tenantId ?? this.defaultTenant })
+      .toArray();
+    return (docs as any[]).reduce<Roles<P>>(
+      (acc, doc) => ({ ...acc, [doc.name]: (doc as any).role }),
+      {} as Roles<P>
+    );
   }
 
-  async addRole(roleName: string, role: Role<P>): Promise<void> {
+  async addRole(roleName: string, role: Role<P>, tenantId?: string): Promise<void> {
     const col = await this.getCollection();
-    await col.insertOne({ name: roleName, role });
+    await col.insertOne({ name: roleName, role, tenantId: tenantId ?? this.defaultTenant });
   }
 
-  async updateRoles(roles: Roles<P>): Promise<void> {
+  async updateRoles(roles: Roles<P>, tenantId?: string): Promise<void> {
     const col = await this.getCollection();
     await Promise.all(
       Object.entries(roles).map(([name, role]) =>
-        col.updateOne({ name }, { $set: { role } }, { upsert: true })
+        col.updateOne(
+          { name, tenantId: tenantId ?? this.defaultTenant },
+          { $set: { role } },
+          { upsert: true }
+        )
       )
     );
   }
