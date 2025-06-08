@@ -135,14 +135,20 @@ jobs:
               exit 1
             fi
             
-            # Copy build files to expected locations
-            cp lib/rbac.min.js lib/@rbac/rbac.min.js
+            # Verify minified file exists
+            if [ ! -f "lib/@rbac/rbac.min.js" ]; then
+              echo "Error: Minified file not found in expected location"
+              exit 1
+            fi
+            
+            # Copy package files to expected location
+            mkdir -p lib/@rbac
             cp package.json lib/@rbac/package.json
             cp package-lock.json lib/@rbac/package-lock.json
             
             # Verify files exist
-            if [ ! -f "lib/@rbac/rbac.min.js" ]; then
-              echo "Error: Minified file not found"
+            if [ ! -f "lib/@rbac/package.json" ]; then
+              echo "Error: Package file not found"
               exit 1
             fi
       
