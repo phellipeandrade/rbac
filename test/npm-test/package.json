@@ -1,0 +1,12 @@
+{
+  "name": "rbac-npm-test",
+  "version": "1.0.0",
+  "description": "Test project to validate RBAC npm package",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "dependencies": {
+    "@rbac/rbac": "file:../../"
+  }
+}
