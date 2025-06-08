@@ -222,7 +222,7 @@ Run `npm run bench` to execute performance tests.
 
 ```
 $ npm run bench
-Benchmark ops/sec: 70226 (direct), 72048 (inherited), 63802 (glob)
+Benchmark ops/sec: 457270 (direct), 435470 (inherited), 45681 (glob)
 ```
 
 ## More Information
