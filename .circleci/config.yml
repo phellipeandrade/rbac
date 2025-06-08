@@ -113,11 +113,6 @@ jobs:
     steps:
       - checkout
       
-      # Restore build artifacts
-      - restore_cache:
-          keys:
-            - v2-build-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "package.json" }}
-      
       # Install dependencies
       - run:
           name: Install Dependencies
@@ -127,10 +122,15 @@ jobs:
       - run:
           name: Copy Build Artifacts
           command: |
-            mkdir -p test/npm-test/lib
-            cp -r lib/* test/npm-test/lib/
+            # Create necessary directories
+            mkdir -p test/npm-test/lib/@rbac
+            
+            # Copy package files
             cp package.json test/npm-test/
             cp package-lock.json test/npm-test/
+            
+            # Copy build artifacts
+            cp -r lib/@rbac/* test/npm-test/lib/@rbac/
       
       # Test remote version
       - run:
