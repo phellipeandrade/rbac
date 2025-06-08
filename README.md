@@ -158,6 +158,7 @@ Want more? Check out the [examples](examples/) folder.
 - Rewritten in TypeScript
 - Internal refactor focused on readability and performance
 - Added support to update roles at runtime
+- Database adapters
 
 ## Contributing
 
