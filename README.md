@@ -147,6 +147,26 @@ Adapters available:
 
 Want more? Check out the [examples](examples/) folder.
 
+### Middlewares
+
+RBAC also provides helper middlewares for **Express**, **NestJS** and **Fastify**.
+They make it easy to guard routes using existing role definitions.
+
+```ts
+import RBAC, { createExpressMiddleware } from '@rbac/rbac';
+
+const rbac = RBAC({ enableLogger: false })({
+  user: { can: ['products:find'] }
+});
+
+const canFindProducts = createExpressMiddleware(rbac)('products:find');
+
+app.get('/products', canFindProducts, handler);
+```
+
+For NestJS and Fastify you can use `createNestMiddleware` and `createFastifyMiddleware`
+respectively with a similar API.
+
 ## Roadmap
 
 - [X] Wildcard support

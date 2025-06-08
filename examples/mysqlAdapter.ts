@@ -1,5 +1,4 @@
-import rbac from '../src';
-import { MySQLRoleAdapter } from '../src/adapters';
+import rbac, { MySQLRoleAdapter } from '@rbac/rbac';
 
 async function run(): Promise<void> {
   const adapter = new MySQLRoleAdapter({

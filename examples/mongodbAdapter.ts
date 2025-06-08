@@ -1,5 +1,4 @@
-import rbac from '../src';
-import { MongoRoleAdapter } from '../src/adapters';
+import rbac, { MongoRoleAdapter } from '@rbac/rbac';
 
 async function run(): Promise<void> {
   const adapter = new MongoRoleAdapter({

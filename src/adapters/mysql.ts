@@ -1,4 +1,14 @@
-const mysql = require('mysql2/promise');
+let mysql: any;
+function loadMySQL() {
+  if (!mysql) {
+    try {
+      mysql = require('mysql2/promise');
+    } catch (err) {
+      throw new Error('Please install "mysql2" to use MySQLRoleAdapter');
+    }
+  }
+  return mysql;
+}
 import type { Role, Roles } from '../types';
 import type { RoleAdapter } from './adapter';
 
@@ -14,9 +24,10 @@ export class MySQLRoleAdapter<P = unknown> implements RoleAdapter<P> {
 
   private async getConnection(): Promise<any> {
     if (!this.connection) {
+      const driver = loadMySQL();
       this.connection = this.options.uri
-        ? await mysql.createConnection(this.options.uri)
-        : await mysql.createConnection(this.options.config || {});
+        ? await driver.createConnection(this.options.uri)
+        : await driver.createConnection(this.options.config || {});
     }
     return this.connection;
   }

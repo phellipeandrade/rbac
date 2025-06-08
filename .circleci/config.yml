@@ -55,12 +55,20 @@ jobs:
           keys:
             - v2-build-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "package.json" }}
 
+      # Install database adapters in main project
+      - run:
+          name: Install Database Adapters
+          command: |
+            yarn add mongodb mysql2 pg
+            yarn list mongodb mysql2 pg # Verify dependencies are installed
+
       # Install test dependencies
       - run:
           name: Install Test Dependencies
           command: |
             cd test/npm-test
-            yarn install
+            npm install
+            npm ls mongodb # Verify MongoDB is installed
 
       # Run npm test
       - run:

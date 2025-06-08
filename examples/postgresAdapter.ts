@@ -1,5 +1,4 @@
-import rbac from '../src';
-import { PostgresRoleAdapter } from '../src/adapters';
+import rbac, { PostgresRoleAdapter } from '@rbac/rbac';
 
 async function run(): Promise<void> {
   const adapter = new PostgresRoleAdapter({
