@@ -1,11 +1,31 @@
 const assert = require('assert');
 const rbac = require('@rbac/rbac').default;
-const { MongoClient } = require('mongodb');
+// Mock MongoDB implementation
+const mockMongo = {
+  connect: () => Promise.resolve({
+    db: () => ({
+      collection: () => ({
+        insertOne: () => Promise.resolve({ insertedId: 'mock-id' }),
+        findOne: () => Promise.resolve({ role: 'user' }),
+        updateOne: () => Promise.resolve({ modifiedCount: 1 }),
+        deleteOne: () => Promise.resolve({ deletedCount: 1 })
+      })
+    })
+  })
+};
 
-console.log('Starting remote version tests...');
+// Mock storage implementation
+const mockStorage = {
+  type: 'mongodb',
+  options: {
+    client: mockMongo
+  }
+};
 
-// Test configuration
-const testConfig = {
+console.log('Starting remote version tests with mocked MongoDB...');
+
+// Initialize RBAC with mocked storage
+const rbacInstance = new rbac({
   roles: {
     user: {
       can: ['products:find']
@@ -14,22 +34,7 @@ const testConfig = {
       can: ['products:find', 'products:edit', 'products:delete']
     }
   },
-  mongodb: {
-    uri: 'mongodb://localhost:27017',
-    dbName: 'rbac_test'
-  }
-};
-
-// Initialize RBAC
-const rbacInstance = new rbac({
-  roles: testConfig.roles,
-  storage: {
-    type: 'mongodb',
-    options: {
-      uri: testConfig.mongodb.uri,
-      dbName: testConfig.mongodb.dbName
-    }
-  }
+  storage: mockStorage
 });
 
 // Test cases
