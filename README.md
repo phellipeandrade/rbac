@@ -62,7 +62,7 @@ RBAC expects an object with roles as property names.
 
 | Property 	| Type         	| Example                                        	| Description                                                                                                                                                                  	|
 |----------	|--------------	|------------------------------------------------	|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
-| can      	| **Array**    	            | ```['products:*']```                        	| Array of strings, list of operations that user can do, Since v2.0.0 it also supports glob patterns                                                                                            |
+| can      	| **Array**    	            | ```['products:*']```                        	| Array of strings, list of operations that user can do, it also supports glob patterns                                                                                            |
 | when     	| **Function or Promise**  	| ```(params , done ) =>  done (null , true )``` 	| **Optional** Promise that should resolve in Truthy or Falsy or  Callback function that receives params and done as properties, should return done passing errors, and result 	|
 | inherits 	| **Array**    	            | ```['user']```                                 	| **Optional** Array of strings, list of roles inherited by this role                                                                                                               	|
 
@@ -179,6 +179,7 @@ respectively with a similar API.
 - Internal refactor focused on readability and performance
 - Added support to update roles at runtime
 - Database adapters
+- Middlewares for Express, NestJS and Fastify
 
 ## Contributing
 

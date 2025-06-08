@@ -4,9 +4,11 @@ type Request = any;
 type Response = any;
 type NextFunction = (err?: unknown) => void;
 
+<<<<<<< HEAD
 import { MiddlewareOptions } from './types';
 
 export interface ExpressOptions<P = unknown> extends MiddlewareOptions<P> {}
+>>>>>>> master
 
 export const createExpressMiddleware =
   <P>(rbac: RBACInstance<P>) =>
