@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "tsc && npm run test",
+    "build": "tsc && webpack --env build && npm run test",
     "dev": "tsc -w",
     "examples": "node -r @babel/register ./examples/index.js",
     "test": "NODE_ENV=test mocha --require @babel/register --colors ./test/*.spec.js",

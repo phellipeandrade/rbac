@@ -33,9 +33,12 @@
   
 ## Getting Started
 
-#### Install 
+#### Install
 
 `yarn add @rbac/rbac` or `npm install @rbac/rbac`
+
+This library is written in TypeScript and the published package ships with
+its declaration files for a great developer experience.
 
 
 RBAC is a curried function thats initially takes an object with configurations, 
@@ -105,8 +108,8 @@ Want more? Check out the [examples](examples/) folder.
 #### Contributions are welcome!
 
 1. Build RBAC
-  * Run `yarn install` to get RBAC's dependencies
-  * Run `yarn build` to produce minified version of RBAC.
+  * Run `npm install` (or `yarn install`) to get RBAC's dependencies
+  * Run `npm run build` to compile the library and produce the minified bundle.
 
 2. Development mode
   * Having all the dependencies installed run `yarn dev`. This command will generate a non-minified version of your library and will run a watcher so you get the compilation on file change.
@@ -115,10 +118,10 @@ Want more? Check out the [examples](examples/) folder.
   * Run `yarn test` 
 
 4. Scripts
-* `yarn build` - produces production version of your library under the `lib` folder
-* `yarn dev` - produces development version of your library and runs a watcher
-* `yarn test` - well ... it runs the tests :)
-* `yarn test:watch` - same as above but in a watch mode
+* `npm run build` - produces production version of your library under the `lib` folder and generates `lib/@rbac/rbac.min.js`
+* `npm run dev` - produces development version of your library and runs a watcher
+* `npm test` - well ... it runs the tests :)
+* `npm run test:watch` - same as above but in a watch mode
 
 ## License
 
