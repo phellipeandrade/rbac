@@ -285,5 +285,35 @@ describe('RBAC', () => {
       const resCreate = await RBAC.can('user', 'products:create');
       expect(resCreate).to.be.true;
     });
+
+    it('should rebuild hierarchy when inheritance changes at runtime', async () => {
+      RBAC.addRole('dynamic', { can: [], inherits: ['user'] });
+      const before = await RBAC.can('dynamic', 'products:delete', true);
+      expect(before).to.be.false;
+
+      RBAC.updateRoles({
+        dynamic: { can: [], inherits: ['admin'] }
+      });
+
+      const after = await RBAC.can('dynamic', 'products:delete', true);
+      expect(after).to.be.true;
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle circular inheritance without crashing', async () => {
+      RBAC.addRole('a', { can: ['products:find'], inherits: ['b'] });
+      RBAC.addRole('b', { can: [], inherits: ['a'] });
+      const res = await RBAC.can('a', 'products:find');
+      expect(res).to.be.true;
+    });
+
+    it('should ignore unknown parent roles', async () => {
+      RBAC.addRole('phantom', { can: ['products:find'], inherits: ['ghost'] });
+      const allowed = await RBAC.can('phantom', 'products:find');
+      const denied = await RBAC.can('phantom', 'products:delete');
+      expect(allowed).to.be.true;
+      expect(denied).to.be.false;
+    });
   });
 });
