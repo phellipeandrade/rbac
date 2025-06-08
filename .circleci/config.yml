@@ -131,13 +131,3 @@ workflows:
                 - /hotfix\/.*/
                 - /release\/.*/
 
-    when:
-      pull-requests:
-        only: true
-      branches:
-        only:
-          - main
-          - develop
-          - /feature\/.*/
-          - /hotfix\/.*/
-          - /release\/.*/
