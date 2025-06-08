@@ -87,3 +87,71 @@ RBAC.updateRoles({
 });
 await RBAC.can(USER, PRODUCTS_CREATE); // true
 ```
+
+`./mongodbAdapter.ts`:
+
+```ts
+import rbac from '../src';
+import { MongoRoleAdapter } from '../src/adapters';
+
+async function run(): Promise<void> {
+  const adapter = new MongoRoleAdapter({
+    uri: 'mongodb://localhost:27017',
+    dbName: 'rbac',
+    collection: 'roles'
+  });
+
+  const roles = await adapter.getRoles();
+  const RBAC = rbac()(roles);
+
+  await RBAC.can('user', 'products:find');
+}
+
+run().catch(console.error);
+```
+
+`./mysqlAdapter.ts`:
+
+```ts
+import rbac from '../src';
+import { MySQLRoleAdapter } from '../src/adapters';
+
+async function run(): Promise<void> {
+  const adapter = new MySQLRoleAdapter({
+    uri: 'mysql://user:pass@localhost/rbac',
+    table: 'roles'
+  });
+
+  const roles = await adapter.getRoles();
+  const RBAC = rbac()(roles);
+
+  await RBAC.can('user', 'products:find');
+}
+
+run().catch(console.error);
+```
+
+`./postgresAdapter.ts`:
+
+```ts
+import rbac from '../src';
+import { PostgresRoleAdapter } from '../src/adapters';
+
+async function run(): Promise<void> {
+  const adapter = new PostgresRoleAdapter({
+    host: 'localhost',
+    user: 'user',
+    password: 'pass',
+    database: 'rbac',
+    table: 'roles'
+  });
+
+  const roles = await adapter.getRoles();
+  const RBAC = rbac()(roles);
+
+  await RBAC.can('user', 'products:find');
+}
+
+run().catch(console.error);
+```
+

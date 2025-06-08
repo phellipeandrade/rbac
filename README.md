@@ -118,6 +118,33 @@ base.updateRoles({
 })
 await base.can('user', 'products:create') // true
 ```
+
+### Database adapters
+
+RBAC exposes optional adapters to load and persist role definitions using
+MongoDB, MySQL or PostgreSQL. Each adapter implements the `RoleAdapter`
+interface with `getRoles`, `addRole` and `updateRoles` methods.
+
+```ts
+import RBAC from '@rbac/rbac'
+import { MongoRoleAdapter } from '@rbac/rbac/adapters'
+
+const adapter = new MongoRoleAdapter({
+  uri: 'mongodb://localhost:27017',
+  dbName: 'mydb',
+  collection: 'roles'
+})
+
+const roles = await adapter.getRoles()
+const rbac = RBAC()(roles)
+```
+
+Adapters available:
+
+- `MongoRoleAdapter`
+- `MySQLRoleAdapter`
+- `PostgresRoleAdapter`
+
 Want more? Check out the [examples](examples/) folder.
 
 ## Roadmap
