@@ -4,11 +4,9 @@ type Request = any;
 type Response = any;
 type NextFunction = (err?: unknown) => void;
 
-export interface NestOptions<P = unknown> {
-  getRole?: (req: Request) => string;
-  getParams?: (req: Request) => P;
-  onDenied?: (req: Request, res: Response, next: NextFunction) => void;
-}
+import { MiddlewareOptions } from './types';
+
+export interface NestOptions<P = unknown> extends MiddlewareOptions<P> {}
 
 export const createNestMiddleware =
   <P>(rbac: RBACInstance<P>) =>
