@@ -118,6 +118,42 @@ jobs:
           name: Install Dependencies
           command: npm install
       
+      # Build project
+      - run:
+          name: Build Project
+          command: |
+            # Clean build directory
+            rm -rf lib/
+            mkdir -p lib
+            
+            # Build the project
+            npm run build
+            
+            # Verify build output
+            if [ ! -d "lib" ]; then
+              echo "Error: Build directory not found"
+              exit 1
+            fi
+            
+            # Copy build files to expected locations
+            cp lib/rbac.min.js lib/@rbac/rbac.min.js
+            cp package.json lib/@rbac/package.json
+            cp package-lock.json lib/@rbac/package-lock.json
+            
+            # Verify files exist
+            if [ ! -f "lib/@rbac/rbac.min.js" ]; then
+              echo "Error: Minified file not found"
+              exit 1
+            fi
+      
+      # Cache build artifacts
+      - save_cache:
+          key: v2-build-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "package.json" }}
+          paths:
+            - node_modules
+            - lib/@rbac
+            - lib/rbac.min.js
+            
       # Copy build artifacts to test directory
       - run:
           name: Copy Build Artifacts
