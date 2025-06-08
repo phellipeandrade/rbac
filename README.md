@@ -128,7 +128,9 @@ Want more? Check out the [examples](examples/) folder.
 
 ## v2.0.0
 
+- Rewritten in TypeScript
 - Internal refactor focused on readability and performance
+- Added support to update roles at runtime
 
 ## Contributing
 
