@@ -149,6 +149,16 @@ Adapters available:
 - `MySQLRoleAdapter`
 - `PostgresRoleAdapter`
 
+Adapters also allow customizing the underlying table or collection column names
+through a `columns` option when creating a new instance:
+
+```ts
+const adapter = new MySQLRoleAdapter({
+  table: 'roles',
+  columns: { name: 'rname', role: 'rdef', tenantId: 'tid' }
+})
+```
+
 ### Multi-tenant RBAC
 
 Adapters can optionally receive a `tenantId` parameter to store and retrieve

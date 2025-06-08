@@ -6,7 +6,8 @@ async function run(): Promise<void> {
     user: 'user',
     password: 'pass',
     database: 'rbac',
-    table: 'roles'
+    table: 'roles',
+    columns: { name: 'rname', role: 'rdef', tenantId: 'tid' }
   });
 
   const roles = await adapter.getRoles();

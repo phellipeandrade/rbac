@@ -16,6 +16,11 @@ export interface MongoAdapterOptions {
   uri: string;
   dbName: string;
   collection: string;
+  columns?: {
+    name?: string;
+    role?: string;
+    tenantId?: string;
+  };
 }
 
 export class MongoRoleAdapter<P = unknown> implements RoleAdapter<P> {
@@ -27,6 +32,12 @@ export class MongoRoleAdapter<P = unknown> implements RoleAdapter<P> {
     const Mongo = loadMongoClient();
     this.client = new Mongo(options.uri);
     this.collectionName = options.collection;
+    this.options.columns = {
+      name: 'name',
+      role: 'role',
+      tenantId: 'tenantId',
+      ...this.options.columns
+    };
   }
 
   private async getCollection(): Promise<any> {
@@ -39,27 +50,46 @@ export class MongoRoleAdapter<P = unknown> implements RoleAdapter<P> {
 
   async getRoles(tenantId?: string): Promise<Roles<P>> {
     const col = await this.getCollection();
+    const cols = this.options.columns as {
+      name: string;
+      role: string;
+      tenantId: string;
+    };
     const docs = await col
-      .find({ tenantId: tenantId ?? this.defaultTenant })
+      .find({ [cols.tenantId]: tenantId ?? this.defaultTenant })
       .toArray();
     return (docs as any[]).reduce<Roles<P>>(
-      (acc, doc) => ({ ...acc, [doc.name]: (doc as any).role }),
+      (acc, doc) => ({ ...acc, [doc[cols.name]]: (doc as any)[cols.role] }),
       {} as Roles<P>
     );
   }
 
   async addRole(roleName: string, role: Role<P>, tenantId?: string): Promise<void> {
     const col = await this.getCollection();
-    await col.insertOne({ name: roleName, role, tenantId: tenantId ?? this.defaultTenant });
+    const cols = this.options.columns as {
+      name: string;
+      role: string;
+      tenantId: string;
+    };
+    await col.insertOne({
+      [cols.name]: roleName,
+      [cols.role]: role,
+      [cols.tenantId]: tenantId ?? this.defaultTenant
+    });
   }
 
   async updateRoles(roles: Roles<P>, tenantId?: string): Promise<void> {
     const col = await this.getCollection();
+    const cols = this.options.columns as {
+      name: string;
+      role: string;
+      tenantId: string;
+    };
     await Promise.all(
       Object.entries(roles).map(([name, role]) =>
         col.updateOne(
-          { name, tenantId: tenantId ?? this.defaultTenant },
-          { $set: { role } },
+          { [cols.name]: name, [cols.tenantId]: tenantId ?? this.defaultTenant },
+          { $set: { [cols.role]: role } },
           { upsert: true }
         )
       )
