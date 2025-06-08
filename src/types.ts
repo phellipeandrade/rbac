@@ -8,7 +8,13 @@ export type WhenCallback<P = unknown> = (
   done: (err: unknown, result?: boolean) => void
 ) => void;
 
-export type When<P = unknown> = boolean | Promise<boolean> | WhenCallback<P>;
+export type WhenFunction<P = unknown> = (params: P) => boolean | Promise<boolean>;
+
+export type When<P = unknown> =
+  | boolean
+  | Promise<boolean>
+  | WhenCallback<P>
+  | WhenFunction<P>;
 
 export interface GlobFromRole<P = unknown> {
   role: string;
