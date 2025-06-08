@@ -1,27 +1,64 @@
-# Javascript Node CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-javascript/ for more details
-#
-version: 2
+# CircleCI 2.1 configuration file
+version: 2.1
+
 jobs:
   build:
     docker:
-      - image: circleci/node:8.11.3
+      - image: circleci/node:20
     working_directory: ~/rbac
 
     steps:
       - checkout
 
+      # Cache dependencies
       - restore_cache:
           keys:
-          - rbac-{{ checksum "yarn.lock" }}
-          - rbac-
+            - v2-deps-{{ checksum "yarn.lock" }}
+            - v2-deps-
 
       - run: yarn install
 
       - save_cache:
           paths:
             - node_modules
-          key: rbac-{{ checksum "yarn.lock" }}
-        
-      - run: yarn run test
+            - ~/.cache/yarn
+          key: v2-deps-{{ checksum "yarn.lock" }}
+
+      # Build and test steps
+      - run:
+          name: Build Project
+          command: yarn build
+
+      - run:
+          name: Run Tests
+          command: yarn test
+
+      # Cache build artifacts
+      - save_cache:
+          paths:
+            - lib
+            - dist
+          key: v2-build-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "package.json" }}
+
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+                - /feature\/.*
+                - /hotfix\/.*
+                - /release\/.*
+
+  pull-request:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore: /.*/
+            pull_requests:
+              only: true
