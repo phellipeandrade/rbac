@@ -115,6 +115,7 @@ workflows:
             branches:
               only:
                 - main
+                - master
                 - develop
                 - /feature\/.*/
                 - /hotfix\/.*/
@@ -126,6 +127,7 @@ workflows:
             branches:
               only:
                 - main
+                - master
                 - develop
                 - /feature\/.*/
                 - /hotfix\/.*/
