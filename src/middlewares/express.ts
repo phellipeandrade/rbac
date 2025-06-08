@@ -4,11 +4,9 @@ type Request = any;
 type Response = any;
 type NextFunction = (err?: unknown) => void;
 
-export interface ExpressOptions<P = unknown> {
-  getRole?: (req: Request) => string;
-  getParams?: (req: Request) => P;
-  onDenied?: (req: Request, res: Response, next: NextFunction) => void;
-}
+import { MiddlewareOptions } from './types';
+
+export interface ExpressOptions<P = unknown> extends MiddlewareOptions<P> {}
 
 export const createExpressMiddleware =
   <P>(rbac: RBACInstance<P>) =>
