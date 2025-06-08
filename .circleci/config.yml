@@ -32,14 +32,29 @@ jobs:
           command: |
             yarn add -D express @types/express @types/node
 
-      # Build and test
+      # Build and verify minification
       - run:
           name: Build Project
-          command: yarn build
-
-      - run:
-          name: Run Tests
-          command: yarn test
+          command: |
+            # Build the package
+            yarn build
+            
+            # Verify minification
+            if [ ! -f "lib/@rbac/rbac.min.js" ]; then
+              echo "Error: Minified file not found"
+              exit 1
+            fi
+            
+            # Verify file size (should be significantly smaller than source)
+            source_size=$(stat -c %s "lib/index.js")
+            minified_size=$(stat -c %s "lib/@rbac/rbac.min.js")
+            
+            if [ $minified_size -ge $source_size ]; then
+              echo "Error: Minified file is not smaller than source"
+              exit 1
+            fi
+            
+            echo "✅ Minification verified successfully"
 
       # Cache build artifacts
       - save_cache:
@@ -47,6 +62,10 @@ jobs:
             - lib
             - dist
           key: v2-build-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "package.json" }}
+
+      - run:
+          name: Run Tests
+          command: yarn test
 
   test-npm:
     docker:
@@ -88,6 +107,33 @@ jobs:
           name: Test npm Package
           command: yarn test:npm
 
+  test-remote:
+    docker:
+      - image: cimg/node:18.18
+    steps:
+      - checkout
+      
+      # Install dependencies and run regular tests
+      - run:
+          name: Install Dependencies
+          command: npm ci
+      
+      - run:
+          name: Run Tests
+          command: npm test
+      
+      # Test remote version
+      - run:
+          name: Test Remote Version
+          command: |
+            # Install MongoDB for remote tests
+            sudo apt-get update
+            sudo apt-get install -y mongodb
+            sudo service mongodb start
+            
+            # Run remote tests
+            npm run test:remote
+
 workflows:
 
   build-and-test:
@@ -119,3 +165,7 @@ workflows:
       - test-npm:
           requires:
             - build
+
+  test-remote-workflow:
+    jobs:
+      - test-remote
