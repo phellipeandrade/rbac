@@ -56,6 +56,13 @@ jobs:
     steps:
       - checkout
 
+      # Install build dependencies
+      - run:
+          name: Install Build Dependencies
+          command: |
+            yarn add -D typescript vite
+            yarn list typescript vite # Verify dependencies are installed
+
       # Always run build first since lib is gitignored
       - run:
           name: Build Project
