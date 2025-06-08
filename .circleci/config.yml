@@ -1,4 +1,4 @@
-# CircleCI 2.1 configuration file
+# .circleci/config.yml
 version: 2.1
 
 jobs:
@@ -16,7 +16,9 @@ jobs:
             - v2-deps-{{ checksum "yarn.lock" }}
             - v2-deps-
 
-      - run: yarn install
+      - run:
+          name: Install Dependencies
+          command: yarn install
 
       - save_cache:
           paths:
@@ -24,7 +26,7 @@ jobs:
             - ~/.cache/yarn
           key: v2-deps-{{ checksum "yarn.lock" }}
 
-      # Build and test steps
+      # Build and test
       - run:
           name: Build Project
           command: yarn build
@@ -42,23 +44,19 @@ jobs:
 
 workflows:
   version: 2
+
   build-and-test:
     jobs:
-      build:
-        filters:
-          branches:
-            only:
-              - main
-              - develop
-              - /feature\/.*
-              - /hotfix\/.*
-              - /release\/.*
+      - build:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+                - /feature\/.*/
+                - /hotfix\/.*/
+                - /release\/.*/
 
   pull-request:
     jobs:
-      build:
-        filters:
-          branches:
-            ignore: /.*/
-          pull_requests:
-            only: true
+      - build
