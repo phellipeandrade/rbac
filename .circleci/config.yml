@@ -43,6 +43,7 @@ jobs:
 workflows:
   version: 2
   build-and-test:
+    when: << pipeline.parameters.run-tests >>
     jobs:
       - build:
           filters:
@@ -55,6 +56,7 @@ workflows:
                 - /release\/.*
 
   pull-request:
+    when: << pipeline.parameters.run-tests >>
     jobs:
       - build:
           filters:
