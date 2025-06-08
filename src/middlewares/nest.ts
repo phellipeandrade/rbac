@@ -1,19 +1,18 @@
 import type { RBACInstance } from '../types';
+import { BaseMiddlewareOptions } from './types';
+import { NestExecutionContext } from './nest.types';
+import type { NestNextFunction, NestResponse } from './nest.types';
 
-type Request = any;
-type Response = any;
-type NextFunction = (err?: unknown) => void;
-
-export interface NestOptions<P = unknown> {
-  getRole?: (req: Request) => string;
-  getParams?: (req: Request) => P;
-  onDenied?: (req: Request, res: Response, next: NextFunction) => void;
+export interface NestOptions<P = unknown> extends BaseMiddlewareOptions<P> {
+  getRole?: (req: NestExecutionContext) => string;
+  getParams?: (req: NestExecutionContext) => P;
+  onDenied?: (req: NestExecutionContext, res: NestResponse, next: NestNextFunction) => void;
 }
 
 export const createNestMiddleware =
   <P>(rbac: RBACInstance<P>) =>
   (operation: string | RegExp, options: NestOptions<P> = {}) =>
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async (req: NestExecutionContext, res: NestResponse, next: NestNextFunction): Promise<void> => {
     try {
       const role = options.getRole ? options.getRole(req) : (req as any).role;
       const params = options.getParams ? options.getParams(req) : undefined;

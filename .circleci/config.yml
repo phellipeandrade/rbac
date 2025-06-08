@@ -26,6 +26,12 @@ jobs:
             - ~/.cache/yarn
           key: v2-deps-{{ checksum "yarn.lock" }}
 
+      # Install middleware dependencies
+      - run:
+          name: Install Middleware Dependencies
+          command: |
+            yarn add -D express @types/express @types/node
+
       # Build and test
       - run:
           name: Build Project
