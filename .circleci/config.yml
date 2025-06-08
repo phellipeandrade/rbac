@@ -59,8 +59,8 @@ jobs:
       - run:
           name: Install Database Adapters
           command: |
-            yarn add mongodb mysql2
-            yarn list mongodb mysql2 # Verify dependencies are installed
+            yarn add mongodb mysql2 pg
+            yarn list mongodb mysql2 pg # Verify dependencies are installed
 
       # Install test dependencies
       - run:
