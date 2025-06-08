@@ -4,7 +4,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: circleci/node:20
+      - image: cimg/node:20.16.0
     working_directory: ~/rbac
 
     steps:
@@ -43,7 +43,6 @@ jobs:
           key: v2-build-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "package.json" }}
 
 workflows:
-  version: 2
 
   build-and-test:
     jobs:
