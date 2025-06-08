@@ -68,6 +68,28 @@ const can =
 
       async function evaluateWhen(when: When<P> | true | undefined): Promise<boolean> {
         if (when === true) return log(role, operation, true, logEnabled);
+
+        if (helpers.isFunction(when)) {
+          if ((when as Function).length >= 2) {
+            return new Promise<boolean>((resolve, reject) => {
+              (when as any)(params, (err: unknown, result?: boolean) => {
+                if (err) return reject(err);
+                resolve(Boolean(result));
+              });
+            })
+              .then(res => (res ? log(role, operation, true, logEnabled) : checkInherits()))
+              .catch(() => log(role, operation, false, logEnabled));
+          }
+
+          try {
+            const res = (when as any)(params);
+            const final = helpers.isPromise(res) ? await res : res;
+            return final ? log(role, operation, Boolean(final), logEnabled) : checkInherits();
+          } catch {
+            return log(role, operation, false, logEnabled);
+          }
+        }
+
         if (helpers.isPromise(when)) {
           try {
             const res = await when;
@@ -76,16 +98,7 @@ const can =
             return log(role, operation, false, logEnabled);
           }
         }
-        if (helpers.isFunction(when)) {
-          return new Promise<boolean>((resolve, reject) => {
-            (when as any)(params, (err: unknown, result?: boolean) => {
-              if (err) return reject(err);
-              resolve(Boolean(result));
-            });
-          })
-            .then(res => (res ? log(role, operation, true, logEnabled) : checkInherits()))
-            .catch(() => log(role, operation, false, logEnabled));
-        }
+
         return log(role, operation, false, logEnabled);
       }
 

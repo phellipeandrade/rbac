@@ -13,6 +13,8 @@ const PromisebelongsToAccount = new Promise((resolve) => {
   resolve(true);
 });
 
+const asyncBelongsToAccount = async (params) => params;
+
 const defaultRoles = {
   user: {
     can: ['products:find']
@@ -30,6 +32,9 @@ const defaultRoles = {
   },
   superhero: {
     can: ['products:*']
+  },
+  asyncrole: {
+    can: [{ name: 'products:async', when: asyncBelongsToAccount }]
   }
 };
 
@@ -248,6 +253,18 @@ describe('RBAC', () => {
 
     it('[superhero] should have not permission when wrong glob is passed', async () => {
       const result = await RBAC.can('superhero', 'wrong*');
+      expect(result).to.be.false;
+    });
+  });
+
+  describe('asyncrole role', () => {
+    it('[asyncrole] should have permission when async when returns truthy', async () => {
+      const result = await RBAC.can('asyncrole', 'products:async', true);
+      expect(result).to.be.true;
+    });
+
+    it('[asyncrole] should not have permission when async when returns falsy', async () => {
+      const result = await RBAC.can('asyncrole', 'products:async', false);
       expect(result).to.be.false;
     });
   });

@@ -63,10 +63,10 @@ RBAC expects an object with roles as property names.
 | Property 	| Type         	| Example                                        	| Description                                                                                                                                                                  	|
 |----------	|--------------	|------------------------------------------------	|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
 | can      	| **Array**    	            | ```['products:*']```                        	| Array of strings, list of operations that user can do, it also supports glob patterns                                                                                            |
-| when     	| **Function or Promise**  	| ```(params , done ) =>  done (null , true )``` 	| **Optional** Promise that should resolve in Truthy or Falsy or  Callback function that receives params and done as properties, should return done passing errors, and result 	|
+| when          | **Function, Async Function or Promise**       | ```(params , done ) =>  done (null , true )``` 	| **Optional** Promise that should resolve in Truthy or Falsy, an async function that returns a boolean or Promise, or a Callback function that receives params and done as properties, should return done passing errors and result 	|
 | inherits 	| **Array**    	            | ```['user']```                                 	| **Optional** Array of strings, list of roles inherited by this role                                                                                                               	|
 
-###### IMPORTANT! **"when"** property should be either a Callback function that receives params and done or a Promise that should resolve in [Truthy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy) or [Falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) values. Example: 
+###### IMPORTANT! **"when"** property can be a Callback function that receives params and done, an async function that returns a boolean or Promise, or a Promise that resolves in [Truthy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy) or [Falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) values. Example: 
 
 ```ts
 import type { Roles } from '@rbac/rbac';
@@ -83,9 +83,9 @@ const roles: Roles<Params> = {
     }}]
   },
   admin: {
-    can: [{ name: 'products:*', when: new Promise((resolve) => {
-      resolve(true);
-    }) }]
+    can: [{ name: 'products:*', when: async (params) => {
+      return params.registered;
+    } }]
   }
 };
 
