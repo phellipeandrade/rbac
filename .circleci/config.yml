@@ -30,7 +30,7 @@ jobs:
       - run:
           name: Install Middleware Dependencies
           command: |
-            yarn add -D express @nestjs/common @types/express @types/node
+            yarn add -D express @types/express @types/node
 
       # Build and test
       - run:
