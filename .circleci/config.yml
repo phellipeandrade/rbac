@@ -145,8 +145,7 @@ jobs:
             cd test/npm-test && npm install && npm test
 
 workflows:
-  version: 2
-  build-and-test:
+  test-workflow:
     jobs:
       - build:
           filters:
@@ -180,12 +179,4 @@ workflows:
                 - /hotfix\/.*/
                 - /release\/.*
 
-  pull-request:
-    jobs:
-      - build
-      - test-npm:
-          requires:
-            - build
-      - test-remote:
-          requires:
-            - build
+    when: on_pull_request
