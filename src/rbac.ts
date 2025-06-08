@@ -35,32 +35,27 @@ const can =
       return result;
     };
 
-    const check = async (
-      role: string,
+    const checkDirect = async (
+      logRole: string,
+      foundedRole: MappedRole<P>,
       operation: string | RegExp,
       params?: P,
-      logEnabled = true
+      logEnabled = true,
+      skipFalseLog = false
     ): Promise<boolean> => {
-      const foundedRole = mappedRoles[role];
-
-      if (!foundedRole) {
-        return log(role, operation, false, logEnabled);
-      }
-
-
       const direct = foundedRole.can[operation as string];
       const regexOperation = regexFromOperation(operation);
       const isGlobOperation = isGlob(operation);
 
       if (typeof operation === 'string' && direct === true) {
-        return log(role, operation, true, logEnabled);
+        return log(logRole, operation, true, logEnabled);
       }
 
       if (regexOperation || isGlobOperation) {
         const regex = isGlobOperation
           ? globToRegex(operation as string)
           : (regexOperation as RegExp);
-        return log(role, operation, checkRegex(regex, foundedRole.can), logEnabled);
+        return log(logRole, operation, checkRegex(regex, foundedRole.can), logEnabled);
       }
 
       const matchGlob = foundedRole.globs.find(g => g.regex.test(String(operation)));
@@ -69,13 +64,17 @@ const can =
       }
 
       if (!direct) {
-        return checkInherits();
+        if (!skipFalseLog) log(logRole, operation, false, logEnabled);
+        return false;
       }
 
       return evaluateWhen(direct);
 
       async function evaluateWhen(when: When<P> | true | undefined): Promise<boolean> {
-        if (when === true) return log(role, operation, true, logEnabled);
+        if (when === true) {
+          log(logRole, operation, true, logEnabled);
+          return true;
+        }
 
         if (typeof when === 'function') {
           if ((when as Function).length >= 2) {
@@ -85,38 +84,54 @@ const can =
                 resolve(Boolean(result));
               });
             })
-              .then(res => (res ? log(role, operation, true, logEnabled) : checkInherits()))
-              .catch(() => log(role, operation, false, logEnabled));
+              .then(res => {
+                log(logRole, operation, res, logEnabled);
+                return res;
+              })
+              .catch(() => {
+                log(logRole, operation, false, logEnabled);
+                return false;
+              });
           }
 
           try {
             const res = (when as any)(params);
             const final = res instanceof Promise ? await res : res;
-            return final ? log(role, operation, Boolean(final), logEnabled) : checkInherits();
+            log(logRole, operation, Boolean(final), logEnabled);
+            return Boolean(final);
           } catch {
-            return log(role, operation, false, logEnabled);
+            log(logRole, operation, false, logEnabled);
+            return false;
           }
         }
 
         if (when instanceof Promise) {
           try {
             const res = await when;
-            return res ? log(role, operation, Boolean(res), logEnabled) : checkInherits();
+            log(logRole, operation, Boolean(res), logEnabled);
+            return Boolean(res);
           } catch {
-            return log(role, operation, false, logEnabled);
+            log(logRole, operation, false, logEnabled);
+            return false;
           }
         }
 
+        log(logRole, operation, false, logEnabled);
+        return false;
+      }
+    };
+
+    const check = async (
+      role: string,
+      operation: string | RegExp,
+      params?: P,
+      logEnabled = true
+    ): Promise<boolean> => {
+      const foundedRole = mappedRoles[role];
+      if (!foundedRole) {
         return log(role, operation, false, logEnabled);
       }
-
-      async function checkInherits(): Promise<boolean> {
-        if (!foundedRole.inherits) return log(role, operation, false, logEnabled);
-        const results = await Promise.all(
-          foundedRole.inherits.map(parent => check(parent, operation, params, false))
-        );
-        return log(role, operation, results.some(Boolean), logEnabled);
-      }
+      return checkDirect(role, foundedRole, operation, params, logEnabled);
     };
 
     return (role: string, operation: string | RegExp, params?: P) =>
@@ -130,22 +145,54 @@ const roleCanMap = <P>(roleCan: Role<P>['can']): Record<string, When<P> | true> 
     )
   );
 
-const mapRoles = <P>(roles: Roles<P>): MappedRoles<P> =>
-  Object.fromEntries(
-    Object.entries(roles).map(([name, role]) => {
-      const can = roleCanMap(role.can);
-      return [
-        name,
-        { can, inherits: role.inherits, globs: globsFromFoundedRole(can) }
-      ];
-    })
-  ) as MappedRoles<P>;
+const flattenRoles = <P>(roles: Roles<P>): MappedRoles<P> => {
+  const memo: MappedRoles<P> = {};
+  const visit = (name: string, stack: Set<string>): MappedRole<P> => {
+    if (memo[name]) return memo[name];
+    if (stack.has(name)) return { can: {}, globs: [] } as MappedRole<P>;
+    stack.add(name);
+    const role = roles[name];
+    let can: Record<string, When<P> | true> = {};
+    let globs: GlobFromRole<P>[] = [];
+    let inherits: string[] | undefined;
+    if (role) {
+      if (role.inherits) {
+        inherits = role.inherits;
+        for (const parent of role.inherits) {
+          const parentRole = visit(parent, stack);
+          can = { ...can, ...parentRole.can };
+          globs.push(...parentRole.globs);
+        }
+      }
+      const direct = roleCanMap(role.can);
+      can = { ...can, ...direct };
+      globs.push(...globsFromFoundedRole(direct));
+    }
+    stack.delete(name);
+    const unique: GlobFromRole<P>[] = [];
+    const seen = new Set<string>();
+    for (const g of globs) {
+      const key = g.role + g.regex.source;
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(g);
+      }
+    }
+    const mapped: MappedRole<P> = { can, globs: unique, inherits };
+    memo[name] = mapped;
+    return mapped;
+  };
+  for (const name of Object.keys(roles)) {
+    visit(name, new Set());
+  }
+  return memo;
+};
 
 const RBAC =
   <P>(config: RBACConfig = {}) =>
   (roles: Roles<P>) => {
     let allRoles = { ...roles };
-    let mappedRoles = mapRoles(allRoles);
+    let mappedRoles = flattenRoles(allRoles);
     const checker = can<P>(config);
 
     const canFn = (
@@ -156,12 +203,12 @@ const RBAC =
 
     const updateRoles = (newRoles: Roles<P>): void => {
       allRoles = { ...allRoles, ...newRoles };
-      mappedRoles = mapRoles(allRoles);
+      mappedRoles = flattenRoles(allRoles);
     };
 
     const addRole = (roleName: string, roleDef: Role<P>): void => {
       allRoles = { ...allRoles, [roleName]: roleDef };
-      mappedRoles = mapRoles(allRoles);
+      mappedRoles = flattenRoles(allRoles);
     };
 
     return {

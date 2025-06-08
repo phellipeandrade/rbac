@@ -10,11 +10,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ### Changed
 - Simplified helper utilities using TypeScript features
+- Rebuild role hierarchy when roles change at runtime to improve permission checks
+- Flatten inherited permissions for faster lookups
 
 ### Benchmark
-- direct permission: ~74k ops/s
-- inherited permission: ~37k ops/s
-- glob permission: ~72k ops/s
+- direct permission: ~70k ops/s
+- inherited permission: ~72k ops/s
+- glob permission: ~64k ops/s
 
 ## [2.1.0] - 2025-06-08
 ### Added
