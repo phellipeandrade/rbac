@@ -55,6 +55,13 @@ jobs:
           keys:
             - v2-build-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "package.json" }}
 
+      # Install MongoDB in main project first
+      - run:
+          name: Install MongoDB in Main Project
+          command: |
+            yarn add mongodb
+            yarn list mongodb # Verify MongoDB is installed
+
       # Install test dependencies
       - run:
           name: Install Test Dependencies
