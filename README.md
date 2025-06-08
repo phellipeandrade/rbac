@@ -62,7 +62,7 @@ RBAC expects an object with roles as property names.
 
 | Property 	| Type         	| Example                                        	| Description                                                                                                                                                                  	|
 |----------	|--------------	|------------------------------------------------	|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
-| can      	| **Array**    	            | ```['products:*']```                        	| Array of strings, list of operations that user can do, since 1.1.0 also support glob                                                                                            |
+| can      	| **Array**    	            | ```['products:*']```                        	| Array of strings, list of operations that user can do, Since v2.0.0 it also supports glob patterns                                                                                            |
 | when     	| **Function or Promise**  	| ```(params , done ) =>  done (null , true )``` 	| **Optional** Promise that should resolve in Truthy or Falsy or  Callback function that receives params and done as properties, should return done passing errors, and result 	|
 | inherits 	| **Array**    	            | ```['user']```                                 	| **Optional** Array of strings, list of roles inherited by this role                                                                                                               	|
 
@@ -102,6 +102,10 @@ Want more? Check out the [examples](examples/) folder.
 - [X] Wildcard support
 - [X] Regex support
 - [ ] Update roles in runtime
+
+## v2.0.0
+
+- Internal refactor focused on readability and performance
 
 ## Contributing
 
