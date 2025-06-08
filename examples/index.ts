@@ -8,18 +8,19 @@ import {
   PRODUCTS_FIND
 } from './constants';
 
-import rbac from '../src/rbac';
+import rbac from '../src';
+import type { Roles } from '../src/types';
 
-const defaultRoles = {
+const defaultRoles: Roles = {
   [USER]: {
     can: [PRODUCTS_FIND]
   },
   [SUPERVISOR]: {
-    can: [{name: PRODUCTS_EDIT }],
+    can: [{ name: PRODUCTS_EDIT }],
     inherits: [USER]
   },
   [ADMIN]: {
-    can: [{name: PRODUCTS_DELETE }],
+    can: [{ name: PRODUCTS_DELETE }],
     inherits: [SUPERVISOR]
   },
   [SUPERADMIN]: {
