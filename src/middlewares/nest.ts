@@ -1,14 +1,11 @@
 import type { RBACInstance } from '../types';
+import { MiddlewareOptions } from './types';
 
 type Request = any;
 type Response = any;
 type NextFunction = (err?: unknown) => void;
 
-<<<<<<< HEAD
-import { MiddlewareOptions } from './types';
-
 export interface NestOptions<P = unknown> extends MiddlewareOptions<P> {}
->>>>>>> master
 
 export const createNestMiddleware =
   <P>(rbac: RBACInstance<P>) =>
