@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+## [2.2.0] - 2025-06-08
+### Added
+- Benchmark suite with `npm run bench` to measure permission checks
+
+### Changed
+- Simplified helper utilities using TypeScript features
+
+### Benchmark
+- direct permission: ~74k ops/s
+- inherited permission: ~37k ops/s
+- glob permission: ~72k ops/s
+
 ## [2.1.0] - 2025-06-08
 ### Added
 - Multi-tenant support via `createTenantRBAC`.
