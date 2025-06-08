@@ -15,7 +15,7 @@
 
 * ⏱ Lightweight
 * 🔥 Blazing Fast
-* ⚡️️ Zero dependency
+* ⚡️️ low dependency
 
 ## Features
 
