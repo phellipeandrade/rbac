@@ -1,11 +1,13 @@
 import type { RBACInstance } from '../types';
-import { MiddlewareOptions } from './types';
+import { BaseMiddlewareOptions } from './types';
 
-type Request = any;
-type Response = any;
 type NextFunction = (err?: unknown) => void;
 
-export interface NestOptions<P = unknown> extends MiddlewareOptions<P> {}
+export interface NestOptions<P = unknown> extends BaseMiddlewareOptions<P> {
+  getRole?: (req: any) => string;
+  getParams?: (req: any) => P;
+  onDenied?: (req: any, res: any, next: (err?: unknown) => void) => void;
+}
 
 export const createNestMiddleware =
   <P>(rbac: RBACInstance<P>) =>
