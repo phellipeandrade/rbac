@@ -64,8 +64,8 @@ RBAC.can(myUser.role, 'products:find')
 `./updateRoles.ts`:
 
 ```ts
-import rbac from '../src';
-import type { Roles } from '../src/types';
+import rbac from '@rbac/rbac';
+import type { Roles } from '@rbac/rbac';
 import {
   USER,
   PRODUCTS_FIND,
@@ -91,8 +91,7 @@ await RBAC.can(USER, PRODUCTS_CREATE); // true
 `./mongodbAdapter.ts`:
 
 ```ts
-import rbac from '../src';
-import { MongoRoleAdapter } from '../src/adapters';
+import rbac, { MongoRoleAdapter } from '@rbac/rbac';
 
 async function run(): Promise<void> {
   const adapter = new MongoRoleAdapter({
@@ -113,8 +112,7 @@ run().catch(console.error);
 `./mysqlAdapter.ts`:
 
 ```ts
-import rbac from '../src';
-import { MySQLRoleAdapter } from '../src/adapters';
+import rbac, { MySQLRoleAdapter } from '@rbac/rbac';
 
 async function run(): Promise<void> {
   const adapter = new MySQLRoleAdapter({
@@ -134,8 +132,7 @@ run().catch(console.error);
 `./postgresAdapter.ts`:
 
 ```ts
-import rbac from '../src';
-import { PostgresRoleAdapter } from '../src/adapters';
+import rbac, { PostgresRoleAdapter } from '@rbac/rbac';
 
 async function run(): Promise<void> {
   const adapter = new PostgresRoleAdapter({

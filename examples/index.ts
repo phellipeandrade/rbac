@@ -8,8 +8,8 @@ import {
   PRODUCTS_FIND
 } from './constants';
 
-import rbac from '../src';
-import type { Roles } from '../src/types';
+import rbac from '@rbac/rbac';
+import type { Roles } from '@rbac/rbac';
 
 const defaultRoles: Roles = {
   [USER]: {
