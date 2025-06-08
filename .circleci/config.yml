@@ -107,85 +107,6 @@ jobs:
           name: Test npm Package
           command: yarn test:npm
 
-  test-remote:
-    docker:
-      - image: cimg/node:18.18
-    steps:
-      - checkout
-      
-      # Install dependencies
-      - run:
-          name: Install Dependencies
-          command: npm install
-      
-      # Build project
-      - run:
-          name: Build Project
-          command: |
-            # Clean build directory
-            rm -rf lib/
-            mkdir -p lib
-            
-            # Build the project
-            npm run build
-            
-            # Verify build output
-            if [ ! -d "lib" ]; then
-              echo "Error: Build directory not found"
-              exit 1
-            fi
-            
-            # Verify minified file exists
-            if [ ! -f "lib/@rbac/rbac.min.js" ]; then
-              echo "Error: Minified file not found in expected location"
-              exit 1
-            fi
-            
-            # Copy package files to expected location
-            mkdir -p lib/@rbac
-            cp package.json lib/@rbac/package.json
-            cp package-lock.json lib/@rbac/package-lock.json
-            
-            # Verify files exist
-            if [ ! -f "lib/@rbac/package.json" ]; then
-              echo "Error: Package file not found"
-              exit 1
-            fi
-      
-      # Cache build artifacts
-      - save_cache:
-          key: v2-build-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "package.json" }}
-          paths:
-            - node_modules
-            - lib/@rbac
-            - lib/rbac.min.js
-            
-      # Copy build artifacts to test directory
-      - run:
-          name: Copy Build Artifacts
-          command: |
-            # Create necessary directories
-            mkdir -p test/npm-test/lib/@rbac
-            
-            # Copy package files
-            cp package.json test/npm-test/
-            cp package-lock.json test/npm-test/
-            
-            # Copy build artifacts
-            cp -r lib/@rbac/* test/npm-test/lib/@rbac/
-      
-      # Test remote version
-      - run:
-          name: Test Remote Version
-          command: |
-            # Install MongoDB for remote tests
-            sudo apt-get update
-            sudo apt-get install -y mongodb
-            sudo service mongodb start
-            
-            # Run remote tests
-            cd test/npm-test && npm install && npm test
-
 workflows:
   test-workflow:
     jobs:
@@ -209,17 +130,6 @@ workflows:
                 - /feature\/.*/
                 - /hotfix\/.*/
                 - /release\/.*/
-      - test-remote:
-          requires:
-            - build
-          filters:
-            branches:
-              only:
-                - main
-                - develop
-                - /feature\/.*/
-                - /hotfix\/.*/
-                - /release\/.*
 
     when:
       pull-requests:
