@@ -1,4 +1,4 @@
-import { When } from './helpers';
+import type { When } from './helpers';
 export interface RBACConfig {
     logger?: (role: string, operation: string | RegExp, result: boolean) => void;
     enableLogger?: boolean;

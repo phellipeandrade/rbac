@@ -1,17 +1,5 @@
-import {
-  isFunction,
-  isPromise,
-  isString,
-  isGlob,
-  globToRegex,
-  checkRegex,
-  defaultLogger,
-  validators,
-  regexFromOperation,
-  globsFromFoundedRole,
-  When,
-  GlobFromRole
-} from './helpers';
+import * as helpers from './helpers';
+import type { When, GlobFromRole } from './helpers';
 
 export interface RBACConfig {
   logger?: (role: string, operation: string | RegExp, result: boolean) => void;
@@ -34,9 +22,9 @@ interface MappedRole<P = unknown> {
 type MappedRoles<P = unknown> = Record<string, MappedRole<P>>;
 
 const can =
-  <P>(config: RBACConfig = { logger: defaultLogger, enableLogger: true }) =>
+  <P>(config: RBACConfig = { logger: helpers.defaultLogger, enableLogger: true }) =>
   (mappedRoles: MappedRoles<P>) => {
-    const logger = config.logger || defaultLogger;
+    const logger = config.logger || helpers.defaultLogger;
 
     const log = (
       roleName: string,
@@ -58,23 +46,23 @@ const can =
     ): Promise<boolean> => {
       const foundedRole = mappedRoles[role];
 
-      validators.role(role);
-      validators.operation(operation);
-      validators.foundedRole(foundedRole);
+      helpers.validators.role(role);
+      helpers.validators.operation(operation);
+      helpers.validators.foundedRole(foundedRole);
 
       const direct = foundedRole.can[operation as string];
-      const regexOperation = regexFromOperation(operation);
-      const isGlobOperation = isGlob(operation);
+      const regexOperation = helpers.regexFromOperation(operation);
+      const isGlobOperation = helpers.isGlob(operation);
 
-      if (isString(operation) && direct === true) {
+      if (helpers.isString(operation) && direct === true) {
         return log(role, operation, true, logEnabled);
       }
 
       if (regexOperation || isGlobOperation) {
         const regex = isGlobOperation
-          ? globToRegex(operation as string)
+          ? helpers.globToRegex(operation as string)
           : (regexOperation as RegExp);
-        return log(role, operation, checkRegex(regex, foundedRole.can), logEnabled);
+        return log(role, operation, helpers.checkRegex(regex, foundedRole.can), logEnabled);
       }
 
       const matchGlob = foundedRole.globs.find(g => g.regex.test(String(operation)));
@@ -90,7 +78,7 @@ const can =
 
       async function evaluateWhen(when: When<P> | true | undefined): Promise<boolean> {
         if (when === true) return log(role, operation, true, logEnabled);
-        if (isPromise(when)) {
+        if (helpers.isPromise(when)) {
           try {
             const res = await when;
             return res ? log(role, operation, Boolean(res), logEnabled) : checkInherits();
@@ -98,7 +86,7 @@ const can =
             return log(role, operation, false, logEnabled);
           }
         }
-        if (isFunction(when)) {
+        if (helpers.isFunction(when)) {
           return new Promise<boolean>((resolve, reject) => {
             (when as any)(params, (err: unknown, result?: boolean) => {
               if (err) return reject(err);
@@ -134,7 +122,7 @@ const roleCanMap = <P>(roleCan: Role<P>['can']): Record<string, When<P> | true> 
   );
 
 const mapRoles = <P>(roles: Roles<P>): MappedRoles<P> => {
-  validators.roles(roles);
+  helpers.validators.roles(roles);
   return Object.entries(roles).reduce<MappedRoles<P>>((acc, role) => {
     const [roleName, roleValue] = role;
     const mappedCan = roleCanMap(roleValue.can);
@@ -143,7 +131,7 @@ const mapRoles = <P>(roles: Roles<P>): MappedRoles<P> => {
       [roleName]: {
         can: mappedCan,
         inherits: roleValue.inherits,
-        globs: globsFromFoundedRole(mappedCan)
+        globs: helpers.globsFromFoundedRole(mappedCan)
       }
     };
   }, {} as MappedRoles<P>);
