@@ -12,7 +12,7 @@ export interface NestOptions<P = unknown> extends BaseMiddlewareOptions<P> {
 export const createNestMiddleware =
   <P>(rbac: RBACInstance<P>) =>
   (operation: string | RegExp, options: NestOptions<P> = {}) =>
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async (req: any, res: any, next: (err?: unknown) => void): Promise<void> => {
     try {
       const role = options.getRole ? options.getRole(req) : (req as any).role;
       const params = options.getParams ? options.getParams(req) : undefined;
