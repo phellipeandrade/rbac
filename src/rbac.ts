@@ -3,12 +3,14 @@ import {
   regexFromOperation,
   isGlob,
   globToRegex,
-  checkRegex,
-  globsFromFoundedRole
+  hasMatchingOperation,
+  normalizeWhen,
+  buildPermissionData
 } from './helpers';
 import type {
   When,
-  GlobFromRole,
+  PatternPermission,
+  NormalizedWhenFn,
   RBACConfig,
   Role,
   Roles,
@@ -23,101 +25,76 @@ const can =
   (mappedRoles: MappedRoles<P>) => {
     const logger = config.logger || defaultLogger;
 
-    const log = (
-      roleName: string,
-      operation: string | RegExp,
-      result: boolean,
-      enabled: boolean
-    ): boolean => {
-      if (enabled && config.enableLogger) {
-        logger(roleName, operation, result);
-      }
-      return result;
-    };
+    const log = config.enableLogger
+      ? (roleName: string, operation: string | RegExp, result: boolean, enabled: boolean): boolean => {
+          if (enabled) logger(roleName, operation, result);
+          return result;
+        }
+      : (_r: string, _o: string | RegExp, result: boolean): boolean => result;
 
     const checkDirect = async (
       logRole: string,
-      foundedRole: MappedRole<P>,
+      resolvedRole: MappedRole<P>,
       operation: string | RegExp,
       params?: P,
       logEnabled = true,
       skipFalseLog = false
     ): Promise<boolean> => {
-      const direct = foundedRole.can[operation as string];
+      let whenFn: NormalizedWhenFn<P> | true | undefined;
+
+      if (typeof operation === 'string') {
+        if (resolvedRole.direct.has(operation)) {
+          return log(logRole, operation, true, logEnabled);
+        }
+        whenFn = resolvedRole.conditional.get(operation);
+      }
+
       const regexOperation = regexFromOperation(operation);
       const isGlobOperation = isGlob(operation);
-
-      if (typeof operation === 'string' && direct === true) {
-        return log(logRole, operation, true, logEnabled);
-      }
 
       if (regexOperation || isGlobOperation) {
         const regex = isGlobOperation
           ? globToRegex(operation as string)
           : (regexOperation as RegExp);
-        return log(logRole, operation, checkRegex(regex, foundedRole.can), logEnabled);
+        return log(
+          logRole,
+          operation,
+          hasMatchingOperation(regex, resolvedRole.allOps),
+          logEnabled
+        );
       }
 
-      const matchGlob = foundedRole.globs.find(g => g.regex.test(String(operation)));
-      if (matchGlob) {
-        return evaluateWhen(matchGlob.when);
+      if (!whenFn) {
+        const matchPattern = resolvedRole.patterns.find(p =>
+          p.regex.test(String(operation))
+        );
+        if (matchPattern) whenFn = matchPattern.when;
       }
 
-      if (!direct) {
+      if (!whenFn) {
         if (!skipFalseLog) log(logRole, operation, false, logEnabled);
         return false;
       }
 
-      return evaluateWhen(direct);
+      return evaluateWhen(whenFn);
 
-      async function evaluateWhen(when: When<P> | true | undefined): Promise<boolean> {
+      async function evaluateWhen(when: NormalizedWhenFn<P> | true | undefined): Promise<boolean> {
         if (when === true) {
           log(logRole, operation, true, logEnabled);
           return true;
         }
-
-        if (typeof when === 'function') {
-          if ((when as Function).length >= 2) {
-            return new Promise<boolean>((resolve, reject) => {
-              (when as any)(params, (err: unknown, result?: boolean) => {
-                if (err) return reject(err);
-                resolve(Boolean(result));
-              });
-            })
-              .then(res => {
-                log(logRole, operation, res, logEnabled);
-                return res;
-              })
-              .catch(() => {
-                log(logRole, operation, false, logEnabled);
-                return false;
-              });
-          }
-
-          try {
-            const res = (when as any)(params);
-            const final = res instanceof Promise ? await res : res;
-            log(logRole, operation, Boolean(final), logEnabled);
-            return Boolean(final);
-          } catch {
-            log(logRole, operation, false, logEnabled);
-            return false;
-          }
+        if (!when) {
+          if (!skipFalseLog) log(logRole, operation, false, logEnabled);
+          return false;
         }
-
-        if (when instanceof Promise) {
-          try {
-            const res = await when;
-            log(logRole, operation, Boolean(res), logEnabled);
-            return Boolean(res);
-          } catch {
-            log(logRole, operation, false, logEnabled);
-            return false;
-          }
+        try {
+          const res = await when(params as P);
+          log(logRole, operation, res, logEnabled);
+          return res;
+        } catch {
+          log(logRole, operation, false, logEnabled);
+          return false;
         }
-
-        log(logRole, operation, false, logEnabled);
-        return false;
       }
     };
 
@@ -127,58 +104,69 @@ const can =
       params?: P,
       logEnabled = true
     ): Promise<boolean> => {
-      const foundedRole = mappedRoles[role];
-      if (!foundedRole) {
+      const resolvedRole = mappedRoles[role];
+      if (!resolvedRole) {
         return log(role, operation, false, logEnabled);
       }
-      return checkDirect(role, foundedRole, operation, params, logEnabled);
+      return checkDirect(role, resolvedRole, operation, params, logEnabled);
     };
 
     return (role: string, operation: string | RegExp, params?: P) =>
       check(role, operation, params);
   };
 
-const roleCanMap = <P>(roleCan: Role<P>['can']): Record<string, When<P> | true> =>
-  Object.fromEntries(
-    roleCan.map(op =>
-      typeof op === 'string' ? [op, true] : [op.name, op.when]
-    )
-  );
-
 const flattenRoles = <P>(roles: Roles<P>): MappedRoles<P> => {
   const memo: MappedRoles<P> = {};
   const visit = (name: string, stack: Set<string>): MappedRole<P> => {
     if (memo[name]) return memo[name];
-    if (stack.has(name)) return { can: {}, globs: [] } as MappedRole<P>;
+    if (stack.has(name))
+      return {
+        direct: new Set(),
+        conditional: new Map(),
+        patterns: [],
+        allOps: []
+      } as MappedRole<P>;
     stack.add(name);
     const role = roles[name];
-    let can: Record<string, When<P> | true> = {};
-    let globs: GlobFromRole<P>[] = [];
+    let direct = new Set<string>();
+    let conditional = new Map<string, NormalizedWhenFn<P>>();
+    let patterns: PatternPermission<P>[] = [];
     let inherits: string[] | undefined;
+    let all: string[] = [];
     if (role) {
       if (role.inherits) {
         inherits = role.inherits;
         for (const parent of role.inherits) {
           const parentRole = visit(parent, stack);
-          can = { ...can, ...parentRole.can };
-          globs.push(...parentRole.globs);
+          for (const op of parentRole.direct) direct.add(op);
+          for (const [k, v] of parentRole.conditional) conditional.set(k, v);
+          patterns.push(...parentRole.patterns);
+          all = Array.from(new Set(all.concat(parentRole.allOps)));
         }
       }
-      const direct = roleCanMap(role.can);
-      can = { ...can, ...direct };
-      globs.push(...globsFromFoundedRole(direct));
+      const built = buildPermissionData(role.can);
+      for (const op of built.direct) direct.add(op);
+      for (const [k, v] of built.conditional) conditional.set(k, v);
+      patterns.push(...built.patterns);
+      all = Array.from(new Set(all.concat(built.all)));
     }
     stack.delete(name);
-    const unique: GlobFromRole<P>[] = [];
     const seen = new Set<string>();
-    for (const g of globs) {
-      const key = g.role + g.regex.source;
+    const unique: PatternPermission<P>[] = [];
+    for (const p of patterns) {
+      const key = p.name + p.regex.source;
       if (!seen.has(key)) {
         seen.add(key);
-        unique.push(g);
+        unique.push(p);
       }
     }
-    const mapped: MappedRole<P> = { can, globs: unique, inherits };
+    const mapped: MappedRole<P> = {
+      direct,
+      conditional,
+      patterns: unique,
+      inherits,
+      allOps: Array.from(new Set([...direct, ...conditional.keys(), ...unique.map(p => p.name)]))
+    };
     memo[name] = mapped;
     return mapped;
   };
@@ -187,6 +175,7 @@ const flattenRoles = <P>(roles: Roles<P>): MappedRoles<P> => {
   }
   return memo;
 };
+
 
 const RBAC =
   <P>(config: RBACConfig = {}) =>

@@ -16,10 +16,12 @@ export type When<P = unknown> =
   | WhenCallback<P>
   | WhenFunction<P>;
 
-export interface GlobFromRole<P = unknown> {
-  role: string;
+export type NormalizedWhenFn<P = unknown> = (params: P) => Promise<boolean>;
+
+export interface PatternPermission<P = unknown> {
+  name: string;
   regex: RegExp;
-  when: When<P> | true;
+  when: NormalizedWhenFn<P> | true;
 }
 
 export interface Role<P = unknown> {
@@ -30,9 +32,11 @@ export interface Role<P = unknown> {
 export type Roles<P = unknown> = Record<string, Role<P>>;
 
 export interface MappedRole<P = unknown> {
-  can: Record<string, When<P> | true>;
+  direct: Set<string>;
+  conditional: Map<string, NormalizedWhenFn<P>>;
+  patterns: PatternPermission<P>[];
   inherits?: string[];
-  globs: GlobFromRole<P>[];
+  allOps: string[];
 }
 
 export type MappedRoles<P = unknown> = Record<string, MappedRole<P>>;
