@@ -57,6 +57,6 @@
     "asciichart": "^1.5.25"
   },
   "dependencies": {
-    "zod": "^3.25.56"
+    "zod": "^3.25.67"
   }
 }
