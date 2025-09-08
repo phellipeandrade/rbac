@@ -154,7 +154,7 @@ describe('Role Adapters', () => {
 
   describe('MongoRoleAdapter', () => {
     it('should add and retrieve roles', async () => {
-      const { MongoRoleAdapter } = require('../lib/adapters/mongodb');
+      const { MongoRoleAdapter } = require('../src/adapters/mongodb');
       const adapter = new MongoRoleAdapter({ uri: '', dbName: 'db', collection: 'roles' });
       await adapter.addRole('user', { can: ['a'] });
       let roles = await adapter.getRoles();
@@ -168,7 +168,7 @@ describe('Role Adapters', () => {
     });
 
     it('should work with custom columns', async () => {
-      const { MongoRoleAdapter } = require('../lib/adapters/mongodb');
+      const { MongoRoleAdapter } = require('../src/adapters/mongodb');
       const adapter = new MongoRoleAdapter({
         uri: '',
         dbName: 'db',
@@ -181,7 +181,7 @@ describe('Role Adapters', () => {
     });
 
     it('should update roles with custom columns', async () => {
-      const { MongoRoleAdapter } = require('../lib/adapters/mongodb');
+      const { MongoRoleAdapter } = require('../src/adapters/mongodb');
       const adapter = new MongoRoleAdapter({
         uri: '',
         dbName: 'db',
@@ -194,7 +194,7 @@ describe('Role Adapters', () => {
     });
 
     it('should respect the collection option', async () => {
-      const { MongoRoleAdapter } = require('../lib/adapters/mongodb');
+      const { MongoRoleAdapter } = require('../src/adapters/mongodb');
       const a = new MongoRoleAdapter({ uri: '', dbName: 'db', collection: 'c1' });
       const b = new MongoRoleAdapter({ uri: '', dbName: 'db', collection: 'c2' });
 
@@ -211,7 +211,7 @@ describe('Role Adapters', () => {
 
   describe('MySQLRoleAdapter', () => {
     it('should add and retrieve roles', async () => {
-      const { MySQLRoleAdapter } = require('../lib/adapters/mysql');
+      const { MySQLRoleAdapter } = require('../src/adapters/mysql');
       const adapter = new MySQLRoleAdapter({ table: 'roles' });
       await adapter.addRole('user', { can: ['a'] });
       let roles = await adapter.getRoles();
@@ -224,7 +224,7 @@ describe('Role Adapters', () => {
     });
 
     it('should work with custom columns', async () => {
-      const { MySQLRoleAdapter } = require('../lib/adapters/mysql');
+      const { MySQLRoleAdapter } = require('../src/adapters/mysql');
       const adapter = new MySQLRoleAdapter({
         table: 'roles',
         columns: { name: 'rname', role: 'rdef', tenantId: 'tid' }
@@ -235,7 +235,7 @@ describe('Role Adapters', () => {
     });
 
     it('should update roles with custom columns', async () => {
-      const { MySQLRoleAdapter } = require('../lib/adapters/mysql');
+      const { MySQLRoleAdapter } = require('../src/adapters/mysql');
       const adapter = new MySQLRoleAdapter({
         table: 'roles',
         columns: { name: 'rname', role: 'rdef', tenantId: 'tid' }
@@ -246,7 +246,7 @@ describe('Role Adapters', () => {
     });
 
     it('should respect the table option', async () => {
-      const { MySQLRoleAdapter } = require('../lib/adapters/mysql');
+      const { MySQLRoleAdapter } = require('../src/adapters/mysql');
       const adapter = new MySQLRoleAdapter({ table: 'custom_roles' });
       await adapter.addRole('user', { can: ['a'] });
       expect(lastMySQLConnection.tables).to.have.property('custom_roles');
@@ -257,7 +257,7 @@ describe('Role Adapters', () => {
 
   describe('PostgresRoleAdapter', () => {
     it('should add and retrieve roles', async () => {
-      const { PostgresRoleAdapter } = require('../lib/adapters/postgres');
+      const { PostgresRoleAdapter } = require('../src/adapters/postgres');
       const adapter = new PostgresRoleAdapter({ table: 'roles' });
       await adapter.addRole('user', { can: ['a'] });
       let roles = await adapter.getRoles();
@@ -270,7 +270,7 @@ describe('Role Adapters', () => {
     });
 
     it('should work with custom columns', async () => {
-      const { PostgresRoleAdapter } = require('../lib/adapters/postgres');
+      const { PostgresRoleAdapter } = require('../src/adapters/postgres');
       const adapter = new PostgresRoleAdapter({
         table: 'roles',
         columns: { name: 'rname', role: 'rdef', tenantId: 'tid' }
@@ -281,7 +281,7 @@ describe('Role Adapters', () => {
     });
 
     it('should update roles with custom columns', async () => {
-      const { PostgresRoleAdapter } = require('../lib/adapters/postgres');
+      const { PostgresRoleAdapter } = require('../src/adapters/postgres');
       const adapter = new PostgresRoleAdapter({
         table: 'roles',
         columns: { name: 'rname', role: 'rdef', tenantId: 'tid' }
@@ -292,7 +292,7 @@ describe('Role Adapters', () => {
     });
 
     it('should respect the table option', async () => {
-      const { PostgresRoleAdapter } = require('../lib/adapters/postgres');
+      const { PostgresRoleAdapter } = require('../src/adapters/postgres');
       const adapter = new PostgresRoleAdapter({ table: 'custom_roles' });
       await adapter.addRole('user', { can: ['a'] });
       expect(lastPGClient.tables).to.have.property('custom_roles');
@@ -303,8 +303,8 @@ describe('Role Adapters', () => {
 
   describe('multi-tenant behavior', () => {
     it('should isolate roles per tenant', async () => {
-      const { MongoRoleAdapter } = require('../lib/adapters/mongodb');
-      const { createTenantRBAC } = require('../lib/index');
+      const { MongoRoleAdapter } = require('../src/adapters/mongodb');
+      const { createTenantRBAC } = require('../src/index');
       const adapter = new MongoRoleAdapter({ uri: '', dbName: 'db', collection: 'roles' });
 
       await adapter.addRole('user', { can: ['a'] }, 'tenant-a');

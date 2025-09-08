@@ -1,7 +1,7 @@
 /* global describe, it, before */
 
 import chai from 'chai';
-import rbac from '../lib/index';
+import rbac from '../src/index';
 
 chai.expect();
 
