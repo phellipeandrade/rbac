@@ -8,7 +8,7 @@
 </h1>
 
 [![CircleCI](https://circleci.com/gh/phellipeandrade/rbac/tree/master.svg?style=svg)](https://circleci.com/gh/phellipeandrade/rbac/tree/master)
-[![npm version](https://badge.fury.io/js/@rbac%2Frbac.svg)](https://badge.fury.io/js/@rbac%2Frbac)
+[![npm version](https://badge.fury.io/js/@rbac%2Frbac.svg?icon=si%3Anpm)](https://badge.fury.io/js/@rbac%2Frbac)
 [![size](https://img.badgesize.io/https://raw.githubusercontent.com/phellipeandrade/rbac/master/lib/%40rbac/rbac.js.svg)](https://img.badgesize.io/https://raw.githubusercontent.com/phellipeandrade/rbac/master/lib/%40rbac/rbac.js.svg)
 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=checkout%20RBAC%20project%20on%20Github!&url=https://github.com/phellipeandrade/rbac&hashtags=rbac,authorization,privacy,security,permission)
 
