@@ -58,5 +58,11 @@
   },
   "dependencies": {
     "zod": "^3.25.56"
+  },
+  "overrides": {
+    "undici-types": "^7.10.0"
+  },
+  "resolutions": {
+    "undici-types": "^7.10.0"
   }
 }
