@@ -8,8 +8,8 @@
     "build": "tsc && vite build",
     "dev": "tsc -w",
     "examples": "node -r ts-node/register ./examples/index.ts",
-    "test": "NODE_ENV=test mocha --require @babel/register --colors ./test/*.spec.js",
-    "test:watch": "NODE_ENV=test mocha --require @babel/register --colors -w ./test/*.spec.js",
+    "test": "NODE_ENV=test mocha --require ts-node/register/transpile-only --colors ./test/*.spec.ts",
+    "test:watch": "NODE_ENV=test mocha --require ts-node/register/transpile-only --colors -w ./test/*.spec.ts",
     "test:npm": "cd test/npm-test && npm install && npm test",
     "bench": "node ./benchmarks/perf.js"
   },

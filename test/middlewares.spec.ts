@@ -4,7 +4,7 @@ import rbac, {
   createExpressMiddleware,
   createNestMiddleware,
   createFastifyMiddleware
-} from '../lib/index';
+} from '../src/index';
 
 const expect = chai.expect;
 
