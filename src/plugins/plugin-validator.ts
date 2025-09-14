@@ -11,62 +11,62 @@ export interface SecurityResult {
 }
 
 export class PluginValidator {
-  // Validar estrutura básica do plugin
+  // Validate basic plugin structure
   static validateCommunityPlugin(plugin: Plugin): ValidationResult {
     const errors: string[] = [];
 
-    // Validar metadata obrigatória
+    // Validate required metadata
     if (!plugin.metadata) {
-      errors.push('Plugin deve ter metadata');
+      errors.push('Plugin must have metadata');
     } else {
       if (!plugin.metadata.name) {
-        errors.push('Plugin deve ter um nome');
+        errors.push('Plugin must have a name');
       }
 
       if (!plugin.metadata.version) {
-        errors.push('Plugin deve ter uma versão');
+        errors.push('Plugin must have a version');
       }
 
       if (!plugin.metadata.description) {
-        errors.push('Plugin deve ter uma descrição');
+        errors.push('Plugin must have a description');
       }
 
       if (!plugin.metadata.author) {
-        errors.push('Plugin deve ter um autor');
+        errors.push('Plugin must have an author');
       }
 
       if (!plugin.metadata.license) {
-        errors.push('Plugin deve ter uma licença');
+        errors.push('Plugin must have a license');
       }
 
-      // Validar formato da versão
+      // Validate version format
       if (plugin.metadata.version && !this.isValidVersion(plugin.metadata.version)) {
-        errors.push('Versão deve seguir o formato semver (ex: 1.0.0)');
+        errors.push('Version must follow semver format (ex: 1.0.0)');
       }
 
-      // Validar nome do plugin
+      // Validate plugin name
       if (plugin.metadata.name && !this.isValidPluginName(plugin.metadata.name)) {
-        errors.push('Nome do plugin deve conter apenas letras, números, hífens e underscores');
+        errors.push('Plugin name must contain only letters, numbers, hyphens and underscores');
       }
     }
 
-    // Validar funções obrigatórias
+    // Validate required functions
     if (typeof plugin.install !== 'function') {
-      errors.push('Plugin deve implementar a função install');
+      errors.push('Plugin must implement install function');
     }
 
     if (typeof plugin.uninstall !== 'function') {
-      errors.push('Plugin deve implementar a função uninstall');
+      errors.push('Plugin must implement uninstall function');
     }
 
-    // Validar hooks
+    // Validate hooks
     if (plugin.getHooks && typeof plugin.getHooks !== 'function') {
-      errors.push('getHooks deve ser uma função');
+      errors.push('getHooks must be a function');
     }
 
-    // Validar configure
+    // Validate configure
     if (plugin.configure && typeof plugin.configure !== 'function') {
-      errors.push('configure deve ser uma função');
+      errors.push('configure must be a function');
     }
 
     return {
@@ -75,36 +75,36 @@ export class PluginValidator {
     };
   }
 
-  // Validar segurança do plugin
+  // Validate plugin security
   static validatePluginSecurity(plugin: Plugin): SecurityResult {
     const warnings: string[] = [];
 
-    // Verificar se não há código suspeito
+    // Check for suspicious code
     const pluginString = JSON.stringify(plugin);
     
-    // Verificar uso de eval ou Function
+    // Check for eval or Function usage
     if (pluginString.includes('eval(') || pluginString.includes('Function(')) {
-      warnings.push('Plugin contém código potencialmente inseguro (eval/Function)');
+      warnings.push('Plugin contains potentially unsafe code (eval/Function)');
     }
 
-    // Verificar require de módulos não verificados
+    // Check for unverified module requires
     if (pluginString.includes('require(') && !pluginString.includes('@rbac/')) {
-      warnings.push('Plugin pode ter dependências não verificadas');
+      warnings.push('Plugin may have unverified dependencies');
     }
 
-    // Verificar uso de process.env sem validação
+    // Check for process.env usage without validation
     if (pluginString.includes('process.env') && !pluginString.includes('NODE_ENV')) {
-      warnings.push('Plugin acessa variáveis de ambiente sem validação');
+      warnings.push('Plugin accesses environment variables without validation');
     }
 
-    // Verificar uso de console.log em produção
+    // Check for console.log usage in production
     if (pluginString.includes('console.log') || pluginString.includes('console.warn')) {
-      warnings.push('Plugin usa console.log/warn que pode vazar informações em produção');
+      warnings.push('Plugin uses console.log/warn which may leak information in production');
     }
 
-    // Verificar uso de setTimeout/setInterval
+    // Check for setTimeout/setInterval usage
     if (pluginString.includes('setTimeout') || pluginString.includes('setInterval')) {
-      warnings.push('Plugin usa timers que podem causar vazamentos de memória');
+      warnings.push('Plugin uses timers that may cause memory leaks');
     }
 
     return {
@@ -113,15 +113,15 @@ export class PluginValidator {
     };
   }
 
-  // Validar compatibilidade de versão
+  // Validate version compatibility
   static validateVersionCompatibility(plugin: Plugin, rbacVersion: string): ValidationResult {
     const errors: string[] = [];
 
-    // Verificar se o plugin especifica compatibilidade
+    // Check if plugin specifies compatibility
     if (plugin.metadata && (plugin.metadata as any).peerDependencies) {
       const rbacDep = (plugin.metadata as any).peerDependencies['@rbac/rbac'];
       if (rbacDep && !this.isVersionCompatible(rbacVersion, rbacDep)) {
-        errors.push(`Plugin requer @rbac/rbac ${rbacDep} mas encontrado ${rbacVersion}`);
+        errors.push(`Plugin requires @rbac/rbac ${rbacDep} but found ${rbacVersion}`);
       }
     }
 
@@ -131,25 +131,25 @@ export class PluginValidator {
     };
   }
 
-  // Validar configuração do plugin
+  // Validate plugin configuration
   static validatePluginConfig(config: any): ValidationResult {
     const errors: string[] = [];
 
     if (typeof config !== 'object' || config === null) {
-      errors.push('Configuração deve ser um objeto');
+      errors.push('Configuration must be an object');
       return { valid: false, errors };
     }
 
     if (typeof config.enabled !== 'boolean') {
-      errors.push('Configuração deve ter campo enabled (boolean)');
+      errors.push('Configuration must have enabled field (boolean)');
     }
 
     if (typeof config.priority !== 'number' || config.priority < 0 || config.priority > 100) {
-      errors.push('Configuração deve ter campo priority (number entre 0 e 100)');
+      errors.push('Configuration must have priority field (number between 0 and 100)');
     }
 
     if (typeof config.settings !== 'object' || config.settings === null) {
-      errors.push('Configuração deve ter campo settings (object)');
+      errors.push('Configuration must have settings field (object)');
     }
 
     return {
@@ -158,12 +158,12 @@ export class PluginValidator {
     };
   }
 
-  // Validar hooks do plugin
+  // Validate plugin hooks
   static validatePluginHooks(hooks: any): ValidationResult {
     const errors: string[] = [];
 
     if (typeof hooks !== 'object' || hooks === null) {
-      errors.push('Hooks devem ser um objeto');
+      errors.push('Hooks must be an object');
       return { valid: false, errors };
     }
 
@@ -179,11 +179,11 @@ export class PluginValidator {
 
     for (const [hookType, handler] of Object.entries(hooks)) {
       if (!validHookTypes.includes(hookType)) {
-        errors.push(`Tipo de hook inválido: ${hookType}`);
+        errors.push(`Invalid hook type: ${hookType}`);
       }
 
       if (typeof handler !== 'function') {
-        errors.push(`Hook ${hookType} deve ser uma função`);
+        errors.push(`Hook ${hookType} must be a function`);
       }
     }
 
@@ -193,7 +193,7 @@ export class PluginValidator {
     };
   }
 
-  // Funções auxiliares
+  // Helper functions
   private static isValidVersion(version: string): boolean {
     const semverRegex = /^\d+\.\d+\.\d+(-[a-zA-Z0-9.-]+)?(\+[a-zA-Z0-9.-]+)?$/;
     return semverRegex.test(version);
@@ -205,8 +205,8 @@ export class PluginValidator {
   }
 
   private static isVersionCompatible(version: string, requirement: string): boolean {
-    // Implementação simples de verificação de compatibilidade
-    // Em produção, usar uma biblioteca como semver
+    // Simple compatibility check implementation
+    // In production, use a library like semver
     const versionParts = version.split('.').map(Number);
     const reqParts = requirement.replace(/[^0-9.]/g, '').split('.').map(Number);
     

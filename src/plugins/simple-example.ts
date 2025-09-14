@@ -1,12 +1,12 @@
-// Exemplo simples de uso do sistema de plugins funcional
+// Simple example of using the functional plugin system
 
 import RBAC from '../rbac';
 import { createRBACWithPlugins, createCachePlugin, createNotificationPlugin } from './index';
 
-async function exemploSimples() {
-  console.log('🚀 Exemplo de Sistema de Plugins Funcional para RBAC\n');
+async function simpleExample() {
+  console.log('🚀 Functional Plugin System Example for RBAC\n');
 
-  // 1. Criar RBAC básico
+  // 1. Create basic RBAC
   const rbac = RBAC()({
     user: {
       can: ['products:read', 'profile:update']
@@ -21,25 +21,25 @@ async function exemploSimples() {
     }
   });
 
-  // 2. Adicionar sistema de plugins
+  // 2. Add plugin system
   const rbacWithPlugins = createRBACWithPlugins(rbac);
 
-  // 3. Instalar plugin de cache
-  console.log('📦 Instalando plugin de cache...');
+  // 3. Install cache plugin
+  console.log('📦 Installing cache plugin...');
   await rbacWithPlugins.plugins.install(
     createCachePlugin({
       enabled: true,
       priority: 50,
       settings: {
-        ttl: 60, // 1 minuto para demonstração
+        ttl: 60, // 1 minute for demonstration
         maxSize: 100,
         strategy: 'lru'
       }
     })
   );
 
-  // 4. Instalar plugin de notificações
-  console.log('📦 Instalando plugin de notificações...');
+  // 4. Install notification plugin
+  console.log('📦 Installing notification plugin...');
   await rbacWithPlugins.plugins.install(
     createNotificationPlugin({
       enabled: true,
@@ -57,74 +57,74 @@ async function exemploSimples() {
     })
   );
 
-  // 5. Testar verificações de permissão
-  console.log('\n🔍 Testando verificações de permissão...\n');
+  // 5. Test permission checks
+  console.log('\n🔍 Testing permission checks...\n');
 
-  const testes = [
-    { role: 'user', operation: 'products:read', esperado: true },
-    { role: 'user', operation: 'products:write', esperado: false },
-    { role: 'user', operation: 'users:delete', esperado: false },
-    { role: 'admin', operation: 'products:delete', esperado: true },
-    { role: 'admin', operation: 'users:create', esperado: true },
-    { role: 'moderator', operation: 'products:read', esperado: true },
-    { role: 'moderator', operation: 'products:delete', esperado: false },
-    { role: 'moderator', operation: 'comments:delete', esperado: true }
+  const tests = [
+    { role: 'user', operation: 'products:read', expected: true },
+    { role: 'user', operation: 'products:write', expected: false },
+    { role: 'user', operation: 'users:delete', expected: false },
+    { role: 'admin', operation: 'products:delete', expected: true },
+    { role: 'admin', operation: 'users:create', expected: true },
+    { role: 'moderator', operation: 'products:read', expected: true },
+    { role: 'moderator', operation: 'products:delete', expected: false },
+    { role: 'moderator', operation: 'comments:delete', expected: true }
   ];
 
-  for (const teste of testes) {
-    const resultado = await rbacWithPlugins.can(teste.role, teste.operation);
-    const status = resultado === teste.esperado ? '✅' : '❌';
-    console.log(`${status} ${teste.role} -> ${teste.operation}: ${resultado} (esperado: ${teste.esperado})`);
+  for (const test of tests) {
+    const result = await rbacWithPlugins.can(test.role, test.operation);
+    const status = result === test.expected ? '✅' : '❌';
+    console.log(`${status} ${test.role} -> ${test.operation}: ${result} (expected: ${test.expected})`);
   }
 
-  // 6. Testar cache (segunda verificação deve ser mais rápida)
-  console.log('\n⚡ Testando cache...');
-  const inicio = Date.now();
+  // 6. Test cache (second check should be faster)
+  console.log('\n⚡ Testing cache...');
+  const start = Date.now();
   await rbacWithPlugins.can('user', 'products:read');
-  const tempo1 = Date.now() - inicio;
+  const time1 = Date.now() - start;
 
-  const inicio2 = Date.now();
+  const start2 = Date.now();
   await rbacWithPlugins.can('user', 'products:read');
-  const tempo2 = Date.now() - inicio2;
+  const time2 = Date.now() - start2;
 
-  console.log(`Primeira verificação: ${tempo1}ms`);
-  console.log(`Segunda verificação (cache): ${tempo2}ms`);
+  console.log(`First check: ${time1}ms`);
+  console.log(`Second check (cache): ${time2}ms`);
 
-  // 7. Listar plugins instalados
-  console.log('\n📋 Plugins instalados:');
+  // 7. List installed plugins
+  console.log('\n📋 Installed plugins:');
   const plugins = rbacWithPlugins.plugins.getPlugins();
   plugins.forEach((plugin: any) => {
-    console.log(`  - ${plugin.name} v${plugin.metadata.version} (${plugin.config.enabled ? 'habilitado' : 'desabilitado'})`);
+    console.log(`  - ${plugin.name} v${plugin.metadata.version} (${plugin.config.enabled ? 'enabled' : 'disabled'})`);
   });
 
-  // 8. Criar e instalar plugin customizado
-  console.log('\n🛠 Criando plugin customizado...');
-  const pluginCustomizado = {
+  // 8. Create and install custom plugin
+  console.log('\n🛠 Creating custom plugin...');
+  const customPlugin = {
     metadata: {
       name: 'custom-logger',
       version: '1.0.0',
-      description: 'Plugin customizado para logging detalhado',
-      author: 'Desenvolvedor',
+      description: 'Custom plugin for detailed logging',
+      author: 'Developer',
       keywords: ['logging', 'custom']
     },
 
     install: async (context: any) => {
-      context.logger('🎉 Plugin customizado instalado!', 'info');
+      context.logger('🎉 Custom plugin installed!', 'info');
     },
 
     uninstall: () => {
-      console.log('👋 Plugin customizado desinstalado!');
+      console.log('👋 Custom plugin uninstalled!');
     },
 
     getHooks: () => ({
       beforePermissionCheck: async (data: any, context: any) => {
-        context.logger(`🔍 Verificando: ${data.role} -> ${data.operation}`, 'info');
+        context.logger(`🔍 Checking: ${data.role} -> ${data.operation}`, 'info');
         return data;
       },
 
       afterPermissionCheck: async (data: any, context: any) => {
         const emoji = data.result ? '✅' : '❌';
-        context.logger(`${emoji} Resultado: ${data.result ? 'PERMITIDO' : 'NEGADO'}`, 'info');
+        context.logger(`${emoji} Result: ${data.result ? 'ALLOWED' : 'DENIED'}`, 'info');
         return data;
       },
 
@@ -136,35 +136,35 @@ async function exemploSimples() {
     })
   };
 
-  await rbacWithPlugins.plugins.install(pluginCustomizado);
+  await rbacWithPlugins.plugins.install(customPlugin);
 
-  // 9. Testar com plugin customizado
-  console.log('\n🧪 Testando com plugin customizado...');
+  // 9. Test with custom plugin
+  console.log('\n🧪 Testing with custom plugin...');
   await rbacWithPlugins.can('admin', 'products:create');
 
-  // 10. Desabilitar plugin
-  console.log('\n⏸ Desabilitando plugin customizado...');
+  // 10. Disable plugin
+  console.log('\n⏸ Disabling custom plugin...');
   await rbacWithPlugins.plugins.disable('custom-logger');
 
-  // 11. Testar sem plugin customizado
-  console.log('🔇 Testando sem plugin customizado...');
+  // 11. Test without custom plugin
+  console.log('🔇 Testing without custom plugin...');
   await rbacWithPlugins.can('user', 'profile:update');
 
-  // 12. Reabilitar plugin
-  console.log('\n▶ Reabilitando plugin customizado...');
+  // 12. Re-enable plugin
+  console.log('\n▶ Re-enabling custom plugin...');
   await rbacWithPlugins.plugins.enable('custom-logger');
 
-  // 13. Desinstalar plugin
-  console.log('\n🗑 Desinstalando plugin customizado...');
+  // 13. Uninstall plugin
+  console.log('\n🗑 Uninstalling custom plugin...');
   await rbacWithPlugins.plugins.uninstall('custom-logger');
 
-  console.log('\n🎯 Exemplo concluído com sucesso!');
-  console.log('\n📚 Para mais exemplos, consulte a documentação em src/plugins/README.md');
+  console.log('\n🎯 Example completed successfully!');
+  console.log('\n📚 For more examples, check the documentation at src/plugins/README.md');
 }
 
-// Executar exemplo se for chamado diretamente
+// Run example if called directly
 if (require.main === module) {
-  exemploSimples().catch(console.error);
+  simpleExample().catch(console.error);
 }
 
-export { exemploSimples };
+export { simpleExample };

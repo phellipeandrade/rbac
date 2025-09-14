@@ -55,7 +55,7 @@ export class PluginManager<P = unknown> extends EventEmitter {
       // Validar plugin
       this.validatePlugin(plugin);
       
-      // Verificar dependências
+      // Check dependencies
       await this.checkDependencies(plugin);
       
       // Configurar plugin
@@ -78,7 +78,7 @@ export class PluginManager<P = unknown> extends EventEmitter {
         }
       }
       
-      // Executar onStartup se disponível
+      // Execute onStartup if available
       if (plugin.onStartup) {
         await plugin.onStartup();
       }
@@ -114,13 +114,13 @@ export class PluginManager<P = unknown> extends EventEmitter {
   async uninstallPlugin(pluginName: string): Promise<void> {
     const plugin = this.registry.plugins.get(pluginName);
     if (!plugin) {
-      throw new Error(`Plugin ${pluginName} não encontrado`);
+      throw new Error(`Plugin ${pluginName} not found`);
     }
 
     try {
       this.logger(`Desinstalando plugin: ${pluginName}`, 'info');
       
-      // Executar onShutdown se disponível
+      // Execute onShutdown if available
       if (plugin.onShutdown) {
         await plugin.onShutdown();
       }
@@ -155,7 +155,7 @@ export class PluginManager<P = unknown> extends EventEmitter {
   async enablePlugin(pluginName: string): Promise<void> {
     const config = this.registry.configs.get(pluginName);
     if (!config) {
-      throw new Error(`Plugin ${pluginName} não encontrado`);
+      throw new Error(`Plugin ${pluginName} not found`);
     }
 
     config.enabled = true;
@@ -174,7 +174,7 @@ export class PluginManager<P = unknown> extends EventEmitter {
   async disablePlugin(pluginName: string): Promise<void> {
     const config = this.registry.configs.get(pluginName);
     if (!config) {
-      throw new Error(`Plugin ${pluginName} não encontrado`);
+      throw new Error(`Plugin ${pluginName} not found`);
     }
 
     config.enabled = false;
@@ -188,7 +188,7 @@ export class PluginManager<P = unknown> extends EventEmitter {
   }
 
   /**
-   * Executa hooks de um tipo específico
+   * Executes hooks of a specific type
    */
   async executeHooks(hookName: PluginHook, data: HookData<P>): Promise<HookResult<P>[]> {
     const handlers = this.registry.hooks.get(hookName) || [];
@@ -218,7 +218,7 @@ export class PluginManager<P = unknown> extends EventEmitter {
           executionTime
         });
         
-        // Se o hook retornou dados modificados, usar para próxima iteração
+        // If hook returned modified data, use for next iteration
         if (result) {
           data = result as HookData<P>;
         }
@@ -259,7 +259,7 @@ export class PluginManager<P = unknown> extends EventEmitter {
   }
 
   /**
-   * Obtém informações de um plugin específico
+   * Gets information about a specific plugin
    */
   getPlugin(pluginName: string): { plugin: RBACPlugin<P>; config: PluginConfig } | null {
     const plugin = this.registry.plugins.get(pluginName);
@@ -273,12 +273,12 @@ export class PluginManager<P = unknown> extends EventEmitter {
   }
 
   /**
-   * Atualiza configuração de um plugin
+   * Updates plugin configuration
    */
   async updatePluginConfig(pluginName: string, newConfig: Partial<PluginConfig>): Promise<void> {
     const currentConfig = this.registry.configs.get(pluginName);
     if (!currentConfig) {
-      throw new Error(`Plugin ${pluginName} não encontrado`);
+      throw new Error(`Plugin ${pluginName} not found`);
     }
 
     const updatedConfig = { ...currentConfig, ...newConfig };
@@ -291,35 +291,35 @@ export class PluginManager<P = unknown> extends EventEmitter {
   }
 
   /**
-   * Carrega plugins de um diretório
+   * Loads plugins from a directory
    */
   async loadPluginsFromDirectory(directory: string): Promise<void> {
-    // Implementação seria feita com fs e require/dynamic import
-    // Por simplicidade, deixamos como placeholder
-    this.logger(`Carregando plugins do diretório: ${directory}`, 'info');
+    // Implementation would be done with fs and require/dynamic import
+    // For simplicity, left as placeholder
+    this.logger(`Loading plugins from directory: ${directory}`, 'info');
   }
 
-  // Métodos privados
+  // Private methods
 
   private validatePlugin(plugin: RBACPlugin<P>): void {
     if (!plugin.metadata) {
-      throw new Error('Plugin deve ter metadata');
+      throw new Error('Plugin must have metadata');
     }
     
     if (!plugin.metadata.name) {
-      throw new Error('Plugin deve ter um nome');
+      throw new Error('Plugin must have a name');
     }
     
     if (!plugin.metadata.version) {
-      throw new Error('Plugin deve ter uma versão');
+      throw new Error('Plugin must have a version');
     }
     
     if (!plugin.install || typeof plugin.install !== 'function') {
-      throw new Error('Plugin deve implementar o método install');
+      throw new Error('Plugin must implement install method');
     }
     
     if (!plugin.uninstall || typeof plugin.uninstall !== 'function') {
-      throw new Error('Plugin deve implementar o método uninstall');
+      throw new Error('Plugin must implement uninstall method');
     }
   }
 
@@ -328,12 +328,12 @@ export class PluginManager<P = unknown> extends EventEmitter {
       return;
     }
 
-    // Verificar se dependências estão instaladas
+    // Check if dependencies are installed
     for (const [depName, depVersion] of Object.entries(plugin.metadata.dependencies)) {
       try {
         require.resolve(depName);
       } catch {
-        throw new Error(`Dependência ${depName}@${depVersion} não encontrada`);
+        throw new Error(`Dependency ${depName}@${depVersion} not found`);
       }
     }
   }

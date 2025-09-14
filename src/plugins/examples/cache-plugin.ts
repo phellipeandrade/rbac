@@ -1,8 +1,8 @@
 import { RBACPlugin, PluginContext, PluginConfig, PluginMetadata, HookData } from '../types';
 
 interface CacheConfig {
-  ttl: number; // Time to live em segundos
-  maxSize: number; // Tamanho máximo do cache
+  ttl: number; // Time to live in seconds
+  maxSize: number; // Maximum cache size
   strategy: 'lru' | 'fifo' | 'ttl';
 }
 
@@ -13,13 +13,13 @@ interface CacheEntry {
 }
 
 /**
- * Plugin de cache para otimizar verificações de permissão
+ * Cache plugin to optimize permission checks
  */
 export class CachePlugin<P = unknown> implements RBACPlugin<P> {
   metadata: PluginMetadata = {
     name: 'rbac-cache',
     version: '1.0.0',
-    description: 'Plugin de cache para otimizar verificações de permissão',
+    description: 'Cache plugin to optimize permission checks',
     author: 'RBAC Team',
     license: 'MIT',
     keywords: ['cache', 'performance', 'optimization']
@@ -131,7 +131,7 @@ export class CachePlugin<P = unknown> implements RBACPlugin<P> {
     console.log('[CACHE] Cache plugin finished');
   }
 
-  // Métodos públicos para gerenciamento do cache
+  // Public methods for cache management
 
   get(key: string): any {
     const entry = this.cache.get(key);
@@ -178,7 +178,7 @@ export class CachePlugin<P = unknown> implements RBACPlugin<P> {
     return Array.from(this.cache.keys());
   }
 
-  // Métodos privados
+  // Private methods
 
   private generateCacheKey(role: string, operation: string | RegExp, params?: P): string {
     const operationStr = typeof operation === 'string' ? operation : operation.source;
@@ -254,7 +254,7 @@ export class CachePlugin<P = unknown> implements RBACPlugin<P> {
     keysToDelete.forEach(key => this.cache.delete(key));
   }
 
-  // Métodos de estatísticas
+  // Statistics methods
 
   getStats(): {
     size: number;

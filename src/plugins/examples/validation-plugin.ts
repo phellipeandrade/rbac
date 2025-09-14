@@ -16,13 +16,13 @@ interface ValidationRule {
 }
 
 /**
- * Plugin de validação para roles, operações e parâmetros
+ * Validation plugin for roles, operations and parameters
  */
 export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
   metadata: PluginMetadata = {
     name: 'rbac-validation',
     version: '1.0.0',
-    description: 'Plugin de validação para roles, operações e parâmetros do RBAC',
+    description: 'Validation plugin for RBAC roles, operations and parameters',
     author: 'RBAC Team',
     license: 'MIT',
     keywords: ['validation', 'security', 'data-integrity']
@@ -380,13 +380,13 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
     });
   }
 
-  // Métodos privados
+  // Private methods
 
   private setupDefaultRules(): void {
-    // Regras padrão podem ser adicionadas aqui
+    // Default rules can be added here
   }
 
-  // Métodos de estatísticas
+  // Statistics methods
 
   getValidationStats(): {
     totalRules: number;
