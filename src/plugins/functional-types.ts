@@ -66,9 +66,14 @@ export interface PluginSystem {
   uninstall: (pluginName: string) => Promise<void>;
   enable: (pluginName: string) => Promise<void>;
   disable: (pluginName: string) => Promise<void>;
+  configure: (pluginName: string, config: PluginConfig) => Promise<void>;
   executeHooks: (hookType: HookType, data: HookData) => Promise<HookData>;
   getPlugins: () => Array<{ name: string; metadata: PluginMetadata; config: PluginConfig }>;
   getPlugin: (name: string) => { plugin: Plugin; config: PluginConfig } | null;
+  events: {
+    on: (event: string, handler: (data: any) => void) => void;
+    emit: (event: string, data: any) => void;
+  };
 }
 
 // Hooks utilitários funcionais

@@ -60,7 +60,7 @@ describe('Functional Plugin System', () => {
 
       await system.install(pluginInstance);
 
-      expect(plugin.install).toHaveBeenCalledWith(expect.objectContaining({
+      expect(pluginInstance.install).toHaveBeenCalledWith(expect.objectContaining({
         rbac: mockRBAC,
         logger: expect.any(Function),
         events: expect.any(EventEmitter)
@@ -221,7 +221,7 @@ describe('Functional Plugin System', () => {
       const fetched = system.getPlugin('test-plugin');
       expect(fetched).toBeTruthy();
 
-      expect(pluginInstance.configure).toHaveBeenCalledWith(newConfig);
+      expect(plugin.configure).toHaveBeenCalledWith(newConfig);
     });
 
     it('should fail when trying to configure non-existent plugin', async () => {

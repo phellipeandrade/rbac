@@ -67,6 +67,7 @@ export const createPluginSystem = (rbacInstance: any): PluginSystem => {
       }
       
       state.events.emit('plugin.installed', {
+        type: 'plugin.installed',
         plugin: plugin.metadata.name,
         version: plugin.metadata.version,
         timestamp: new Date()
@@ -75,7 +76,16 @@ export const createPluginSystem = (rbacInstance: any): PluginSystem => {
       context.logger(`Plugin ${plugin.metadata.name} instalado com sucesso`, 'info');
       
     } catch (error) {
-      context.logger(`Erro ao instalar plugin ${plugin.metadata.name}: ${error}`, 'error');
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      context.logger(`Erro ao instalar plugin ${plugin.metadata.name}: ${errorMessage}`, 'error');
+      
+      state.events.emit('plugin.error', {
+        type: 'plugin.error',
+        plugin: plugin.metadata.name,
+        timestamp: new Date(),
+        data: { error: errorMessage }
+      });
+      
       throw error;
     }
   };
@@ -101,6 +111,7 @@ export const createPluginSystem = (rbacInstance: any): PluginSystem => {
       state.configs.delete(pluginName);
       
       state.events.emit('plugin.uninstalled', {
+        type: 'plugin.uninstalled',
         plugin: pluginName,
         timestamp: new Date()
       });
@@ -253,9 +264,22 @@ export const createPluginSystem = (rbacInstance: any): PluginSystem => {
     uninstall,
     enable,
     disable,
+    configure: async (pluginName: string, config: PluginConfig): Promise<void> => {
+      const plugin = state.plugins.get(pluginName);
+      if (!plugin) {
+        throw new Error(`Plugin ${pluginName} not found`);
+      }
+      
+      if (plugin.configure) {
+        await plugin.configure(config);
+      }
+      
+      state.configs.set(pluginName, config);
+    },
     executeHooks,
     getPlugins,
-    getPlugin
+    getPlugin,
+    events: state.events
   };
 };
 
@@ -376,7 +400,7 @@ export const createRBACWithPlugins = (rbacInstance: any) => {
   // Interceptar chamadas do RBAC
   const originalCan = rbacInstance.can.bind(rbacInstance);
   
-  rbacInstance.can = async (role: string, operation: string | RegExp, params?: any) => {
+  const wrappedCan = async (role: string, operation: string | RegExp, params?: any) => {
     let data: HookData = { role, operation, params };
 
     try {
@@ -411,7 +435,8 @@ export const createRBACWithPlugins = (rbacInstance: any) => {
 
   return {
     ...rbacInstance,
-    plugins: pluginSystem,
+    can: wrappedCan,
+    pluginSystem: pluginSystem,
     hooks: hookUtils
   };
 };
