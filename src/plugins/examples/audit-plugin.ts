@@ -60,7 +60,7 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
   private flushTimer?: NodeJS.Timeout;
 
   async install(context: PluginContext<P>): Promise<void> {
-    context.logger('AuditPlugin instalado', 'info');
+    context.logger('AuditPlugin installed', 'info');
     
     this.setupFlushTimer();
     this.setupEventHandlers(context);
@@ -71,7 +71,7 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
       clearInterval(this.flushTimer);
     }
     
-    // Processar eventos restantes
+    // Process remaining events
     await this.flushEvents();
     
     this.eventEmitter.removeAllListeners();
@@ -98,7 +98,7 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
   }
 
   private async beforePermissionCheck(data: HookData<P>, context: PluginContext<P>): Promise<void> {
-    // Marcar início da verificação para calcular tempo de execução
+    // Mark start of verification to calculate execution time
     data.metadata = {
       ...data.metadata,
       auditStartTime: Date.now()
@@ -139,7 +139,7 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
   }
 
   private async afterRoleUpdate(data: HookData<P>, context: PluginContext<P>): Promise<void> {
-    // Evento já logado no beforeRoleUpdate
+    // Event already logged in beforeRoleUpdate
   }
 
   private async beforeRoleAdd(data: HookData<P>, context: PluginContext<P>): Promise<void> {
@@ -157,7 +157,7 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
   }
 
   private async afterRoleAdd(data: HookData<P>, context: PluginContext<P>): Promise<void> {
-    // Evento já logado no beforeRoleAdd
+    // Event already logged in beforeRoleAdd
   }
 
   private async onError(data: HookData<P>, context: PluginContext<P>): Promise<void> {
@@ -176,14 +176,14 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
   }
 
   async onStartup(): Promise<void> {
-    // Inicializar recursos do plugin de auditoria
-    console.log('[AUDIT] Plugin de auditoria iniciado');
+    // Initialize audit plugin resources
+    console.log('[AUDIT] Audit plugin started');
   }
 
   async onShutdown(): Promise<void> {
-    // Limpar recursos e processar eventos pendentes
+    // Clean up resources and process pending events
     await this.flushEvents();
-    console.log('[AUDIT] Plugin de auditoria finalizado');
+    console.log('[AUDIT] Audit plugin finished');
   }
 
   // Métodos públicos para auditoria
@@ -198,7 +198,7 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
     this.eventQueue.push(auditEvent);
     this.eventEmitter.emit('auditEvent', auditEvent);
 
-    // Processar imediatamente se a fila estiver cheia
+    // Process immediately if queue is full
     if (this.eventQueue.length >= this.config.batchSize) {
       await this.flushEvents();
     }
@@ -214,8 +214,8 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
     limit?: number;
     offset?: number;
   } = {}): Promise<AuditEvent[]> {
-    // Implementação seria feita com consulta ao banco de dados
-    // Por simplicidade, retornamos eventos da fila atual
+    // Implementation would be done with database query
+    // For simplicity, we return events from current queue
     let filteredEvents = this.eventQueue;
 
     if (filters.eventType) {
@@ -242,7 +242,7 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
       filteredEvents = filteredEvents.filter(e => e.timestamp <= filters.endDate!);
     }
 
-    // Aplicar paginação
+    // Apply pagination
     const offset = filters.offset || 0;
     const limit = filters.limit || 100;
     
@@ -271,7 +271,7 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
       averageExecutionTime: 0
     };
 
-    // Contar por tipo
+    // Count by type
     for (const event of events) {
       stats.eventsByType[event.eventType] = (stats.eventsByType[event.eventType] || 0) + 1;
       stats.eventsByResult[event.result] = (stats.eventsByResult[event.result] || 0) + 1;
@@ -297,7 +297,7 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
-    // Tempo médio de execução
+    // Average execution time
     const executionTimes = events
       .filter(e => e.executionTime !== undefined)
       .map(e => e.executionTime!);
@@ -318,7 +318,7 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
   }
 
   private setupEventHandlers(context: PluginContext<P>): void {
-    // Escutar eventos de plugins
+    // Listen to plugin events
     context.events.on('plugin.installed', (data) => {
       this.logEvent({
         eventType: 'PLUGIN_EVENT',
@@ -361,7 +361,7 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
     try {
       const events = this.eventQueue.splice(0, this.config.batchSize);
       
-      // Enviar para diferentes destinos
+      // Send to different destinations
       if (this.config.enableConsole) {
         await this.sendToConsole(events);
       }
@@ -379,7 +379,7 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
       }
 
     } catch (error) {
-      console.error('Erro ao processar eventos de auditoria:', error);
+      console.error('Error processing audit events:', error);
     } finally {
       this.isProcessing = false;
     }
@@ -392,18 +392,18 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
   }
 
   private async sendToDatabase(events: AuditEvent[]): Promise<void> {
-    // Implementação seria feita com o driver do banco específico
-    console.log(`[DATABASE] Enviando ${events.length} eventos de auditoria`);
+    // Implementation would be done with specific database driver
+    console.log(`[DATABASE] Sending ${events.length} audit events`);
   }
 
   private async sendToFile(events: AuditEvent[]): Promise<void> {
-    // Implementação seria feita com fs
-    console.log(`[FILE] Enviando ${events.length} eventos de auditoria`);
+    // Implementation would be done with fs
+    console.log(`[FILE] Sending ${events.length} audit events`);
   }
 
   private async sendToElasticsearch(events: AuditEvent[]): Promise<void> {
-    // Implementação seria feita com @elastic/elasticsearch
-    console.log(`[ELASTICSEARCH] Enviando ${events.length} eventos de auditoria`);
+    // Implementation would be done with @elastic/elasticsearch
+    console.log(`[ELASTICSEARCH] Sending ${events.length} audit events`);
   }
 
   private generateId(): string {

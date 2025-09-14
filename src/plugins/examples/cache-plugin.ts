@@ -33,12 +33,12 @@ export class CachePlugin<P = unknown> implements RBACPlugin<P> {
   };
 
   async install(context: PluginContext<P>): Promise<void> {
-    context.logger('CachePlugin instalado', 'info');
+    context.logger('CachePlugin installed', 'info');
     
-    // Configurar limpeza automática do cache
+    // Configure automatic cache cleanup
     setInterval(() => {
       this.cleanExpiredEntries();
-    }, 60000); // Limpar a cada minuto
+    }, 60000); // Clean every minute
   }
 
   async uninstall(): Promise<void> {
@@ -96,39 +96,39 @@ export class CachePlugin<P = unknown> implements RBACPlugin<P> {
   }
 
   private async beforeRoleUpdate(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
-    // Limpar cache relacionado a roles quando houver atualização
+    // Clear cache related to roles when there's an update
     this.clearRoleCache(data.role);
     return data;
   }
 
   private async afterRoleUpdate(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
-    // Cache já foi limpo no beforeRoleUpdate
+    // Cache already cleared in beforeRoleUpdate
     return data;
   }
 
   private async beforeRoleAdd(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
-    // Não há cache para limpar ao adicionar nova role
+    // No cache to clear when adding new role
     return data;
   }
 
   private async afterRoleAdd(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
-    // Não há cache para limpar ao adicionar nova role
+    // No cache to clear when adding new role
     return data;
   }
 
   private async onError(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
-    // Em caso de erro, limpar cache relacionado
+    // In case of error, clear related cache
     this.clearRoleCache(data.role);
     return data;
   }
 
   async onStartup(): Promise<void> {
-    console.log('[CACHE] Plugin de cache iniciado');
+    console.log('[CACHE] Cache plugin started');
   }
 
   async onShutdown(): Promise<void> {
     this.cache.clear();
-    console.log('[CACHE] Plugin de cache finalizado');
+    console.log('[CACHE] Cache plugin finished');
   }
 
   // Métodos públicos para gerenciamento do cache
@@ -140,7 +140,7 @@ export class CachePlugin<P = unknown> implements RBACPlugin<P> {
       return undefined;
     }
 
-    // Verificar se expirou
+    // Check if expired
     if (Date.now() - entry.timestamp > entry.ttl * 1000) {
       this.cache.delete(key);
       return undefined;
@@ -150,7 +150,7 @@ export class CachePlugin<P = unknown> implements RBACPlugin<P> {
   }
 
   set(key: string, value: any, ttl: number = this.config.ttl): void {
-    // Verificar limite de tamanho
+    // Check size limit
     if (this.cache.size >= this.config.maxSize) {
       this.evictEntry();
     }
@@ -201,7 +201,7 @@ export class CachePlugin<P = unknown> implements RBACPlugin<P> {
   }
 
   private evictLRU(): void {
-    // Implementação simples de LRU - remover o primeiro (mais antigo)
+    // Simple LRU implementation - remove the first (oldest)
     const firstKey = this.cache.keys().next().value;
     if (firstKey) {
       this.cache.delete(firstKey);
@@ -209,12 +209,12 @@ export class CachePlugin<P = unknown> implements RBACPlugin<P> {
   }
 
   private evictFIFO(): void {
-    // FIFO - remover o primeiro adicionado
-    this.evictLRU(); // Mesma implementação para este exemplo
+    // FIFO - remove the first added
+    this.evictLRU(); // Same implementation for this example
   }
 
   private evictTTL(): void {
-    // Remover entrada com TTL mais próximo do vencimento
+    // Remove entry with TTL closest to expiration
     let oldestKey: string | undefined;
     let oldestTime = Date.now();
 

@@ -50,7 +50,7 @@ export class MiddlewarePlugin<P = unknown> implements IMiddlewarePlugin<P> {
   private requestCounts: Map<string, { count: number; resetTime: number }> = new Map();
 
   async install(context: PluginContext<P>): Promise<void> {
-    context.logger('MiddlewarePlugin instalado', 'info');
+    context.logger('MiddlewarePlugin installed', 'info');
   }
 
   async uninstall(): Promise<void> {
@@ -67,28 +67,28 @@ export class MiddlewarePlugin<P = unknown> implements IMiddlewarePlugin<P> {
     return this.createExpressMiddleware();
   }
 
-  // Middleware para Express
+  // Middleware for Express
   createExpressMiddleware() {
     return (req: any, res: any, next: any) => {
       this.processRequest(req, res, next);
     };
   }
 
-  // Middleware para Fastify
+  // Middleware for Fastify
   createFastifyMiddleware() {
     return async (request: any, reply: any) => {
       return this.processFastifyRequest(request, reply);
     };
   }
 
-  // Middleware para NestJS
+  // Middleware for NestJS
   createNestMiddleware() {
     return (req: any, res: any, next: any) => {
       this.processRequest(req, res, next);
     };
   }
 
-  // Middleware de CORS
+  // CORS Middleware
   createCorsMiddleware() {
     return (req: any, res: any, next: any) => {
       if (!this.config.enableCORS) {
@@ -117,7 +117,7 @@ export class MiddlewarePlugin<P = unknown> implements IMiddlewarePlugin<P> {
     };
   }
 
-  // Middleware de Rate Limiting
+  // Rate Limiting Middleware
   createRateLimitMiddleware() {
     return (req: any, res: any, next: any) => {
       if (!this.config.enableRateLimit) {
@@ -132,7 +132,7 @@ export class MiddlewarePlugin<P = unknown> implements IMiddlewarePlugin<P> {
       const clientData = this.requestCounts.get(clientId);
 
       if (!clientData || now > clientData.resetTime) {
-        // Nova janela de tempo
+        // New time window
         this.requestCounts.set(clientId, {
           count: 1,
           resetTime: now + windowMs
@@ -153,23 +153,23 @@ export class MiddlewarePlugin<P = unknown> implements IMiddlewarePlugin<P> {
     };
   }
 
-  // Middleware de Security Headers
+  // Security Headers Middleware
   createSecurityHeadersMiddleware() {
     return (req: any, res: any, next: any) => {
       if (!this.config.enableSecurityHeaders) {
         return next();
       }
 
-      // Prevenir clickjacking
+      // Prevent clickjacking
       res.header('X-Frame-Options', 'DENY');
       
-      // Prevenir MIME type sniffing
+      // Prevent MIME type sniffing
       res.header('X-Content-Type-Options', 'nosniff');
       
-      // Habilitar XSS protection
+      // Enable XSS protection
       res.header('X-XSS-Protection', '1; mode=block');
       
-      // Forçar HTTPS
+      // Force HTTPS
       res.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
       
       // Referrer Policy
@@ -182,7 +182,7 @@ export class MiddlewarePlugin<P = unknown> implements IMiddlewarePlugin<P> {
     };
   }
 
-  // Middleware de Logging
+  // Logging Middleware
   createLoggingMiddleware() {
     return (req: any, res: any, next: any) => {
       if (!this.config.enableRequestLogging) {
@@ -212,13 +212,13 @@ export class MiddlewarePlugin<P = unknown> implements IMiddlewarePlugin<P> {
     };
   }
 
-  // Middleware de Autenticação
+  // Authentication Middleware
   createAuthMiddleware() {
     return (req: any, res: any, next: any) => {
       const authHeader = req.headers.authorization;
       
       if (!authHeader) {
-        res.status(401).json({ error: 'Token de autorização necessário' });
+        res.status(401).json({ error: 'Authorization token required' });
         return;
       }
 
@@ -226,31 +226,31 @@ export class MiddlewarePlugin<P = unknown> implements IMiddlewarePlugin<P> {
         ? authHeader.slice(7) 
         : authHeader;
 
-      // Aqui você implementaria a validação do token
-      // Por exemplo, com JWT
+      // Here you would implement token validation
+      // For example, with JWT
       try {
         // const decoded = jwt.verify(token, process.env.JWT_SECRET);
         // req.user = decoded;
         next();
       } catch (error) {
-        res.status(401).json({ error: 'Token inválido' });
+        res.status(401).json({ error: 'Invalid token' });
       }
     };
   }
 
-  // Middleware de RBAC
+  // RBAC Middleware
   createRBACMiddleware(operation: string) {
     return (req: any, res: any, next: any) => {
-      // Este seria integrado com o sistema RBAC principal
-      // Por simplicidade, sempre permite
+      // This would be integrated with the main RBAC system
+      // For simplicity, always allows
       next();
     };
   }
 
-  // Métodos privados
+  // Private methods
 
   private processRequest(req: any, res: any, next: any): void {
-    // Aplicar middlewares em sequência
+    // Apply middlewares in sequence
     this.createCorsMiddleware()(req, res, () => {
       this.createRateLimitMiddleware()(req, res, () => {
         this.createSecurityHeadersMiddleware()(req, res, () => {
@@ -263,13 +263,13 @@ export class MiddlewarePlugin<P = unknown> implements IMiddlewarePlugin<P> {
   }
 
   private async processFastifyRequest(request: any, reply: any): Promise<void> {
-    // Implementação específica para Fastify
-    // Aplicar middlewares equivalentes
+    // Specific implementation for Fastify
+    // Apply equivalent middlewares
     this.createCorsMiddleware()(request, reply, () => {
       this.createRateLimitMiddleware()(request, reply, () => {
         this.createSecurityHeadersMiddleware()(request, reply, () => {
           this.createLoggingMiddleware()(request, reply, () => {
-            // Continuar processamento
+            // Continue processing
           });
         });
       });
@@ -277,13 +277,13 @@ export class MiddlewarePlugin<P = unknown> implements IMiddlewarePlugin<P> {
   }
 
   private getClientId(req: any): string {
-    // Usar IP + User-Agent para identificar cliente
+    // Use IP + User-Agent to identify client
     const ip = req.ip || req.connection.remoteAddress || 'unknown';
     const userAgent = req.get('User-Agent') || 'unknown';
     return `${ip}-${Buffer.from(userAgent).toString('base64')}`;
   }
 
-  // Métodos de configuração
+  // Configuration methods
 
   updateRateLimitConfig(config: Partial<typeof this.config.rateLimitConfig>): void {
     this.config.rateLimitConfig = { ...this.config.rateLimitConfig, ...config };
@@ -293,7 +293,7 @@ export class MiddlewarePlugin<P = unknown> implements IMiddlewarePlugin<P> {
     this.config.corsConfig = { ...this.config.corsConfig, ...config };
   }
 
-  // Métodos de estatísticas
+  // Statistics methods
 
   getRateLimitStats(): {
     activeClients: number;
@@ -304,7 +304,7 @@ export class MiddlewarePlugin<P = unknown> implements IMiddlewarePlugin<P> {
     let totalRequests = 0;
     let blockedRequests = 0;
 
-    // Limpar entradas expiradas
+    // Clean expired entries
     for (const [clientId, data] of this.requestCounts) {
       if (now > data.resetTime) {
         this.requestCounts.delete(clientId);
@@ -323,14 +323,14 @@ export class MiddlewarePlugin<P = unknown> implements IMiddlewarePlugin<P> {
     };
   }
 
-  // Métodos de utilidade
+  // Utility methods
 
   createErrorHandler() {
     return (error: any, req: any, res: any, next: any) => {
-      console.error('Erro no middleware:', error);
+      console.error('Middleware error:', error);
       
       res.status(error.status || 500).json({
-        error: error.message || 'Erro interno do servidor',
+        error: error.message || 'Internal server error',
         timestamp: new Date().toISOString(),
         path: req.path
       });
@@ -340,7 +340,7 @@ export class MiddlewarePlugin<P = unknown> implements IMiddlewarePlugin<P> {
   createNotFoundHandler() {
     return (req: any, res: any) => {
       res.status(404).json({
-        error: 'Endpoint não encontrado',
+        error: 'Endpoint not found',
         path: req.path,
         method: req.method,
         timestamp: new Date().toISOString()
