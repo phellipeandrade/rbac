@@ -50,10 +50,10 @@ export class PluginManager<P = unknown> extends EventEmitter {
    */
   async installPlugin(plugin: RBACPlugin<P>, config: PluginConfig = { enabled: true, priority: 50, settings: {} }): Promise<void> {
     try {
-      this.logger(`Instalando plugin: ${plugin.metadata.name}@${plugin.metadata.version}`, 'info');
-      
-      // Validar plugin
+      // Validar plugin primeiro
       this.validatePlugin(plugin);
+      
+      this.logger(`Instalando plugin: ${plugin.metadata.name}@${plugin.metadata.version}`, 'info');
       
       // Check dependencies
       await this.checkDependencies(plugin);

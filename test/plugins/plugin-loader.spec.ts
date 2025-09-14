@@ -12,6 +12,7 @@ const mockFs = {
   readFileSync: jest.fn(),
   existsSync: jest.fn()
 };
+
 jest.mock('fs', () => mockFs);
 
 describe('PluginLoader', () => {
