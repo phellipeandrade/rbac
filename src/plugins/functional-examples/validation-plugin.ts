@@ -52,7 +52,7 @@ export const createValidationPlugin = (config: PluginConfig = { enabled: true, p
     metadata: {
       name: 'rbac-validation',
       version: '1.0.0',
-      description: 'Validation plugin for RBAC roles, operations and parameters',
+      description: 'validation plugin for RBAC roles, operations and parameters',
       author: 'RBAC Team',
       license: 'MIT',
       keywords: ['validation', 'security', 'data-integrity']

@@ -51,7 +51,7 @@ export const createNotificationPlugin = (config: PluginConfig = { enabled: true,
     metadata: {
       name: 'rbac-notification',
       version: '1.0.0',
-      description: 'Notification plugin for security and audit events',
+      description: 'notification plugin for security and audit events',
       author: 'RBAC Team',
       license: 'MIT',
       keywords: ['notifications', 'alerts', 'security', 'audit']
