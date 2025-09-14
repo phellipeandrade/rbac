@@ -41,7 +41,7 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
   private operationPattern = /^[a-zA-Z][a-zA-Z0-9_:.-]*$/;
 
   async install(context: PluginContext<P>): Promise<void> {
-    context.logger('ValidationPlugin instalado', 'info');
+    context.logger('ValidationPlugin installed', 'info');
     this.setupDefaultRules();
   }
 
@@ -71,17 +71,17 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
 
   private async beforePermissionCheck(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
     try {
-      // Validar role
+      // Validate role
       if (this.config.validateRoles) {
         this.validateRole(data.role);
       }
 
-      // Validar operação
+      // Validate operation
       if (this.config.validateOperations) {
         this.validateOperation(data.operation);
       }
 
-      // Validar parâmetros
+      // Validate parameters
       if (this.config.validateParams && data.params) {
         this.validateParams(data.params);
       }
@@ -89,7 +89,7 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
       return data;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      context.logger(`Erro de validação: ${errorMessage}`, 'error');
+      context.logger(`Validation error: ${errorMessage}`, 'error');
       
       if (this.config.strictMode) {
         throw error;
@@ -108,7 +108,7 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
 
   private async beforeRoleUpdate(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
     try {
-      // Validar estrutura dos roles
+      // Validate roles structure
       if (data.metadata?.roles) {
         this.validateRolesStructure(data.metadata.roles);
       }
@@ -116,7 +116,7 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
       return data;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      context.logger(`Erro de validação de roles: ${errorMessage}`, 'error');
+      context.logger(`Roles validation error: ${errorMessage}`, 'error');
       
       if (this.config.strictMode) {
         throw error;
@@ -135,12 +135,12 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
 
   private async beforeRoleAdd(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
     try {
-      // Validar nome do role
+      // Validate role name
       if (data.metadata?.roleName) {
         this.validateRole(data.metadata.roleName);
       }
 
-      // Validar estrutura do role
+      // Validate role structure
       if (data.metadata?.roleDefinition) {
         this.validateRoleDefinition(data.metadata.roleDefinition);
       }
@@ -148,7 +148,7 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
       return data;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      context.logger(`Erro de validação de role: ${errorMessage}`, 'error');
+      context.logger(`Role validation error: ${errorMessage}`, 'error');
       
       if (this.config.strictMode) {
         throw error;
@@ -166,75 +166,75 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
   }
 
   private async afterPermissionCheck(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
-    // Não há validação necessária após a verificação
+    // No validation needed after verification
     return data;
   }
 
   private async afterRoleUpdate(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
-    // Não há validação necessária após a atualização
+    // No validation needed after update
     return data;
   }
 
   private async afterRoleAdd(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
-    // Não há validação necessária após a adição
+    // No validation needed after addition
     return data;
   }
 
   private async onError(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
-    // Log de erro de validação se houver
+    // Log validation error if any
     if (data.metadata?.validationError) {
-      context.logger(`Erro de validação capturado: ${data.metadata.validationError}`, 'error');
+      context.logger(`Validation error captured: ${data.metadata.validationError}`, 'error');
     }
     return data;
   }
 
   async onStartup(): Promise<void> {
-    console.log('[VALIDATION] Plugin de validação iniciado');
+    console.log('[VALIDATION] Validation plugin started');
   }
 
   async onShutdown(): Promise<void> {
-    console.log('[VALIDATION] Plugin de validação finalizado');
+    console.log('[VALIDATION] Validation plugin finished');
   }
 
-  // Métodos de validação públicos
+  // Public validation methods
 
   validateRole(role: string): void {
     if (!role || typeof role !== 'string') {
-      throw new Error('Role deve ser uma string não vazia');
+      throw new Error('Role must be a non-empty string');
     }
 
     if (!this.rolePattern.test(role)) {
-      throw new Error(`Role '${role}' deve conter apenas letras, números, hífens e underscores, e começar com letra`);
+      throw new Error(`Role '${role}' must contain only letters, numbers, hyphens and underscores, and start with a letter`);
     }
 
     if (role.length > 50) {
-      throw new Error(`Role '${role}' deve ter no máximo 50 caracteres`);
+      throw new Error(`Role '${role}' must have at most 50 characters`);
     }
   }
 
   validateOperation(operation: string | RegExp): void {
     if (typeof operation === 'string') {
       if (!operation || operation.trim() === '') {
-        throw new Error('Operação deve ser uma string não vazia');
+        throw new Error('Operation must be a non-empty string');
       }
 
       if (!this.operationPattern.test(operation)) {
-        throw new Error(`Operação '${operation}' deve conter apenas letras, números, dois pontos, pontos e hífens, e começar com letra`);
+        throw new Error(`Operation '${operation}' must contain only letters, numbers, colons, dots and hyphens, and start with a letter`);
       }
 
       if (operation.length > 100) {
-        throw new Error(`Operação '${operation}' deve ter no máximo 100 caracteres`);
+        throw new Error(`Operation '${operation}' must have at most 100 characters`);
       }
     } else if (operation instanceof RegExp) {
-      // Validar regex
+      // Validate regex
       try {
         new RegExp(operation.source, operation.flags);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        throw new Error(`Regex inválida: ${errorMessage}`);
+        throw new Error(`Invalid regex: ${errorMessage}`);
       }
     } else {
-      throw new Error('Operação deve ser uma string ou RegExp');
+      throw new Error('Operation must be a string or RegExp');
     }
   }
 
@@ -244,15 +244,15 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
     }
 
     if (typeof params !== 'object') {
-      throw new Error('Parâmetros devem ser um objeto');
+      throw new Error('Parameters must be an object');
     }
 
-    // Aplicar regras de validação customizadas
+    // Apply custom validation rules
     for (const rule of this.validationRules) {
       const value = (params as any)[rule.field];
       
       if (rule.required && (value === undefined || value === null)) {
-        throw new Error(`Campo '${rule.field}' é obrigatório`);
+        throw new Error(`Field '${rule.field}' is required`);
       }
 
       if (value !== undefined && value !== null && !rule.validator(value)) {
@@ -263,7 +263,7 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
 
   validateRolesStructure(roles: any): void {
     if (!roles || typeof roles !== 'object') {
-      throw new Error('Roles devem ser um objeto');
+      throw new Error('Roles must be an object');
     }
 
     for (const [roleName, roleDef] of Object.entries(roles)) {
@@ -274,11 +274,11 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
 
   validateRoleDefinition(roleDef: any): void {
     if (!roleDef || typeof roleDef !== 'object') {
-      throw new Error('Definição de role deve ser um objeto');
+      throw new Error('Role definition must be an object');
     }
 
     if (!Array.isArray(roleDef.can)) {
-      throw new Error('Propriedade "can" deve ser um array');
+      throw new Error('Property "can" must be an array');
     }
 
     for (const permission of roleDef.can) {
@@ -288,16 +288,16 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
         this.validateOperation(permission.name);
         
         if (permission.when && typeof permission.when !== 'function') {
-          throw new Error('Propriedade "when" deve ser uma função');
+          throw new Error('Property "when" must be a function');
         }
       } else {
-        throw new Error('Permissão deve ser uma string ou objeto com propriedade "name"');
+        throw new Error('Permission must be a string or object with "name" property');
       }
     }
 
     if (roleDef.inherits) {
       if (!Array.isArray(roleDef.inherits)) {
-        throw new Error('Propriedade "inherits" deve ser um array');
+        throw new Error('Property "inherits" must be an array');
       }
 
       for (const inheritedRole of roleDef.inherits) {
@@ -306,7 +306,7 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
     }
   }
 
-  // Métodos para configurar validações
+  // Methods to configure validations
 
   addValidationRule(rule: ValidationRule): void {
     this.validationRules.push(rule);
@@ -324,13 +324,13 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
     delete this.config.customValidators[name];
   }
 
-  // Validações específicas para diferentes tipos de dados
+  // Specific validations for different data types
 
   addEmailValidation(field: string, required: boolean = false): void {
     this.addValidationRule({
       field,
       validator: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
-      message: `Campo '${field}' deve ser um email válido`,
+      message: `Field '${field}' must be a valid email`,
       required
     });
   }
@@ -346,7 +346,7 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
           return false;
         }
       },
-      message: `Campo '${field}' deve ser uma URL válida`,
+      message: `Field '${field}' must be a valid URL`,
       required
     });
   }
@@ -361,7 +361,7 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
         if (max !== undefined && num > max) return false;
         return true;
       },
-      message: `Campo '${field}' deve ser um número${min !== undefined ? ` >= ${min}` : ''}${max !== undefined ? ` <= ${max}` : ''}`,
+      message: `Field '${field}' must be a number${min !== undefined ? ` >= ${min}` : ''}${max !== undefined ? ` <= ${max}` : ''}`,
       required
     });
   }
@@ -375,7 +375,7 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
         if (maxLength !== undefined && value.length > maxLength) return false;
         return true;
       },
-      message: `Campo '${field}' deve ser uma string${minLength !== undefined ? ` com pelo menos ${minLength} caracteres` : ''}${maxLength !== undefined ? ` e no máximo ${maxLength} caracteres` : ''}`,
+      message: `Field '${field}' must be a string${minLength !== undefined ? ` with at least ${minLength} characters` : ''}${maxLength !== undefined ? ` and at most ${maxLength} characters` : ''}`,
       required
     });
   }

@@ -48,12 +48,12 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
   private isProcessing = false;
 
   async install(context: PluginContext<P>): Promise<void> {
-    context.logger('NotificationPlugin instalado', 'info');
+    context.logger('NotificationPlugin installed', 'info');
     
-    // Configurar processamento de notificações
+    // Configure notification processing
     this.setupNotificationProcessing();
     
-    // Registrar listeners para eventos do sistema
+    // Register listeners for system events
     context.events.on('plugin.installed', (data) => {
       this.notify('plugin.installed', data, 'medium');
     });
@@ -115,7 +115,7 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
   }
 
   private async beforePermissionCheck(data: HookData<P>, context: PluginContext<P>): Promise<void> {
-    // Não há notificação necessária antes da verificação
+    // No notification needed before verification
   }
 
   private async beforeRoleUpdate(data: HookData<P>, context: PluginContext<P>): Promise<void> {
@@ -156,13 +156,13 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
   }
 
   async onStartup(): Promise<void> {
-    console.log('[NOTIFICATION] Plugin de notificações iniciado');
+    console.log('[NOTIFICATION] Notification plugin started');
   }
 
   async onShutdown(): Promise<void> {
-    // Processar notificações pendentes antes de finalizar
+    // Process pending notifications before finishing
     await this.processNotifications();
-    console.log('[NOTIFICATION] Plugin de notificações finalizado');
+    console.log('[NOTIFICATION] Notification plugin finished');
   }
 
   // Métodos públicos para notificações
@@ -178,7 +178,7 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
     this.notificationQueue.push(notification);
     this.eventEmitter.emit('notification', notification);
 
-    // Processar imediatamente se habilitado
+    // Process immediately if enabled
     if (this.config.enableRealTime) {
       this.processNotifications();
     }
@@ -192,7 +192,7 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
     this.eventEmitter.off(event, handler);
   }
 
-  // Configuração de canais
+  // Channel configuration
 
   addEmailChannel(config: { smtp: any; from: string; to: string[] }): void {
     this.config.channels.push({
@@ -222,14 +222,14 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
     this.config.channels.push({
       type: 'database',
       config,
-      events: ['*'] // Todos os eventos
+      events: ['*'] // All events
     });
   }
 
-  // Métodos privados
+  // Private methods
 
   private setupNotificationProcessing(): void {
-    // Processar notificações em lote a cada 5 segundos
+    // Process notifications in batch every 5 seconds
     setInterval(() => {
       this.processNotifications();
     }, 5000);
@@ -243,13 +243,13 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
     this.isProcessing = true;
 
     try {
-      const notifications = this.notificationQueue.splice(0, 100); // Processar até 100 por vez
+      const notifications = this.notificationQueue.splice(0, 100); // Process up to 100 at a time
 
       for (const notification of notifications) {
         await this.sendNotification(notification);
       }
     } catch (error) {
-      console.error('Erro ao processar notificações:', error);
+      console.error('Error processing notifications:', error);
     } finally {
       this.isProcessing = false;
     }
@@ -261,7 +261,7 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
         try {
           await this.sendToChannel(notification, channel);
         } catch (error) {
-          console.error(`Erro ao enviar notificação para canal ${channel.type}:`, error);
+          console.error(`Error sending notification to channel ${channel.type}:`, error);
         }
       }
     }
@@ -292,22 +292,22 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
   }
 
   private async sendEmail(notification: NotificationEvent, config: any): Promise<void> {
-    // Implementação seria feita com nodemailer ou similar
+    // Implementation would be done with nodemailer or similar
     console.log(`[EMAIL] ${notification.type}: ${JSON.stringify(notification.data)}`);
   }
 
   private async sendWebhook(notification: NotificationEvent, config: any): Promise<void> {
-    // Implementação seria feita com fetch ou axios
+    // Implementation would be done with fetch or axios
     console.log(`[WEBHOOK] ${notification.type}: ${JSON.stringify(notification.data)}`);
   }
 
   private async sendSlack(notification: NotificationEvent, config: any): Promise<void> {
-    // Implementação seria feita com @slack/web-api
+    // Implementation would be done with @slack/web-api
     console.log(`[SLACK] ${notification.type}: ${JSON.stringify(notification.data)}`);
   }
 
   private async sendToDatabase(notification: NotificationEvent, config: any): Promise<void> {
-    // Implementação seria feita com o driver do banco específico
+    // Implementation would be done with specific database driver
     console.log(`[DATABASE] ${notification.type}: ${JSON.stringify(notification.data)}`);
   }
 
@@ -327,12 +327,12 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
   }
 
   private isSuspiciousActivity(data: HookData<P>): boolean {
-    // Implementar lógica para detectar atividade suspeita
-    // Exemplo: muitas tentativas de acesso negado em pouco tempo
+    // Implement logic to detect suspicious activity
+    // Example: many denied access attempts in a short time
     return false; // Placeholder
   }
 
-  // Métodos de estatísticas
+  // Statistics methods
 
   getStats(): {
     totalNotifications: number;
@@ -347,7 +347,7 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
       queueSize: this.notificationQueue.length
     };
 
-    // Implementar contagem de estatísticas
+    // Implement statistics counting
     return stats;
   }
 }
