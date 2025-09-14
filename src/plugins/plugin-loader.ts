@@ -80,7 +80,7 @@ export class PluginLoader {
       return plugin;
 
     } catch (error) {
-      throw new Error(`Error loading plugin ${pluginPackage.name}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(`Error loading plugin ${pluginPackage.name}: ${error instanceof Error ? error.toString() : String(error)}`);
     }
   }
 
