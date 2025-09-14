@@ -15,7 +15,7 @@ export interface PluginMetadata {
 
 export interface PluginConfig {
   enabled: boolean;
-  priority: number; // 0-100, maior número = maior prioridade
+  priority: number; // 0-100, higher number = higher priority
   settings: Record<string, any>;
 }
 
@@ -30,7 +30,7 @@ export interface PluginContext<P = unknown> {
   events: EventEmitter;
 }
 
-// Hooks disponíveis para plugins
+// Available hooks for plugins
 export type PluginHook<P = unknown> = 
   | 'beforePermissionCheck'
   | 'afterPermissionCheck'
@@ -59,15 +59,15 @@ export interface PluginHookHandler<P = unknown> {
 export interface RBACPlugin<P = unknown> {
   metadata: PluginMetadata;
   
-  // Métodos obrigatórios
+  // Required methods
   install(context: PluginContext<P>): Promise<void> | void;
   uninstall(): Promise<void> | void;
   
-  // Métodos opcionais
+  // Optional methods
   configure?(config: PluginConfig): Promise<void> | void;
   getHooks?(): Record<PluginHook<P>, PluginHookHandler<P>>;
   
-  // Métodos de ciclo de vida
+  // Lifecycle methods
   onStartup?(): Promise<void> | void;
   onShutdown?(): Promise<void> | void;
 }
@@ -115,16 +115,16 @@ export interface PluginEvent {
   data?: any;
 }
 
-// Configuração do sistema de plugins
+// Plugin system configuration
 export interface PluginSystemConfig {
   pluginsDirectory?: string;
   autoLoad?: boolean;
-  strictMode?: boolean; // Se true, falha se plugin não carregar
+  strictMode?: boolean; // If true, fails if plugin doesn't load
   enableHotReload?: boolean;
   logLevel?: 'debug' | 'info' | 'warn' | 'error';
 }
 
-// Resultado da execução de hooks
+// Hook execution result
 export interface HookResult<P = unknown> {
   success: boolean;
   data?: HookData<P>;

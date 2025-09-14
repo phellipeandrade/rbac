@@ -8,10 +8,10 @@ import {
 } from './index';
 
 async function testCommunityPluginSystem() {
-  console.log('🧪 Testando Sistema de Plugins da Comunidade\n');
+  console.log('🧪 Testing Community Plugin System\n');
 
-  // 1. Criar RBAC básico
-  console.log('1. Criando RBAC básico...');
+  // 1. Create basic RBAC
+  console.log('1. Creating basic RBAC...');
   const rbac = RBAC()({
     user: { can: ['products:read'] },
     admin: { can: ['products:*'], inherits: ['user'] },
@@ -36,34 +36,34 @@ async function testCommunityPluginSystem() {
     }
   });
 
-  // 4. Validar plugin
-  console.log('\n4. Validando plugin...');
+  // 4. Validate plugin
+  console.log('\n4. Validating plugin...');
   const validation = PluginValidator.validateCommunityPlugin(examplePlugin);
-  console.log(`Plugin válido: ${validation.valid}`);
+  console.log(`Plugin valid: ${validation.valid}`);
   if (!validation.valid) {
-    console.log('Erros:', validation.errors);
+    console.log('Errors:', validation.errors);
   }
 
   const security = PluginValidator.validatePluginSecurity(examplePlugin);
-  console.log(`Plugin seguro: ${security.safe}`);
+  console.log(`Plugin safe: ${security.safe}`);
   if (!security.safe) {
-    console.log('Avisos:', security.warnings);
+    console.log('Warnings:', security.warnings);
   }
 
-  // 5. Testar RBAC com auto-plugins
-  console.log('\n5. Testando RBAC com auto-plugins...');
+  // 5. Test RBAC with auto-plugins
+  console.log('\n5. Testing RBAC with auto-plugins...');
   const rbacWithPlugins = await createRBACWithAutoPlugins(rbac, {
-    autoLoadCommunityPlugins: false, // Desabilitar para testar manualmente
+    autoLoadCommunityPlugins: false, // Disable to test manually
     validatePlugins: true,
     strictMode: false
   });
 
-  // Instalar plugin manualmente
+  // Install plugin manually
   await rbacWithPlugins.plugins.install(examplePlugin, {
     enabled: true,
     priority: 50,
     settings: {
-      customSetting: 'valor personalizado',
+      customSetting: 'custom value',
       enableLogging: true,
       logLevel: 'info'
     }
@@ -76,21 +76,21 @@ async function testCommunityPluginSystem() {
   const canWrite = await rbacWithPlugins.can('user', 'products:write');
   const canDelete = await rbacWithPlugins.can('admin', 'products:delete');
   
-  console.log(`User pode ler produtos: ${canRead}`);
-  console.log(`User pode escrever produtos: ${canWrite}`);
-  console.log(`Admin pode deletar produtos: ${canDelete}`);
+  console.log(`User can read products: ${canRead}`);
+  console.log(`User can write products: ${canWrite}`);
+  console.log(`Admin can delete products: ${canDelete}`);
 
-  // 7. Listar plugins ativos
-  console.log('\n7. Plugins ativos:');
+  // 7. List active plugins
+  console.log('\n7. Active plugins:');
   const plugins = rbacWithPlugins.plugins.getPlugins();
   plugins.forEach((plugin: any) => {
-    console.log(`- ${plugin.name}@${plugin.metadata.version} (${plugin.config.enabled ? 'Habilitado' : 'Desabilitado'})`);
+    console.log(`- ${plugin.name}@${plugin.metadata.version} (${plugin.config.enabled ? 'Enabled' : 'Disabled'})`);
   });
 
-  // 8. Testar hooks
-  console.log('\n8. Testando hooks...');
+  // 8. Test hooks
+  console.log('\n8. Testing hooks...');
   
-  // Simular verificação com metadata customizada
+  // Simulate check with custom metadata
   const testData = {
     role: 'user',
     operation: 'products:read',
@@ -98,15 +98,15 @@ async function testCommunityPluginSystem() {
   };
 
   const hookResult = await rbacWithPlugins.plugins.executeHooks('beforePermissionCheck', testData);
-  console.log('Resultado do hook:', hookResult);
+  console.log('Hook result:', hookResult);
 
-  console.log('\n✅ Teste concluído com sucesso!');
+  console.log('\n✅ Test completed successfully!');
 }
 
-// Executar teste
+// Run test
 if (require.main === module) {
   testCommunityPluginSystem().catch(error => {
-    console.error('❌ Erro no teste:', error);
+    console.error('❌ Test error:', error);
     process.exit(1);
   });
 }

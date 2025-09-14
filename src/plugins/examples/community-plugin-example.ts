@@ -8,11 +8,11 @@ import {
   PluginCLI 
 } from '../index';
 
-// Exemplo 1: Uso básico com auto-carregamento
-export const exemploBasico = async () => {
-  console.log('🚀 Exemplo Básico - Auto-carregamento de plugins\n');
+// Example 1: Basic usage with auto-loading
+export const basicExample = async () => {
+  console.log('🚀 Basic Example - Auto-loading plugins\n');
 
-  // Criar RBAC básico
+  // Create basic RBAC
   const rbac = RBAC()({
     user: { can: ['products:read'] },
     admin: { can: ['products:*'], inherits: ['user'] },
@@ -41,8 +41,8 @@ export const exemploBasico = async () => {
     }
   });
 
-  // Usar RBAC normalmente - os plugins funcionam automaticamente
-  console.log('Testando permissões com plugins ativos:');
+  // Use RBAC normally - plugins work automatically
+  console.log('Testing permissions with active plugins:');
   
   const canRead = await rbacWithPlugins.can('user', 'products:read');
   const canWrite = await rbacWithPlugins.can('user', 'products:write');
@@ -60,16 +60,16 @@ export const exemploBasico = async () => {
   });
 };
 
-// Exemplo 2: Carregamento específico de plugins
-export const exemploCarregamentoEspecifico = async () => {
-  console.log('\n🎯 Exemplo 2 - Carregamento específico de plugins\n');
+// Example 2: Specific plugin loading
+export const specificLoadingExample = async () => {
+  console.log('\n🎯 Example 2 - Specific plugin loading\n');
 
   const rbac = RBAC()({
     user: { can: ['products:read'] },
     admin: { can: ['products:*'], inherits: ['user'] }
   });
 
-  // Carregar apenas plugins específicos
+  // Load only specific plugins
   const rbacWithSpecificPlugins = await loadSpecificPlugins(rbac, [
     '@rbac/plugin-cache',
     'rbac-plugin-custom'
@@ -84,59 +84,59 @@ export const exemploCarregamentoEspecifico = async () => {
     }
   });
 
-  console.log('Plugins específicos carregados com sucesso!');
+  console.log('Specific plugins loaded successfully!');
 };
 
-// Exemplo 3: Gerenciamento via CLI
-export const exemploCLI = async () => {
-  console.log('\n🔧 Exemplo 3 - Gerenciamento via CLI\n');
+// Example 3: CLI management
+export const cliExample = async () => {
+  console.log('\n🔧 Example 3 - CLI management\n');
 
   const cli = new PluginCLI();
 
-  // Listar plugins instalados
+  // List installed plugins
   await cli.listInstalledPlugins();
 
-  // Verificar status de um plugin específico
+  // Check status of a specific plugin
   await cli.checkPluginStatus('@rbac/plugin-cache');
 
-  // Validar plugin
+  // Validate plugin
   await cli.validatePlugin('@rbac/plugin-cache');
 
-  // Gerar template de plugin
+  // Generate plugin template
   await cli.generatePluginTemplate('meu-plugin-custom');
 };
 
-// Exemplo 4: Verificação de plugins disponíveis
-export const exemploVerificacao = async () => {
-  console.log('\n🔍 Exemplo 4 - Verificação de plugins\n');
+// Example 4: Available plugins verification
+export const verificationExample = async () => {
+  console.log('\n🔍 Example 4 - Plugin verification\n');
 
-  // Listar plugins disponíveis
+  // List available plugins
   const availablePlugins = await listAvailablePlugins();
-  console.log('Plugins disponíveis:', availablePlugins);
+  console.log('Available plugins:', availablePlugins);
 
-  // Verificar status de plugins específicos
+  // Check status of specific plugins
   const status1 = await getPluginStatus('@rbac/plugin-cache');
   const status2 = await getPluginStatus('rbac-plugin-custom');
 
-  console.log('\nStatus dos plugins:');
+  console.log('\nPlugin status:');
   console.log('Cache plugin:', status1);
   console.log('Custom plugin:', status2);
 };
 
-// Exemplo 5: Configuração avançada
-export const exemploConfiguracaoAvancada = async () => {
-  console.log('\n⚙️ Exemplo 5 - Configuração avançada\n');
+// Example 5: Advanced configuration
+export const advancedConfigurationExample = async () => {
+  console.log('\n⚙️ Example 5 - Advanced configuration\n');
 
   const rbac = RBAC()({
     user: { can: ['products:read'] },
     admin: { can: ['products:*'], inherits: ['user'] }
   });
 
-  // Configuração com validação rigorosa
+  // Configuration with strict validation
   const rbacWithStrictValidation = await createRBACWithAutoPlugins(rbac, {
     autoLoadCommunityPlugins: true,
     validatePlugins: true,
-    strictMode: true, // Falha se houver avisos de segurança
+    strictMode: true, // Fail if there are security warnings
     pluginConfigs: {
       'cache-plugin': {
         enabled: true,
@@ -150,25 +150,25 @@ export const exemploConfiguracaoAvancada = async () => {
     }
   });
 
-  console.log('RBAC configurado com validação rigorosa');
+  console.log('RBAC configured with strict validation');
 };
 
-// Executar todos os exemplos
-export const executarExemplos = async () => {
+// Run all examples
+export const runAllExamples = async () => {
   try {
-    await exemploBasico();
-    await exemploCarregamentoEspecifico();
-    await exemploCLI();
-    await exemploVerificacao();
-    await exemploConfiguracaoAvancada();
+    await basicExample();
+    await specificLoadingExample();
+    await cliExample();
+    await verificationExample();
+    await advancedConfigurationExample();
     
-    console.log('\n✅ Todos os exemplos executados com sucesso!');
+    console.log('\n✅ All examples executed successfully!');
   } catch (error) {
-    console.error('\n❌ Erro ao executar exemplos:', error);
+    console.error('\n❌ Error executing examples:', error);
   }
 };
 
-// Executar se chamado diretamente
+// Run if called directly
 if (require.main === module) {
-  executarExemplos();
+  runAllExamples();
 }
