@@ -94,10 +94,11 @@ export class PluginManager<P = unknown> extends EventEmitter {
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      this.logger(`Erro ao instalar plugin ${plugin.metadata.name}: ${errorMessage}`, 'error');
+      const pluginName = plugin.metadata?.name || 'unknown';
+      this.logger(`Erro ao instalar plugin ${pluginName}: ${errorMessage}`, 'error');
       this.emit('plugin.error', {
         type: 'plugin.error',
-        plugin: plugin.metadata.name,
+        plugin: pluginName,
         timestamp: new Date(),
         data: { error: errorMessage }
       });

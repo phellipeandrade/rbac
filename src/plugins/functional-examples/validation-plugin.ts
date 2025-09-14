@@ -52,7 +52,7 @@ export const createValidationPlugin = (config: PluginConfig = { enabled: true, p
     metadata: {
       name: 'rbac-validation',
       version: '1.0.0',
-      description: 'Plugin de validação para roles, operações e parâmetros do RBAC',
+      description: 'Validation plugin for RBAC roles, operations and parameters',
       author: 'RBAC Team',
       license: 'MIT',
       keywords: ['validation', 'security', 'data-integrity']
@@ -60,7 +60,7 @@ export const createValidationPlugin = (config: PluginConfig = { enabled: true, p
 
     install: async (context: PluginContext) => {
       state = createValidationState(config.settings);
-      context.logger('ValidationPlugin instalado', 'info');
+      context.logger('ValidationPlugin installed', 'info');
       setupDefaultRules(state);
     },
 

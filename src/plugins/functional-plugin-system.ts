@@ -260,7 +260,7 @@ export const createPluginSystem = (rbacInstance: any): PluginSystem => {
 };
 
 // Funções utilitárias para hooks
-export const createHookUtils = () => ({
+export const createHookUtils = (system?: PluginSystem) => ({
   // Criar hook de logging
   createLogger: (level: 'info' | 'warn' | 'error' = 'info'): HookHandler => 
     async (data: HookData, context: PluginContext) => {
@@ -334,6 +334,36 @@ export const createHookUtils = () => ({
         };
       }
       
+      return data;
+    },
+
+  // Criar hook simples
+  createHook: (event: string, handler: (data: HookData) => HookData): HookHandler =>
+    async (data: HookData, context: PluginContext) => {
+      return handler(data);
+    },
+
+  // Criar hook condicional
+  createConditionalHook: (event: string, condition: (data: HookData) => boolean, handler: (data: HookData) => HookData): HookHandler =>
+    async (data: HookData, context: PluginContext) => {
+      if (condition(data)) {
+        return handler(data);
+      }
+      return data;
+    },
+
+  // Criar hook assíncrono
+  createAsyncHook: (event: string, handler: (data: HookData) => Promise<HookData>): HookHandler =>
+    async (data: HookData, context: PluginContext) => {
+      return await handler(data);
+    },
+
+  // Criar handler de erro
+  createErrorHandler: (handler: (error: Error, data: HookData) => HookData): HookHandler =>
+    async (data: HookData, context: PluginContext) => {
+      if (data.error) {
+        return handler(data.error, data);
+      }
       return data;
     }
 });

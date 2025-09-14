@@ -253,7 +253,7 @@ describe('Plugin System Integration', () => {
         await rbacWithPlugins.can('user', 'read', { id: 1 });
       } catch (error) {
         expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Database error');
+        expect((error as Error).message).toBe('Database error');
       }
     });
 
@@ -272,7 +272,7 @@ describe('Plugin System Integration', () => {
         rbacWithPlugins.updateRoles(newRoles);
       } catch (error) {
         expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Update failed');
+        expect((error as Error).message).toBe('Update failed');
       }
     });
 
@@ -291,7 +291,7 @@ describe('Plugin System Integration', () => {
         rbacWithPlugins.addRole('editor', newRole);
       } catch (error) {
         expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Add role failed');
+        expect((error as Error).message).toBe('Add role failed');
       }
     });
   });
@@ -304,7 +304,7 @@ describe('Plugin System Integration', () => {
       // Execute multiple checks
       const promises = [];
       for (let i = 0; i < 100; i++) {
-        promises.push(rbacWithPlugins.can('user', 'read', { id: i }));
+        promises.push(rbacWithPlugins.can('user', 'read', { id: i }) as Promise<boolean>);
       }
 
       await Promise.all(promises);
@@ -317,7 +317,7 @@ describe('Plugin System Integration', () => {
       const plugins = [];
       for (let i = 0; i < 10; i++) {
         const plugin = createCachePlugin();
-        plugins.push(plugin);
+        plugins.push(plugin as any);
         await rbacWithPlugins.pluginSystem.install(plugin, {
           enabled: true,
           priority: i * 10,
@@ -335,7 +335,7 @@ describe('Plugin System Integration', () => {
       const plugins = [];
       for (let i = 0; i < 50; i++) {
         const plugin = createCachePlugin();
-        plugins.push(plugin);
+        plugins.push(plugin as any);
         await rbacWithPlugins.pluginSystem.install(plugin, {
           enabled: true,
           priority: 50,
