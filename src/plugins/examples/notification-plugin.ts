@@ -180,7 +180,7 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
 
     // Process immediately if enabled
     if (this.config.enableRealTime) {
-      this.processNotifications();
+      await this.processNotifications();
     }
   }
 
@@ -230,8 +230,8 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
 
   private setupNotificationProcessing(): void {
     // Process notifications in batch every 5 seconds
-    setInterval(() => {
-      this.processNotifications();
+    setInterval(async () => {
+      await this.processNotifications();
     }, 5000);
   }
 
