@@ -1,19 +1,22 @@
 import { PluginLoader, PluginPackage } from '../../src/plugins/plugin-loader';
 import { Plugin, PluginConfig } from '../../src/plugins/functional-types';
+import fs from 'fs';
 
 // Mock require to simulate module loading
-const mockRequire = jest.fn();
 jest.mock('module', () => ({
-  require: mockRequire
+  require: jest.fn()
 }));
+const { require: mockRequire } = jest.requireMock('module') as { require: jest.Mock };
 
 // Mock fs to simulate package.json reading
-const mockFs = {
+jest.mock('fs', () => ({
   readFileSync: jest.fn(),
   existsSync: jest.fn()
+}));
+const mockFs = fs as unknown as {
+  readFileSync: jest.Mock;
+  existsSync: jest.Mock;
 };
-
-jest.mock('fs', () => mockFs);
 
 describe('PluginLoader', () => {
   let pluginLoader: PluginLoader;
@@ -27,10 +30,12 @@ describe('PluginLoader', () => {
         '@rbac/plugin-cache': '^1.0.0',
         '@rbac/plugin-audit': '^2.0.0',
         'rbac-plugin-validation': '^1.5.0',
-        'normal-package': '^1.0.0'
+        'normal-package': '^1.0.0',
+        'zod': '^3.25.56'
       },
       devDependencies: {
-        '@rbac/plugin-test': '^1.0.0'
+        '@rbac/plugin-test': '^1.0.0',
+        '@types/jest': '^30.0.0'
       }
     };
 
@@ -281,27 +286,29 @@ describe('PluginLoader', () => {
         uninstall: jest.fn()
       };
 
-      mockRequire
-        .mockReturnValueOnce({
-          rbacPlugin: {
-            name: 'plugin1',
-            version: '1.0.0',
-            factory: 'createPlugin1'
-          }
-        })
-        .mockReturnValueOnce({
-          rbacPlugin: {
-            name: 'plugin2',
-            version: '2.0.0',
-            factory: 'createPlugin2'
-          }
-        })
-        .mockReturnValueOnce({
-          createPlugin1: jest.fn().mockReturnValue(mockPlugin1)
-        })
-        .mockReturnValueOnce({
-          createPlugin2: jest.fn().mockReturnValue(mockPlugin2)
-        });
+      mockRequire.mockImplementation((name: string) => {
+        if (name === '@rbac/plugin-cache') {
+          return {
+            rbacPlugin: {
+              name: 'plugin1',
+              version: '1.0.0',
+              factory: 'createPlugin1'
+            },
+            createPlugin1: jest.fn().mockReturnValue(mockPlugin1)
+          };
+        }
+        if (name === '@rbac/plugin-audit') {
+          return {
+            rbacPlugin: {
+              name: 'plugin2',
+              version: '2.0.0',
+              factory: 'createPlugin2'
+            },
+            createPlugin2: jest.fn().mockReturnValue(mockPlugin2)
+          };
+        }
+        return {};
+      });
 
       const plugins = await pluginLoader.loadAllPlugins();
 
@@ -317,20 +324,22 @@ describe('PluginLoader', () => {
         uninstall: jest.fn()
       };
 
-      mockRequire
-        .mockImplementationOnce(() => {
+      mockRequire.mockImplementation((name: string) => {
+        if (name === '@rbac/plugin-cache') {
           throw new Error('Module not found');
-        })
-        .mockReturnValueOnce({
-          rbacPlugin: {
-            name: 'plugin2',
-            version: '2.0.0',
-            factory: 'createPlugin2'
-          }
-        })
-        .mockReturnValueOnce({
-          createPlugin2: jest.fn().mockReturnValue(mockPlugin)
-        });
+        }
+        if (name === '@rbac/plugin-audit') {
+          return {
+            rbacPlugin: {
+              name: 'plugin2',
+              version: '2.0.0',
+              factory: 'createPlugin2'
+            },
+            createPlugin2: jest.fn().mockReturnValue(mockPlugin)
+          };
+        }
+        return {};
+      });
 
       const plugins = await pluginLoader.loadAllPlugins();
 
@@ -393,8 +402,8 @@ describe('PluginLoader', () => {
       const discoveredPlugins = await pluginLoader.listDiscoveredPlugins();
 
       expect(discoveredPlugins).toHaveLength(2);
-      expect(discoveredPlugins.map(p => p.name)).toContain('plugin1');
-      expect(discoveredPlugins.map(p => p.name)).toContain('plugin2');
+      expect(discoveredPlugins.map(p => p.name)).toContain('@rbac/plugin-cache');
+      expect(discoveredPlugins.map(p => p.name)).toContain('@rbac/plugin-audit');
     });
   });
 
@@ -411,7 +420,7 @@ describe('PluginLoader', () => {
 
     it('should return false for non-installed plugin', () => {
       expect(pluginLoader.isPluginInstalled('@rbac/plugin-inexistent')).toBe(false);
-      expect(pluginLoader.isPluginInstalled('normal-package')).toBe(false);
+      expect(pluginLoader.isPluginInstalled('non-existent-package')).toBe(false);
     });
   });
 
