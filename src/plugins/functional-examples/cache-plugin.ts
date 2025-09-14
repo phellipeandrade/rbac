@@ -37,7 +37,7 @@ export const createCachePlugin = (config: PluginConfig = { enabled: true, priori
     metadata: {
       name: 'rbac-cache',
       version: '1.0.0',
-      description: 'Cache plugin to optimize permission checks',
+      description: 'cache plugin to optimize permission checks',
       author: 'RBAC Team',
       license: 'MIT',
       keywords: ['cache', 'performance', 'optimization']
