@@ -135,9 +135,18 @@ describe('PluginManager', () => {
         metadata: { name: 'test', version: '1.0.0' },
         install: jest.fn()
       } as any;
-      
+
       await expect(pluginManager.installPlugin(plugin))
         .rejects.toThrow('Plugin must implement uninstall method');
+    });
+
+    it('should fail when required dependencies are missing', async () => {
+      const plugin = createMockPlugin('dep-plugin');
+      plugin.metadata.dependencies = { 'non-existent-package': '1.0.0' };
+
+      await expect(pluginManager.installPlugin(plugin))
+        .rejects.toThrow('Dependency non-existent-package@1.0.0 not found');
+      expect(plugin.install).not.toHaveBeenCalled();
     });
   });
 
@@ -158,6 +167,15 @@ describe('PluginManager', () => {
     it('should fail when trying to uninstall non-existent plugin', async () => {
       await expect(pluginManager.uninstallPlugin('inexistent-plugin'))
         .rejects.toThrow('Plugin inexistent-plugin not found');
+    });
+
+    it('should handle errors during plugin uninstallation', async () => {
+      const plugin = createMockPlugin('test-plugin');
+      plugin.uninstall = jest.fn().mockRejectedValue(new Error('Uninstall error'));
+      await pluginManager.installPlugin(plugin);
+
+      await expect(pluginManager.uninstallPlugin('test-plugin'))
+        .rejects.toThrow('Uninstall error');
     });
   });
 
@@ -301,6 +319,23 @@ describe('PluginManager', () => {
       expect(results[1].success).toBe(true);
       expect(successHook).toHaveBeenCalled();
     });
+
+    it('should remove hooks when plugin is uninstalled', async () => {
+      const hook = jest.fn().mockResolvedValue({});
+      const plugin = createMockPlugin('test-plugin');
+      plugin.getHooks = jest.fn().mockReturnValue({
+        beforePermissionCheck: hook
+      });
+
+      await pluginManager.installPlugin(plugin);
+      await pluginManager.uninstallPlugin('test-plugin');
+
+      const data: HookData = { role: 'user', operation: 'read', params: {} };
+      const results = await pluginManager.executeHooks('beforePermissionCheck', data);
+
+      expect(results).toHaveLength(0);
+      expect(hook).not.toHaveBeenCalled();
+    });
   });
 
   describe('Plugin Configuration', () => {
@@ -357,6 +392,18 @@ describe('PluginManager', () => {
     it('should return null for non-existent plugin', () => {
       const pluginInfo = pluginManager.getPlugin('inexistent-plugin');
       expect(pluginInfo).toBeNull();
+    });
+  });
+
+  describe('Internal Utilities', () => {
+    it('should return null when handler has no associated plugin', () => {
+      const result = (pluginManager as any).findPluginByHandler(() => {});
+      expect(result).toBeNull();
+    });
+
+    it('should attempt to load plugins from directory', async () => {
+      await expect(pluginManager.loadPluginsFromDirectory('/tmp'))
+        .resolves.not.toThrow();
     });
   });
 
@@ -445,6 +492,13 @@ describe('PluginManager', () => {
           error: 'Install error'
         })
       }));
+    });
+
+    it('should log plugin system errors', () => {
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      (pluginManager as any).registry.events.emit('error', 'boom');
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('boom'));
+      errorSpy.mockRestore();
     });
   });
 
