@@ -36,9 +36,9 @@ export class MiddlewarePlugin<P = unknown> implements IMiddlewarePlugin<P> {
     enableSecurityHeaders: true,
     enableRequestLogging: true,
     rateLimitConfig: {
-      windowMs: 15 * 60 * 1000, // 15 minutos
-      max: 100, // máximo 100 requests por IP
-      message: 'Muitas tentativas, tente novamente mais tarde'
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 100, // maximum 100 requests per IP
+      message: 'Too many attempts, try again later'
     },
     corsConfig: {
       origin: '*',

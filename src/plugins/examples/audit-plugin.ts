@@ -37,7 +37,7 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
   metadata: PluginMetadata = {
     name: 'rbac-audit',
     version: '1.0.0',
-    description: 'Plugin de auditoria para rastrear atividades de segurança e compliance',
+    description: 'Audit plugin to track security activities and compliance',
     author: 'RBAC Team',
     license: 'MIT',
     keywords: ['audit', 'logging', 'compliance', 'security', 'tracking']
@@ -186,7 +186,7 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
     console.log('[AUDIT] Audit plugin finished');
   }
 
-  // Métodos públicos para auditoria
+  // Public methods for auditing
 
   async logEvent(event: Omit<AuditEvent, 'id' | 'timestamp'>): Promise<void> {
     const auditEvent: AuditEvent = {
@@ -309,7 +309,7 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
     return stats;
   }
 
-  // Métodos privados
+  // Private methods
 
   private setupFlushTimer(): void {
     this.flushTimer = setInterval(async () => {
@@ -410,7 +410,7 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  // Métodos de estatísticas
+  // Statistics methods
 
   getQueueStats(): {
     queueSize: number;

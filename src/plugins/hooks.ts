@@ -42,7 +42,7 @@ export class HookSystem<P = unknown> extends EventEmitter {
   }
 
   /**
-   * Remove hooks de um plugin específico
+   * Removes hooks from a specific plugin
    */
   unregisterPluginHooks(plugin: string): void {
     for (const [hookName, handlers] of this.hooks) {
@@ -54,7 +54,7 @@ export class HookSystem<P = unknown> extends EventEmitter {
   }
 
   /**
-   * Executa hooks de um tipo específico
+   * Executes hooks of a specific type
    */
   async executeHooks(
     hookName: PluginHook,
@@ -83,7 +83,7 @@ export class HookSystem<P = unknown> extends EventEmitter {
           executionTime 
         });
 
-        // Se o hook retornou dados modificados, usar para próxima iteração
+        // If hook returned modified data, use for next iteration
         if (result) {
           currentData = result;
         }
@@ -98,7 +98,7 @@ export class HookSystem<P = unknown> extends EventEmitter {
           data: currentData 
         });
 
-        // Em modo strict, parar execução em caso de erro
+        // In strict mode, stop execution on error
         if (context.config.settings?.strictMode) {
           throw error;
         }
@@ -124,7 +124,7 @@ export class HookSystem<P = unknown> extends EventEmitter {
   }
 
   /**
-   * Verifica se um hook específico tem handlers registrados
+   * Checks if a specific hook has registered handlers
    */
   hasHooks(hookName: PluginHook): boolean {
     return this.hooks.has(hookName) && this.hooks.get(hookName)!.length > 0;
@@ -158,11 +158,11 @@ export class HookSystem<P = unknown> extends EventEmitter {
 }
 
 /**
- * Utilitários para hooks comuns
+ * Utilities for common hooks
  */
 export class HookUtils {
   /**
-   * Cria um hook que modifica o resultado de uma verificação de permissão
+   * Creates a hook that modifies the result of a permission check
    */
   static createPermissionModifier(
     condition: (data: HookData<any>) => boolean,
@@ -213,7 +213,7 @@ export class HookUtils {
   }
 
   /**
-   * Cria um hook que executa apenas em horário comercial
+   * Creates a hook that executes only during business hours
    */
   static createBusinessHoursFilter() {
     return async (data: HookData<any>, context: PluginContext<any>): Promise<HookData<any> | void> => {
@@ -221,7 +221,7 @@ export class HookUtils {
       const isBusinessHours = hour >= 9 && hour <= 17;
       
       if (!isBusinessHours) {
-        // Modificar resultado para negar acesso fora do horário comercial
+        // Modify result to deny access outside business hours
         return {
           ...data,
           result: false,
@@ -237,7 +237,7 @@ export class HookUtils {
   }
 
   /**
-   * Cria um hook que executa apenas para usuários específicos
+   * Creates a hook that executes only for specific users
    */
   static createUserFilter(allowedUsers: string[]) {
     return async (data: HookData<any>, context: PluginContext<any>): Promise<HookData<any> | void> => {

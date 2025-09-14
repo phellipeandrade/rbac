@@ -23,13 +23,13 @@ interface NotificationEvent {
 }
 
 /**
- * Plugin de notificações para eventos do RBAC
+ * Notification plugin for RBAC events
  */
 export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
   metadata: PluginMetadata = {
     name: 'rbac-notifications',
     version: '1.0.0',
-    description: 'Plugin de notificações para eventos de segurança e auditoria',
+    description: 'Notification plugin for security and audit events',
     author: 'RBAC Team',
     license: 'MIT',
     keywords: ['notifications', 'alerts', 'security', 'audit']
@@ -93,7 +93,7 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
   }
 
   private async afterPermissionCheck(data: HookData<P>, context: PluginContext<P>): Promise<void> {
-    // Notificar sobre verificações de permissão negadas
+    // Notify about denied permission checks
     if (data.result === false) {
       this.notify('permission.denied', {
         role: data.role,
@@ -103,7 +103,7 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
       }, 'medium');
     }
 
-    // Notificar sobre verificações suspeitas
+    // Notify about suspicious checks
     if (this.isSuspiciousActivity(data)) {
       this.notify('suspicious.activity', {
         role: data.role,
@@ -165,7 +165,7 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
     console.log('[NOTIFICATION] Notification plugin finished');
   }
 
-  // Métodos públicos para notificações
+  // Public methods for notifications
 
   async notify(type: string, data: any, severity: 'low' | 'medium' | 'high' | 'critical' = 'medium'): Promise<void> {
     const notification: NotificationEvent = {

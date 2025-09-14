@@ -4,10 +4,10 @@ import { createCachePlugin } from './cache-plugin';
 import { createNotificationPlugin } from './notification-plugin';
 import { createValidationPlugin } from './validation-plugin';
 
-// Exemplo de uso do sistema de plugins funcional
+// Example of using the functional plugin system
 
-async function exemploUso() {
-  // 1. Criar instância RBAC básica
+async function usageExample() {
+  // 1. Create basic RBAC instance
   const rbac = RBAC()({
     user: {
       can: ['products:read']
@@ -18,10 +18,10 @@ async function exemploUso() {
     }
   });
 
-  // 2. Adicionar sistema de plugins
+  // 2. Add plugin system
   const rbacWithPlugins = createRBACWithPlugins(rbac);
 
-  // 3. Instalar plugins
+  // 3. Install plugins
   await rbacWithPlugins.plugins.install(
     createCachePlugin({
       enabled: true,
@@ -65,52 +65,52 @@ async function exemploUso() {
   );
 
   // 4. Usar RBAC com plugins
-  console.log('Testando verificação de permissão com plugins...');
+  console.log('Testing permission check with plugins...');
   
   const result1 = await rbacWithPlugins.can('user', 'products:read');
-  console.log('User pode ler produtos:', result1); // true
+  console.log('User can read products:', result1); // true
 
   const result2 = await rbacWithPlugins.can('user', 'products:write');
-  console.log('User pode escrever produtos:', result2); // false
+  console.log('User can write products:', result2); // false
 
   const result3 = await rbacWithPlugins.can('admin', 'products:delete');
-  console.log('Admin pode deletar produtos:', result3); // true
+  console.log('Admin can delete products:', result3); // true
 
-  // 5. Listar plugins instalados
+  // 5. List installed plugins
   const plugins = rbacWithPlugins.plugins.getPlugins();
-  console.log('Plugins instalados:', plugins.map((p: any) => p.name));
+  console.log('Installed plugins:', plugins.map((p: any) => p.name));
 
-  // 6. Usar hooks utilitários
+  // 6. Use utility hooks
   const businessHoursFilter = rbacWithPlugins.hooks.createBusinessHoursFilter();
   const userFilter = rbacWithPlugins.hooks.createUserFilter(['user1', 'user2']);
   const logger = rbacWithPlugins.hooks.createLogger('info');
 
-  // 7. Exemplo de plugin customizado
+  // 7. Custom plugin example
   const customPlugin = {
     metadata: {
       name: 'custom-logger',
       version: '1.0.0',
-      description: 'Plugin customizado para logging detalhado',
-      author: 'Desenvolvedor',
+      description: 'Custom plugin for detailed logging',
+      author: 'Developer',
       keywords: ['logging', 'custom']
     },
 
     install: async (context: any) => {
-      context.logger('Plugin customizado instalado!', 'info');
+      context.logger('Custom plugin installed!', 'info');
     },
 
     uninstall: () => {
-      console.log('Plugin customizado desinstalado!');
+      console.log('Custom plugin uninstalled!');
     },
 
     getHooks: () => ({
       beforePermissionCheck: async (data: any, context: any) => {
-        context.logger(`Verificando permissão: ${data.role} -> ${data.operation}`, 'info');
+        context.logger(`Checking permission: ${data.role} -> ${data.operation}`, 'info');
         return data;
       },
 
       afterPermissionCheck: async (data: any, context: any) => {
-        context.logger(`Resultado: ${data.result ? 'PERMITIDO' : 'NEGADO'}`, 'info');
+        context.logger(`Result: ${data.result ? 'ALLOWED' : 'DENIED'}`, 'info');
         return data;
       }
     })
@@ -118,73 +118,73 @@ async function exemploUso() {
 
   await rbacWithPlugins.plugins.install(customPlugin);
 
-  // 8. Testar com plugin customizado
-  console.log('\nTestando com plugin customizado...');
+  // 8. Test with custom plugin
+  console.log('\nTesting with custom plugin...');
   await rbacWithPlugins.can('user', 'products:read');
 
-  // 9. Desabilitar plugin
+  // 9. Disable plugin
   await rbacWithPlugins.plugins.disable('custom-logger');
-  console.log('Plugin customizado desabilitado');
+  console.log('Custom plugin disabled');
 
-  // 10. Reabilitar plugin
+  // 10. Re-enable plugin
   await rbacWithPlugins.plugins.enable('custom-logger');
-  console.log('Plugin customizado reabilitado');
+  console.log('Custom plugin re-enabled');
 
-  // 11. Desinstalar plugin
+  // 11. Uninstall plugin
   await rbacWithPlugins.plugins.uninstall('custom-logger');
-  console.log('Plugin customizado desinstalado');
+  console.log('Custom plugin uninstalled');
 }
 
-// Exemplo de plugin de middleware
+// Middleware plugin example
 export const createExpressMiddlewarePlugin = (app: any) => ({
   metadata: {
     name: 'express-middleware',
     version: '1.0.0',
-    description: 'Plugin para integração com Express.js',
+    description: 'Plugin for Express.js integration',
     author: 'RBAC Team',
     keywords: ['express', 'middleware', 'http']
   },
 
   install: async (context: any) => {
-    context.logger('Express middleware plugin instalado', 'info');
+    context.logger('Express middleware plugin installed', 'info');
   },
 
   uninstall: () => {
-    console.log('Express middleware plugin desinstalado');
+    console.log('Express middleware plugin uninstalled');
   },
 
   getHooks: () => ({
     beforePermissionCheck: async (data: any, context: any) => {
-      // Adicionar informações da requisição HTTP
+      // Add HTTP request information
       return {
         ...data,
         metadata: {
           ...data.metadata,
-          httpMethod: 'GET', // Exemplo
-          userAgent: 'Mozilla/5.0...', // Exemplo
-          ipAddress: '192.168.1.1' // Exemplo
+          httpMethod: 'GET', // Example
+          userAgent: 'Mozilla/5.0...', // Example
+          ipAddress: '192.168.1.1' // Example
         }
       };
     }
   })
 });
 
-// Exemplo de plugin de cache Redis
+// Redis cache plugin example
 export const createRedisCachePlugin = (redisClient: any) => ({
   metadata: {
     name: 'redis-cache',
     version: '1.0.0',
-    description: 'Plugin de cache usando Redis',
+    description: 'Cache plugin using Redis',
     author: 'RBAC Team',
     keywords: ['redis', 'cache', 'performance']
   },
 
   install: async (context: any) => {
-    context.logger('Redis cache plugin instalado', 'info');
+    context.logger('Redis cache plugin installed', 'info');
   },
 
   uninstall: () => {
-    console.log('Redis cache plugin desinstalado');
+    console.log('Redis cache plugin uninstalled');
   },
 
   getHooks: () => ({
@@ -210,8 +210,8 @@ export const createRedisCachePlugin = (redisClient: any) => ({
     afterPermissionCheck: async (data: any, context: any) => {
       if (data.result !== undefined) {
         const cacheKey = `rbac:${data.role}:${data.operation}`;
-        await redisClient.setex(cacheKey, 300, JSON.stringify(data.result)); // 5 minutos
-        context.logger(`Resultado armazenado no Redis: ${cacheKey}`, 'info');
+        await redisClient.setex(cacheKey, 300, JSON.stringify(data.result)); // 5 minutes
+        context.logger(`Result stored in Redis: ${cacheKey}`, 'info');
       }
 
       return data;
@@ -219,7 +219,7 @@ export const createRedisCachePlugin = (redisClient: any) => ({
   })
 });
 
-// Executar exemplo
+// Run example
 if (require.main === module) {
-  exemploUso().catch(console.error);
+  usageExample().catch(console.error);
 }
