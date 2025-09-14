@@ -79,8 +79,8 @@ export class PluginValidator {
   static validatePluginSecurity(plugin: Plugin): SecurityResult {
     const warnings: string[] = [];
 
-    // Check for suspicious code
-    const pluginString = JSON.stringify(plugin);
+    // Convert plugin to string representation that includes function bodies
+    const pluginString = this.pluginToString(plugin);
     
     // Check for eval or Function usage
     if (pluginString.includes('eval(') || pluginString.includes('Function(')) {
@@ -111,6 +111,32 @@ export class PluginValidator {
       safe: warnings.length === 0,
       warnings
     };
+  }
+
+  // Helper method to convert plugin to string representation
+  private static pluginToString(plugin: Plugin): string {
+    let result = '';
+    
+    // Convert metadata
+    if (plugin.metadata) {
+      result += JSON.stringify(plugin.metadata);
+    }
+    
+    // Convert functions to string
+    if (plugin.install) {
+      result += plugin.install.toString();
+    }
+    if (plugin.uninstall) {
+      result += plugin.uninstall.toString();
+    }
+    if (plugin.configure) {
+      result += plugin.configure.toString();
+    }
+    if (plugin.getHooks) {
+      result += plugin.getHooks.toString();
+    }
+    
+    return result;
   }
 
   // Validate version compatibility
