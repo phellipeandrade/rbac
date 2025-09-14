@@ -2,13 +2,16 @@
   "compilerOptions": {
     "target": "es2018",
     "module": "commonjs",
-    "rootDir": "src",
     "outDir": "lib",
     "declaration": true,
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node"]
+    "downlevelIteration": true,
+    "types": ["node", "jest"],
+    "skipLibCheck": true,
+    "noImplicitAny": false
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["test/**/*", "node_modules", "lib"]
 }
