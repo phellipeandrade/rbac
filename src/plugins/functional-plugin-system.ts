@@ -173,7 +173,7 @@ export const createPluginSystem = (rbacInstance: any): PluginSystem => {
     for (const { handler, plugin } of enabledHandlers) {
       try {
         const result = await handler(currentData, context);
-        if (result) {
+        if (result !== undefined && result !== null) {
           currentData = result;
         }
       } catch (error) {

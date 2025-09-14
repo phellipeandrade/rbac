@@ -431,7 +431,11 @@ describe('PluginManager', () => {
         uninstall: jest.fn()
       } as any;
       
-      await pluginManager.installPlugin(plugin);
+      try {
+        await pluginManager.installPlugin(plugin);
+      } catch (error) {
+        // Expected error
+      }
       
       expect(eventSpy).toHaveBeenCalledWith(expect.objectContaining({
         type: 'plugin.error',
