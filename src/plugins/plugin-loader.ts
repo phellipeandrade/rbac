@@ -1,4 +1,6 @@
 import { Plugin, PluginConfig } from './functional-types';
+import fs from 'fs';
+import Module from 'module';
 
 export interface PluginPackage {
   name: string;
@@ -18,9 +20,15 @@ export class PluginLoader {
 
   constructor(packageJsonPath: string = './package.json') {
     try {
-      this.packageJson = require(packageJsonPath);
+      if (fs.existsSync(packageJsonPath)) {
+        const content = fs.readFileSync(packageJsonPath, 'utf-8');
+        this.packageJson = JSON.parse(content);
+      } else {
+        console.warn("Couldn't load package.json: file not found");
+        this.packageJson = { dependencies: {}, devDependencies: {} };
+      }
     } catch (error) {
-      console.warn('Não foi possível carregar package.json:', error);
+      console.warn("Couldn't load package.json:", error);
       this.packageJson = { dependencies: {}, devDependencies: {} };
     }
   }
@@ -36,7 +44,7 @@ export class PluginLoader {
     for (const [packageName, version] of Object.entries(dependencies)) {
       if (packageName.startsWith('@rbac/plugin-') || packageName.startsWith('rbac-plugin-')) {
         try {
-          const pluginPackage = require(packageName);
+          const pluginPackage = (Module as any).require(packageName);
           if (pluginPackage.rbacPlugin) {
             plugins.push({
               name: packageName,
@@ -46,7 +54,7 @@ export class PluginLoader {
             });
           }
         } catch (error) {
-          console.warn(`Erro ao carregar plugin ${packageName}:`, error);
+          console.warn(`Error loading discovered plugin ${packageName}:`, error);
         }
       }
     }
@@ -57,12 +65,12 @@ export class PluginLoader {
   // Carregar plugin específico
   async loadPlugin(pluginPackage: PluginPackage): Promise<Plugin> {
     try {
-      const pluginModule = require(pluginPackage.name);
+      const pluginModule = (Module as any).require(pluginPackage.name);
       const factoryName = pluginPackage.rbacPlugin?.factory || 'createPlugin';
       const factory = pluginModule[factoryName];
 
       if (!factory || typeof factory !== 'function') {
-        throw new Error(`Factory function '${factoryName}' não encontrada em ${pluginPackage.name}`);
+        throw new Error(`Factory function '${factoryName}' not found in ${pluginPackage.name}`);
       }
 
       const config = pluginPackage.rbacPlugin?.config || { enabled: true, priority: 50, settings: {} };
@@ -72,7 +80,7 @@ export class PluginLoader {
       return plugin;
 
     } catch (error) {
-      throw new Error(`Erro ao carregar plugin ${pluginPackage.name}: ${error}`);
+      throw new Error(`Error loading plugin ${pluginPackage.name}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -86,7 +94,7 @@ export class PluginLoader {
         const plugin = await this.loadPlugin(pluginPackage);
         loadedPlugins.push(plugin);
       } catch (error) {
-        console.error(`Falha ao carregar plugin ${pluginPackage.name}:`, error);
+        console.error(`Failed to load plugin ${pluginPackage.name}:`, error);
       }
     }
 

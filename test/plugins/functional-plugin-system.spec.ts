@@ -56,9 +56,9 @@ describe('Functional Plugin System', () => {
 
     it('should install plugin successfully', async () => {
       const system = createPluginSystem(mockRBAC);
-      const plugin = createMockPlugin('test-plugin');
+      const pluginInstance = createMockPlugin('test-plugin');
 
-      await system.install(plugin);
+      await system.install(pluginInstance);
 
       expect(plugin.install).toHaveBeenCalledWith(expect.objectContaining({
         rbac: mockRBAC,
@@ -218,10 +218,10 @@ describe('Functional Plugin System', () => {
       };
 
       // Configuration is handled through plugin metadata
-      const plugin = system.getPlugin('test-plugin');
-      expect(plugin).toBeTruthy();
+      const fetched = system.getPlugin('test-plugin');
+      expect(fetched).toBeTruthy();
 
-      expect(plugin.configure).toHaveBeenCalledWith(newConfig);
+      expect(pluginInstance.configure).toHaveBeenCalledWith(newConfig);
     });
 
     it('should fail when trying to configure non-existent plugin', async () => {

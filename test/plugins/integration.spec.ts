@@ -302,7 +302,7 @@ describe('Plugin System Integration', () => {
       await rbacWithPlugins.pluginSystem.install(cachePlugin);
 
       // Execute multiple checks
-      const promises = [];
+      const promises: Array<Promise<boolean>> = [];
       for (let i = 0; i < 100; i++) {
         promises.push(rbacWithPlugins.can('user', 'read', { id: i }) as Promise<boolean>);
       }
@@ -314,7 +314,7 @@ describe('Plugin System Integration', () => {
     });
 
     it('should handle multiple plugins with hooks', async () => {
-      const plugins = [];
+      const plugins: Array<ReturnType<typeof createCachePlugin>> = [];
       for (let i = 0; i < 10; i++) {
         const plugin = createCachePlugin();
         plugins.push(plugin as any);
@@ -332,7 +332,7 @@ describe('Plugin System Integration', () => {
     });
 
     it('should handle mass installation and uninstallation', async () => {
-      const plugins = [];
+      const plugins: Array<ReturnType<typeof createCachePlugin>> = [];
       for (let i = 0; i < 50; i++) {
         const plugin = createCachePlugin();
         plugins.push(plugin as any);

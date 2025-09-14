@@ -88,7 +88,14 @@ export const createCachePlugin = (config: PluginConfig = { enabled: true, priori
           };
         }
 
-        return data;
+        // Always add cacheKey to metadata for tracking
+        return {
+          ...data,
+          metadata: {
+            ...data.metadata,
+            cacheKey
+          }
+        };
       },
 
       afterPermissionCheck: async (data: HookData, context: PluginContext) => {
