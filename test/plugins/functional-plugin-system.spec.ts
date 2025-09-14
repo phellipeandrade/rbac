@@ -165,9 +165,9 @@ describe('Functional Plugin System', () => {
         params: {}
       };
 
-      const results = await system.executeHooks('beforePermissionCheck', data);
+      const result = await system.executeHooks('beforePermissionCheck', data);
 
-      expect(results).toHaveLength(0);
+      expect(result).toEqual(data);
       expect(hook).not.toHaveBeenCalled();
     });
 
@@ -196,12 +196,10 @@ describe('Functional Plugin System', () => {
         params: {}
       };
 
-      const results = await system.executeHooks('beforePermissionCheck', data);
+      const result = await system.executeHooks('beforePermissionCheck', data);
 
-      expect(results).toHaveLength(2);
-      expect(results[0].success).toBe(false);
-      expect(results[0].error).toBeInstanceOf(Error);
-      expect(results[1].success).toBe(true);
+      expect(result).toEqual(data);
+      expect(errorHook).toHaveBeenCalled();
       expect(successHook).toHaveBeenCalled();
     });
 
@@ -217,11 +215,12 @@ describe('Functional Plugin System', () => {
         settings: { newSetting: 'value' }
       };
 
+      await system.configure('test-plugin', newConfig);
+
       // Configuration is handled through plugin metadata
       const fetched = system.getPlugin('test-plugin');
       expect(fetched).toBeTruthy();
-
-      expect(plugin.configure).toHaveBeenCalledWith(newConfig);
+      expect(fetched?.config).toEqual(newConfig);
     });
 
     it('should fail when trying to configure non-existent plugin', async () => {
@@ -251,7 +250,7 @@ describe('Functional Plugin System', () => {
       const system = createPluginSystem(mockRBAC);
       const eventSpy = jest.fn();
       
-      // Events are handled internally by the plugin system
+      system.events.on('plugin.installed', eventSpy);
 
       const plugin = createMockPlugin('test-plugin');
       await system.install(plugin);
@@ -267,7 +266,7 @@ describe('Functional Plugin System', () => {
       const system = createPluginSystem(mockRBAC);
       const eventSpy = jest.fn();
       
-      // Events are handled internally by the plugin system
+      system.events.on('plugin.uninstalled', eventSpy);
 
       const plugin = createMockPlugin('test-plugin');
       await system.install(plugin);
