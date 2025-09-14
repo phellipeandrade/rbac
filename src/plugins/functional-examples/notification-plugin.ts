@@ -157,12 +157,12 @@ const setupNotificationProcessing = (state: NotificationState, context: PluginCo
   }, state.config.flushInterval);
 };
 
-const notify = (
-  state: NotificationState, 
-  type: string, 
-  data: any, 
+const notify = async (
+  state: NotificationState,
+  type: string,
+  data: any,
   severity: 'low' | 'medium' | 'high' | 'critical' = 'medium'
-): void => {
+): Promise<void> => {
   const notification = {
     type,
     timestamp: new Date(),
@@ -174,7 +174,7 @@ const notify = (
 
   // Processar imediatamente se habilitado
   if (state.config.enableRealTime) {
-    processNotifications(state, { logger: () => {} });
+    await processNotifications(state, { logger: () => {} });
   }
 };
 

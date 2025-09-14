@@ -115,7 +115,9 @@ export const createCachePlugin = (config: PluginConfig = { enabled: true, priori
 const generateCacheKey = (role: string, operation: string | RegExp, params?: any): string => {
   const operationStr = typeof operation === 'string' ? operation : operation.source;
   const paramsStr = params ? JSON.stringify(params) : '';
-  return `rbac:${role}:${operationStr}:${btoa(paramsStr)}`;
+  // Use Buffer for Node.js compatibility instead of btoa
+  const encodedParams = Buffer.from(paramsStr).toString('base64');
+  return `rbac:${role}:${operationStr}:${encodedParams}`;
 };
 
 const getFromCache = (state: CacheState, key: string): any => {
