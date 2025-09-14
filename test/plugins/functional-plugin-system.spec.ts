@@ -175,7 +175,7 @@ describe('Functional Plugin System', () => {
       const system = createPluginSystem(mockRBAC);
       
       const errorHook = jest.fn().mockRejectedValue(new Error('Hook error'));
-      const successHook = jest.fn().mockResolvedValue({});
+      const successHook = jest.fn().mockImplementation((data) => data);
       
       const plugin1 = createMockPlugin('plugin1');
       plugin1.getHooks = jest.fn().mockReturnValue({
