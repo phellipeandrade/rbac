@@ -49,9 +49,9 @@ export const createNotificationPlugin = (config: PluginConfig = { enabled: true,
 
   return {
     metadata: {
-      name: 'rbac-notifications',
+      name: 'rbac-notification',
       version: '1.0.0',
-      description: 'Plugin de notificações para eventos de segurança e auditoria',
+      description: 'Notification plugin for security and audit events',
       author: 'RBAC Team',
       license: 'MIT',
       keywords: ['notifications', 'alerts', 'security', 'audit']
@@ -59,7 +59,7 @@ export const createNotificationPlugin = (config: PluginConfig = { enabled: true,
 
     install: async (context: PluginContext) => {
       state = createNotificationState(config.settings);
-      context.logger('NotificationPlugin instalado', 'info');
+      context.logger('NotificationPlugin installed', 'info');
       
       // Configurar processamento de notificações
       setupNotificationProcessing(state, context);

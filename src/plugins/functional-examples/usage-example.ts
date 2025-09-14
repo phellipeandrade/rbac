@@ -138,7 +138,7 @@ async function usageExample() {
 // Middleware plugin example
 export const createExpressMiddlewarePlugin = (app: any) => ({
   metadata: {
-    name: 'express-middleware',
+    name: 'rbac-express-middleware',
     version: '1.0.0',
     description: 'Plugin for Express.js integration',
     author: 'RBAC Team',
@@ -146,7 +146,7 @@ export const createExpressMiddlewarePlugin = (app: any) => ({
   },
 
   install: async (context: any) => {
-    context.logger('Express middleware plugin installed', 'info');
+    context.logger('ExpressMiddlewarePlugin installed', 'info');
   },
 
   uninstall: () => {
@@ -172,7 +172,7 @@ export const createExpressMiddlewarePlugin = (app: any) => ({
 // Redis cache plugin example
 export const createRedisCachePlugin = (redisClient: any) => ({
   metadata: {
-    name: 'redis-cache',
+    name: 'rbac-redis-cache',
     version: '1.0.0',
     description: 'Cache plugin using Redis',
     author: 'RBAC Team',
@@ -180,7 +180,7 @@ export const createRedisCachePlugin = (redisClient: any) => ({
   },
 
   install: async (context: any) => {
-    context.logger('Redis cache plugin installed', 'info');
+    context.logger('RedisCachePlugin installed', 'info');
   },
 
   uninstall: () => {

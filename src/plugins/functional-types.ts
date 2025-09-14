@@ -79,4 +79,8 @@ export interface HookUtils {
   createFilter: (condition: (data: HookData) => boolean) => HookHandler;
   createBusinessHoursFilter: () => HookHandler;
   createUserFilter: (allowedUsers: string[]) => HookHandler;
+  createHook: (event: string, handler: (data: HookData) => HookData) => HookHandler;
+  createConditionalHook: (event: string, condition: (data: HookData) => boolean, handler: (data: HookData) => HookData) => HookHandler;
+  createAsyncHook: (event: string, handler: (data: HookData) => Promise<HookData>) => HookHandler;
+  createErrorHandler: (handler: (error: Error, data: HookData) => HookData) => HookHandler;
 }

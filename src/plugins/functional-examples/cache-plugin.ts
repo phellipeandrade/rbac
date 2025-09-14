@@ -37,7 +37,7 @@ export const createCachePlugin = (config: PluginConfig = { enabled: true, priori
     metadata: {
       name: 'rbac-cache',
       version: '1.0.0',
-      description: 'Plugin de cache para otimizar verificações de permissão',
+      description: 'Cache plugin to optimize permission checks',
       author: 'RBAC Team',
       license: 'MIT',
       keywords: ['cache', 'performance', 'optimization']
@@ -45,7 +45,7 @@ export const createCachePlugin = (config: PluginConfig = { enabled: true, priori
 
     install: async (context: PluginContext) => {
       state = createCacheState(config.settings);
-      context.logger('CachePlugin instalado', 'info');
+      context.logger('CachePlugin installed', 'info');
       
       // Configurar limpeza automática
       setInterval(() => {

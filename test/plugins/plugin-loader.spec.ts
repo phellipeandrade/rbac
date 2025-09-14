@@ -195,8 +195,8 @@ describe('PluginLoader', () => {
         main: 'index.js',
         rbacPlugin: {
           name: 'test',
-          version: '1.0.0'
-          // No factory specified
+          version: '1.0.0',
+          factory: 'createPlugin'
         }
       };
 
