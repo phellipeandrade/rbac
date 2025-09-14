@@ -78,7 +78,7 @@ async function exemploUso() {
 
   // 5. Listar plugins instalados
   const plugins = rbacWithPlugins.plugins.getPlugins();
-  console.log('Plugins instalados:', plugins.map(p => p.name));
+  console.log('Plugins instalados:', plugins.map((p: any) => p.name));
 
   // 6. Usar hooks utilitários
   const businessHoursFilter = rbacWithPlugins.hooks.createBusinessHoursFilter();
@@ -95,7 +95,7 @@ async function exemploUso() {
       keywords: ['logging', 'custom']
     },
 
-    install: async (context) => {
+    install: async (context: any) => {
       context.logger('Plugin customizado instalado!', 'info');
     },
 
@@ -104,12 +104,12 @@ async function exemploUso() {
     },
 
     getHooks: () => ({
-      beforePermissionCheck: async (data, context) => {
+      beforePermissionCheck: async (data: any, context: any) => {
         context.logger(`Verificando permissão: ${data.role} -> ${data.operation}`, 'info');
         return data;
       },
 
-      afterPermissionCheck: async (data, context) => {
+      afterPermissionCheck: async (data: any, context: any) => {
         context.logger(`Resultado: ${data.result ? 'PERMITIDO' : 'NEGADO'}`, 'info');
         return data;
       }
@@ -145,7 +145,7 @@ export const createExpressMiddlewarePlugin = (app: any) => ({
     keywords: ['express', 'middleware', 'http']
   },
 
-  install: async (context) => {
+  install: async (context: any) => {
     context.logger('Express middleware plugin instalado', 'info');
   },
 
@@ -154,7 +154,7 @@ export const createExpressMiddlewarePlugin = (app: any) => ({
   },
 
   getHooks: () => ({
-    beforePermissionCheck: async (data, context) => {
+    beforePermissionCheck: async (data: any, context: any) => {
       // Adicionar informações da requisição HTTP
       return {
         ...data,
@@ -179,7 +179,7 @@ export const createRedisCachePlugin = (redisClient: any) => ({
     keywords: ['redis', 'cache', 'performance']
   },
 
-  install: async (context) => {
+  install: async (context: any) => {
     context.logger('Redis cache plugin instalado', 'info');
   },
 
@@ -188,7 +188,7 @@ export const createRedisCachePlugin = (redisClient: any) => ({
   },
 
   getHooks: () => ({
-    beforePermissionCheck: async (data, context) => {
+    beforePermissionCheck: async (data: any, context: any) => {
       const cacheKey = `rbac:${data.role}:${data.operation}`;
       const cached = await redisClient.get(cacheKey);
       
@@ -207,7 +207,7 @@ export const createRedisCachePlugin = (redisClient: any) => ({
       return data;
     },
 
-    afterPermissionCheck: async (data, context) => {
+    afterPermissionCheck: async (data: any, context: any) => {
       if (data.result !== undefined) {
         const cacheKey = `rbac:${data.role}:${data.operation}`;
         await redisClient.setex(cacheKey, 300, JSON.stringify(data.result)); // 5 minutos

@@ -91,7 +91,9 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
       afterRoleUpdate: this.afterRoleUpdate.bind(this),
       beforeRoleAdd: this.beforeRoleAdd.bind(this),
       afterRoleAdd: this.afterRoleAdd.bind(this),
-      onError: this.onError.bind(this)
+      onError: this.onError.bind(this),
+      onStartup: this.onStartup.bind(this),
+      onShutdown: this.onShutdown.bind(this)
     };
   }
 
@@ -171,6 +173,17 @@ export class AuditPlugin<P = unknown> implements RBACPlugin<P> {
         params: data.params
       }
     });
+  }
+
+  async onStartup(): Promise<void> {
+    // Inicializar recursos do plugin de auditoria
+    console.log('[AUDIT] Plugin de auditoria iniciado');
+  }
+
+  async onShutdown(): Promise<void> {
+    // Limpar recursos e processar eventos pendentes
+    await this.flushEvents();
+    console.log('[AUDIT] Plugin de auditoria finalizado');
   }
 
   // Métodos públicos para auditoria

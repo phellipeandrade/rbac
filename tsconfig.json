@@ -8,6 +8,7 @@
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "downlevelIteration": true,
     "types": ["node"]
   },
   "include": ["src/**/*"]

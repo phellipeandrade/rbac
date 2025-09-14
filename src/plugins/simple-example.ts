@@ -93,7 +93,7 @@ async function exemploSimples() {
   // 7. Listar plugins instalados
   console.log('\n📋 Plugins instalados:');
   const plugins = rbacWithPlugins.plugins.getPlugins();
-  plugins.forEach(plugin => {
+  plugins.forEach((plugin: any) => {
     console.log(`  - ${plugin.name} v${plugin.metadata.version} (${plugin.config.enabled ? 'habilitado' : 'desabilitado'})`);
   });
 
@@ -108,7 +108,7 @@ async function exemploSimples() {
       keywords: ['logging', 'custom']
     },
 
-    install: async (context) => {
+    install: async (context: any) => {
       context.logger('🎉 Plugin customizado instalado!', 'info');
     },
 
@@ -117,22 +117,22 @@ async function exemploSimples() {
     },
 
     getHooks: () => ({
-      beforePermissionCheck: async (data, context) => {
+      beforePermissionCheck: async (data: any, context: any) => {
         context.logger(`🔍 Verificando: ${data.role} -> ${data.operation}`, 'info');
         return data;
       },
 
-      afterPermissionCheck: async (data, context) => {
+      afterPermissionCheck: async (data: any, context: any) => {
         const emoji = data.result ? '✅' : '❌';
         context.logger(`${emoji} Resultado: ${data.result ? 'PERMITIDO' : 'NEGADO'}`, 'info');
         return data;
       },
 
-      beforeRoleUpdate: async (data, context) => data,
-      afterRoleUpdate: async (data, context) => data,
-      beforeRoleAdd: async (data, context) => data,
-      afterRoleAdd: async (data, context) => data,
-      onError: async (data, context) => data
+      beforeRoleUpdate: async (data: any, context: any) => data,
+      afterRoleUpdate: async (data: any, context: any) => data,
+      beforeRoleAdd: async (data: any, context: any) => data,
+      afterRoleAdd: async (data: any, context: any) => data,
+      onError: async (data: any, context: any) => data
     })
   };
 

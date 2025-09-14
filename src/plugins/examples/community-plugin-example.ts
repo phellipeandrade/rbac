@@ -55,7 +55,7 @@ export const exemploBasico = async () => {
   // Listar plugins instalados
   const plugins = rbacWithPlugins.plugins.getPlugins();
   console.log('\nPlugins ativos:');
-  plugins.forEach(plugin => {
+  plugins.forEach((plugin: any) => {
     console.log(`- ${plugin.name}@${plugin.metadata.version} (${plugin.config.enabled ? 'Habilitado' : 'Desabilitado'})`);
   });
 };

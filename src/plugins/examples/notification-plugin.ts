@@ -80,8 +80,15 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
 
   getHooks() {
     return {
+      beforePermissionCheck: this.beforePermissionCheck.bind(this),
       afterPermissionCheck: this.afterPermissionCheck.bind(this),
-      onError: this.onError.bind(this)
+      beforeRoleUpdate: this.beforeRoleUpdate.bind(this),
+      afterRoleUpdate: this.afterRoleUpdate.bind(this),
+      beforeRoleAdd: this.beforeRoleAdd.bind(this),
+      afterRoleAdd: this.afterRoleAdd.bind(this),
+      onError: this.onError.bind(this),
+      onStartup: this.onStartup.bind(this),
+      onShutdown: this.onShutdown.bind(this)
     };
   }
 
@@ -107,6 +114,38 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
     }
   }
 
+  private async beforePermissionCheck(data: HookData<P>, context: PluginContext<P>): Promise<void> {
+    // Não há notificação necessária antes da verificação
+  }
+
+  private async beforeRoleUpdate(data: HookData<P>, context: PluginContext<P>): Promise<void> {
+    this.notify('role.update.started', {
+      role: data.role,
+      metadata: data.metadata
+    }, 'low');
+  }
+
+  private async afterRoleUpdate(data: HookData<P>, context: PluginContext<P>): Promise<void> {
+    this.notify('role.update.completed', {
+      role: data.role,
+      metadata: data.metadata
+    }, 'low');
+  }
+
+  private async beforeRoleAdd(data: HookData<P>, context: PluginContext<P>): Promise<void> {
+    this.notify('role.add.started', {
+      role: data.role,
+      metadata: data.metadata
+    }, 'low');
+  }
+
+  private async afterRoleAdd(data: HookData<P>, context: PluginContext<P>): Promise<void> {
+    this.notify('role.add.completed', {
+      role: data.role,
+      metadata: data.metadata
+    }, 'low');
+  }
+
   private async onError(data: HookData<P>, context: PluginContext<P>): Promise<void> {
     this.notify('rbac.error', {
       error: data.error?.message,
@@ -114,6 +153,16 @@ export class NotificationPlugin<P = unknown> implements RBACPlugin<P> {
       operation: data.operation,
       stack: data.error?.stack
     }, 'critical');
+  }
+
+  async onStartup(): Promise<void> {
+    console.log('[NOTIFICATION] Plugin de notificações iniciado');
+  }
+
+  async onShutdown(): Promise<void> {
+    // Processar notificações pendentes antes de finalizar
+    await this.processNotifications();
+    console.log('[NOTIFICATION] Plugin de notificações finalizado');
   }
 
   // Métodos públicos para notificações

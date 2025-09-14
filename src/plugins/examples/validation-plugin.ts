@@ -58,8 +58,14 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
   getHooks() {
     return {
       beforePermissionCheck: this.beforePermissionCheck.bind(this),
+      afterPermissionCheck: this.afterPermissionCheck.bind(this),
       beforeRoleUpdate: this.beforeRoleUpdate.bind(this),
-      beforeRoleAdd: this.beforeRoleAdd.bind(this)
+      afterRoleUpdate: this.afterRoleUpdate.bind(this),
+      beforeRoleAdd: this.beforeRoleAdd.bind(this),
+      afterRoleAdd: this.afterRoleAdd.bind(this),
+      onError: this.onError.bind(this),
+      onStartup: this.onStartup.bind(this),
+      onShutdown: this.onShutdown.bind(this)
     };
   }
 
@@ -82,7 +88,8 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
 
       return data;
     } catch (error) {
-      context.logger(`Erro de validação: ${error.message}`, 'error');
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      context.logger(`Erro de validação: ${errorMessage}`, 'error');
       
       if (this.config.strictMode) {
         throw error;
@@ -93,7 +100,7 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
         result: false,
         metadata: {
           ...data.metadata,
-          validationError: error.message
+          validationError: errorMessage
         }
       };
     }
@@ -108,7 +115,8 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
 
       return data;
     } catch (error) {
-      context.logger(`Erro de validação de roles: ${error.message}`, 'error');
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      context.logger(`Erro de validação de roles: ${errorMessage}`, 'error');
       
       if (this.config.strictMode) {
         throw error;
@@ -119,7 +127,7 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
         result: false,
         metadata: {
           ...data.metadata,
-          validationError: error.message
+          validationError: errorMessage
         }
       };
     }
@@ -139,7 +147,8 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
 
       return data;
     } catch (error) {
-      context.logger(`Erro de validação de role: ${error.message}`, 'error');
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      context.logger(`Erro de validação de role: ${errorMessage}`, 'error');
       
       if (this.config.strictMode) {
         throw error;
@@ -150,10 +159,41 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
         result: false,
         metadata: {
           ...data.metadata,
-          validationError: error.message
+          validationError: errorMessage
         }
       };
     }
+  }
+
+  private async afterPermissionCheck(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
+    // Não há validação necessária após a verificação
+    return data;
+  }
+
+  private async afterRoleUpdate(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
+    // Não há validação necessária após a atualização
+    return data;
+  }
+
+  private async afterRoleAdd(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
+    // Não há validação necessária após a adição
+    return data;
+  }
+
+  private async onError(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
+    // Log de erro de validação se houver
+    if (data.metadata?.validationError) {
+      context.logger(`Erro de validação capturado: ${data.metadata.validationError}`, 'error');
+    }
+    return data;
+  }
+
+  async onStartup(): Promise<void> {
+    console.log('[VALIDATION] Plugin de validação iniciado');
+  }
+
+  async onShutdown(): Promise<void> {
+    console.log('[VALIDATION] Plugin de validação finalizado');
   }
 
   // Métodos de validação públicos
@@ -190,7 +230,8 @@ export class ValidationPlugin<P = unknown> implements RBACPlugin<P> {
       try {
         new RegExp(operation.source, operation.flags);
       } catch (error) {
-        throw new Error(`Regex inválida: ${error.message}`);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        throw new Error(`Regex inválida: ${errorMessage}`);
       }
     } else {
       throw new Error('Operação deve ser uma string ou RegExp');
