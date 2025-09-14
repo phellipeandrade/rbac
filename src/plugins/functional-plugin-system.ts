@@ -41,10 +41,10 @@ export const createPluginSystem = (rbacInstance: any): PluginSystem => {
   // Instalar plugin
   const install = async (plugin: Plugin, config: PluginConfig = { enabled: true, priority: 50, settings: {} }): Promise<void> => {
     try {
-      context.logger(`Instalando plugin: ${plugin.metadata.name}@${plugin.metadata.version}`, 'info');
-      
-      // Validar plugin
+      // Validar plugin primeiro
       validatePlugin(plugin);
+      
+      context.logger(`Instalando plugin: ${plugin.metadata.name}@${plugin.metadata.version}`, 'info');
       
       // Configurar plugin
       if (plugin.configure) {
@@ -77,11 +77,12 @@ export const createPluginSystem = (rbacInstance: any): PluginSystem => {
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      context.logger(`Erro ao instalar plugin ${plugin.metadata.name}: ${errorMessage}`, 'error');
+      const pluginName = plugin.metadata?.name || 'unknown';
+      context.logger(`Erro ao instalar plugin ${pluginName}: ${errorMessage}`, 'error');
       
       state.events.emit('plugin.error', {
         type: 'plugin.error',
-        plugin: plugin.metadata.name,
+        plugin: pluginName,
         timestamp: new Date(),
         data: { error: errorMessage }
       });
@@ -94,7 +95,7 @@ export const createPluginSystem = (rbacInstance: any): PluginSystem => {
   const uninstall = async (pluginName: string): Promise<void> => {
     const plugin = state.plugins.get(pluginName);
     if (!plugin) {
-      throw new Error(`Plugin ${pluginName} não encontrado`);
+      throw new Error(`Plugin ${pluginName} not found`);
     }
 
     try {
@@ -182,6 +183,7 @@ export const createPluginSystem = (rbacInstance: any): PluginSystem => {
         if (config?.settings?.strictMode) {
           throw error;
         }
+        // Continue execution even if hook fails
       }
     }
 
@@ -220,23 +222,23 @@ export const createPluginSystem = (rbacInstance: any): PluginSystem => {
 
   const validatePlugin = (plugin: Plugin): void => {
     if (!plugin.metadata) {
-      throw new Error('Plugin deve ter metadata');
+      throw new Error('Plugin must have metadata');
     }
     
     if (!plugin.metadata.name) {
-      throw new Error('Plugin deve ter um nome');
+      throw new Error('Plugin must have a name');
     }
     
     if (!plugin.metadata.version) {
-      throw new Error('Plugin deve ter uma versão');
+      throw new Error('Plugin must have a version');
     }
     
     if (!plugin.install || typeof plugin.install !== 'function') {
-      throw new Error('Plugin deve implementar a função install');
+      throw new Error('Plugin must implement install method');
     }
     
     if (!plugin.uninstall || typeof plugin.uninstall !== 'function') {
-      throw new Error('Plugin deve implementar a função uninstall');
+      throw new Error('Plugin must implement uninstall method');
     }
   };
 
@@ -433,9 +435,31 @@ export const createRBACWithPlugins = (rbacInstance: any) => {
     }
   };
 
+  // Interceptar updateRoles
+  const originalUpdateRoles = rbacInstance.updateRoles.bind(rbacInstance);
+  const wrappedUpdateRoles = (roles: any) => {
+    const data: HookData = { role: 'admin', operation: 'update', params: roles };
+    pluginSystem.executeHooks('beforeRoleUpdate', data);
+    const result = originalUpdateRoles(roles);
+    pluginSystem.executeHooks('afterRoleUpdate', data);
+    return result;
+  };
+
+  // Interceptar addRole
+  const originalAddRole = rbacInstance.addRole.bind(rbacInstance);
+  const wrappedAddRole = (roleName: string, role: any) => {
+    const data: HookData = { role: roleName, operation: 'add', params: role };
+    pluginSystem.executeHooks('beforeRoleAdd', data);
+    const result = originalAddRole(roleName, role);
+    pluginSystem.executeHooks('afterRoleAdd', data);
+    return result;
+  };
+
   return {
     ...rbacInstance,
     can: wrappedCan,
+    updateRoles: wrappedUpdateRoles,
+    addRole: wrappedAddRole,
     pluginSystem: pluginSystem,
     hooks: hookUtils
   };
