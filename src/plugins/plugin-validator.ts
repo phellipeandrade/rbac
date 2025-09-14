@@ -118,8 +118,8 @@ export class PluginValidator {
     const errors: string[] = [];
 
     // Verificar se o plugin especifica compatibilidade
-    if (plugin.metadata && plugin.metadata.peerDependencies) {
-      const rbacDep = plugin.metadata.peerDependencies['@rbac/rbac'];
+    if (plugin.metadata && (plugin.metadata as any).peerDependencies) {
+      const rbacDep = (plugin.metadata as any).peerDependencies['@rbac/rbac'];
       if (rbacDep && !this.isVersionCompatible(rbacVersion, rbacDep)) {
         errors.push(`Plugin requer @rbac/rbac ${rbacDep} mas encontrado ${rbacVersion}`);
       }

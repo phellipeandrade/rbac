@@ -83,7 +83,7 @@ async function testCommunityPluginSystem() {
   // 7. Listar plugins ativos
   console.log('\n7. Plugins ativos:');
   const plugins = rbacWithPlugins.plugins.getPlugins();
-  plugins.forEach(plugin => {
+  plugins.forEach((plugin: any) => {
     console.log(`- ${plugin.name}@${plugin.metadata.version} (${plugin.config.enabled ? 'Habilitado' : 'Desabilitado'})`);
   });
 

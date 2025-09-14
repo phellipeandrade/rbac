@@ -1,4 +1,4 @@
-import { RBACPlugin, PluginContext, PluginConfig, PluginMetadata, MiddlewarePlugin } from '../types';
+import { RBACPlugin, PluginContext, PluginConfig, PluginMetadata, MiddlewarePlugin as IMiddlewarePlugin } from '../types';
 
 interface MiddlewareConfig {
   enableCORS: boolean;
@@ -20,7 +20,7 @@ interface MiddlewareConfig {
 /**
  * Plugin de middleware para Express, Fastify e NestJS
  */
-export class MiddlewarePlugin<P = unknown> implements MiddlewarePlugin<P> {
+export class MiddlewarePlugin<P = unknown> implements IMiddlewarePlugin<P> {
   metadata: PluginMetadata = {
     name: 'rbac-middleware',
     version: '1.0.0',
@@ -61,6 +61,10 @@ export class MiddlewarePlugin<P = unknown> implements MiddlewarePlugin<P> {
     if (config.settings) {
       this.config = { ...this.config, ...config.settings };
     }
+  }
+
+  createMiddleware(): (req: any, res: any, next: any) => void {
+    return this.createExpressMiddleware();
   }
 
   // Middleware para Express

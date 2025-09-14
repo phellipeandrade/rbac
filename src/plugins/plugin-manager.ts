@@ -29,7 +29,7 @@ export class PluginManager<P = unknown> extends EventEmitter {
     };
 
     this.registry = {
-      plugins: new Map(),
+      plugins: new Map<string, RBACPlugin<any>>(),
       configs: new Map(),
       hooks: new Map(),
       events: new EventEmitter()
@@ -67,7 +67,7 @@ export class PluginManager<P = unknown> extends EventEmitter {
       await plugin.install(this.context);
       
       // Registrar plugin
-      this.registry.plugins.set(plugin.metadata.name, plugin);
+      this.registry.plugins.set(plugin.metadata.name, plugin as RBACPlugin<any>);
       this.registry.configs.set(plugin.metadata.name, config);
       
       // Registrar hooks
@@ -93,12 +93,13 @@ export class PluginManager<P = unknown> extends EventEmitter {
       this.logger(`Plugin ${plugin.metadata.name} instalado com sucesso`, 'info');
       
     } catch (error) {
-      this.logger(`Erro ao instalar plugin ${plugin.metadata.name}: ${error}`, 'error');
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger(`Erro ao instalar plugin ${plugin.metadata.name}: ${errorMessage}`, 'error');
       this.emit('plugin.error', {
         type: 'plugin.error',
         plugin: plugin.metadata.name,
         timestamp: new Date(),
-        data: { error: error.message }
+        data: { error: errorMessage }
       });
       
       if (this.config.strictMode) {
@@ -198,7 +199,7 @@ export class PluginManager<P = unknown> extends EventEmitter {
       .map(handler => ({
         handler,
         plugin: this.findPluginByHandler(handler),
-        priority: this.registry.configs.get(this.findPluginByHandler(handler))?.priority || 50
+        priority: this.registry.configs.get(this.findPluginByHandler(handler) || '')?.priority || 50
       }))
       .filter(item => item.plugin && this.registry.configs.get(item.plugin)?.enabled)
       .sort((a, b) => b.priority - a.priority);
@@ -207,19 +208,19 @@ export class PluginManager<P = unknown> extends EventEmitter {
       const startTime = Date.now();
       
       try {
-        const result = await handler(data, this.context);
+        const result = await handler(data, this.context as any);
         const executionTime = Date.now() - startTime;
         
         results.push({
           success: true,
-          data: result,
+          data: result as HookData<P>,
           plugin: plugin!,
           executionTime
         });
         
         // Se o hook retornou dados modificados, usar para próxima iteração
         if (result) {
-          data = result;
+          data = result as HookData<P>;
         }
         
       } catch (error) {
@@ -268,7 +269,7 @@ export class PluginManager<P = unknown> extends EventEmitter {
       return null;
     }
     
-    return { plugin, config };
+    return { plugin: plugin as RBACPlugin<P>, config };
   }
 
   /**

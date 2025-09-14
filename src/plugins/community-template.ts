@@ -62,6 +62,26 @@ export const createPlugin = (config: CommunityPluginConfig): Plugin => ({
       return data;
     },
 
+    beforeRoleUpdate: async (data: HookData, context: PluginContext) => {
+      // Sua lógica antes de atualizar roles
+      return data;
+    },
+
+    afterRoleUpdate: async (data: HookData, context: PluginContext) => {
+      // Sua lógica após atualizar roles
+      return data;
+    },
+
+    beforeRoleAdd: async (data: HookData, context: PluginContext) => {
+      // Sua lógica antes de adicionar role
+      return data;
+    },
+
+    afterRoleAdd: async (data: HookData, context: PluginContext) => {
+      // Sua lógica após adicionar role
+      return data;
+    },
+
     onError: async (data: HookData, context: PluginContext) => {
       // Sua lógica para tratamento de erros
       context.logger(`Erro no plugin: ${data.error?.message}`, 'error');
@@ -74,55 +94,54 @@ export const createPlugin = (config: CommunityPluginConfig): Plugin => ({
 export default createPlugin;
 
 // Exemplo de uso do template:
-/*
-// package.json do plugin
-{
-  "name": "@rbac/plugin-meu-plugin",
-  "version": "1.0.0",
-  "description": "Meu plugin para RBAC",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "rbacPlugin": {
-    "name": "meu-plugin",
-    "version": "1.0.0",
-    "factory": "createPlugin",
-    "config": {
-      "enabled": true,
-      "priority": 50,
-      "settings": {
-        "customSetting": "valor padrão"
-      }
-    }
-  },
-  "keywords": ["rbac", "plugin", "authorization"],
-  "author": "Seu Nome",
-  "license": "MIT",
-  "peerDependencies": {
-    "@rbac/rbac": "^2.0.0"
-  },
-  "files": [
-    "dist/**/*",
-    "README.md"
-  ]
-}
-
-// Uso no projeto principal
-import { createRBACWithAutoPlugins } from '@rbac/rbac/plugins';
-
-const rbac = RBAC()({
-  user: { can: ['products:read'] },
-  admin: { can: ['products:*'], inherits: ['user'] }
-});
-
-const rbacWithPlugins = await createRBACWithAutoPlugins(rbac, {
-  pluginConfigs: {
-    'meu-plugin': {
-      enabled: true,
-      priority: 60,
-      settings: {
-        customSetting: 'valor personalizado'
-      }
-    }
-  }
-});
-*/
+// 
+// package.json do plugin:
+// {
+//   "name": "@rbac/plugin-meu-plugin",
+//   "version": "1.0.0",
+//   "description": "Meu plugin para RBAC",
+//   "main": "dist/index.js",
+//   "types": "dist/index.d.ts",
+//   "rbacPlugin": {
+//     "name": "meu-plugin",
+//     "version": "1.0.0",
+//     "factory": "createPlugin",
+//     "config": {
+//       "enabled": true,
+//       "priority": 50,
+//       "settings": {
+//         "customSetting": "valor padrão"
+//       }
+//     }
+//   },
+//   "keywords": ["rbac", "plugin", "authorization"],
+//   "author": "Seu Nome",
+//   "license": "MIT",
+//   "peerDependencies": {
+//     "@rbac/rbac": "^2.0.0"
+//   },
+//   "files": [
+//     "dist/**/*",
+//     "README.md"
+//   ]
+// }
+//
+// Uso no projeto principal:
+// import { createRBACWithAutoPlugins } from '@rbac/rbac/plugins';
+//
+// const rbac = RBAC()({
+//   user: { can: ['products:read'] },
+//   admin: { can: ['products:*'], inherits: ['user'] }
+// });
+//
+// const rbacWithPlugins = await createRBACWithAutoPlugins(rbac, {
+//   pluginConfigs: {
+//     'meu-plugin': {
+//       enabled: true,
+//       priority: 60,
+//       settings: {
+//         customSetting: 'valor personalizado'
+//       }
+//     }
+//   }
+// });

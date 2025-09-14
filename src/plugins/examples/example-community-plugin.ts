@@ -82,6 +82,26 @@ export const createPlugin = (config: ExamplePluginConfig): Plugin => ({
       return data;
     },
 
+    beforeRoleUpdate: async (data: HookData, context: PluginContext) => {
+      // Sua lógica antes de atualizar roles
+      return data;
+    },
+
+    afterRoleUpdate: async (data: HookData, context: PluginContext) => {
+      // Sua lógica após atualizar roles
+      return data;
+    },
+
+    beforeRoleAdd: async (data: HookData, context: PluginContext) => {
+      // Sua lógica antes de adicionar role
+      return data;
+    },
+
+    afterRoleAdd: async (data: HookData, context: PluginContext) => {
+      // Sua lógica após adicionar role
+      return data;
+    },
+
     onError: async (data: HookData, context: PluginContext) => {
       if (config.settings.enableLogging) {
         context.logger(
@@ -99,40 +119,38 @@ export const createPlugin = (config: ExamplePluginConfig): Plugin => ({
 export default createPlugin;
 
 // Exemplo de package.json para este plugin:
-/*
-{
-  "name": "@rbac/plugin-example",
-  "version": "1.0.0",
-  "description": "Plugin de exemplo para RBAC",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "rbacPlugin": {
-    "name": "example-community-plugin",
-    "version": "1.0.0",
-    "factory": "createPlugin",
-    "config": {
-      "enabled": true,
-      "priority": 50,
-      "settings": {
-        "enableLogging": true,
-        "logLevel": "info",
-        "customMessage": "🔍 Verificando permissão"
-      }
-    }
-  },
-  "keywords": ["rbac", "plugin", "example", "logging"],
-  "author": "RBAC Team",
-  "license": "MIT",
-  "peerDependencies": {
-    "@rbac/rbac": "^2.0.0"
-  },
-  "files": [
-    "dist/**/*",
-    "README.md"
-  ],
-  "scripts": {
-    "build": "tsc",
-    "prepublishOnly": "npm run build"
-  }
-}
-*/
+// {
+//   "name": "@rbac/plugin-example",
+//   "version": "1.0.0",
+//   "description": "Plugin de exemplo para RBAC",
+//   "main": "dist/index.js",
+//   "types": "dist/index.d.ts",
+//   "rbacPlugin": {
+//     "name": "example-community-plugin",
+//     "version": "1.0.0",
+//     "factory": "createPlugin",
+//     "config": {
+//       "enabled": true,
+//       "priority": 50,
+//       "settings": {
+//         "enableLogging": true,
+//         "logLevel": "info",
+//         "customMessage": "🔍 Verificando permissão"
+//       }
+//     }
+//   },
+//   "keywords": ["rbac", "plugin", "example", "logging"],
+//   "author": "RBAC Team",
+//   "license": "MIT",
+//   "peerDependencies": {
+//     "@rbac/rbac": "^2.0.0"
+//   },
+//   "files": [
+//     "dist/**/*",
+//     "README.md"
+//   ],
+//   "scripts": {
+//     "build": "tsc",
+//     "prepublishOnly": "npm run build"
+//   }
+// }

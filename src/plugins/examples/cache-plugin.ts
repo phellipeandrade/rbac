@@ -54,7 +54,14 @@ export class CachePlugin<P = unknown> implements RBACPlugin<P> {
   getHooks() {
     return {
       beforePermissionCheck: this.beforePermissionCheck.bind(this),
-      afterPermissionCheck: this.afterPermissionCheck.bind(this)
+      afterPermissionCheck: this.afterPermissionCheck.bind(this),
+      beforeRoleUpdate: this.beforeRoleUpdate.bind(this),
+      afterRoleUpdate: this.afterRoleUpdate.bind(this),
+      beforeRoleAdd: this.beforeRoleAdd.bind(this),
+      afterRoleAdd: this.afterRoleAdd.bind(this),
+      onError: this.onError.bind(this),
+      onStartup: this.onStartup.bind(this),
+      onShutdown: this.onShutdown.bind(this)
     };
   }
 
@@ -86,6 +93,42 @@ export class CachePlugin<P = unknown> implements RBACPlugin<P> {
     }
 
     return data;
+  }
+
+  private async beforeRoleUpdate(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
+    // Limpar cache relacionado a roles quando houver atualização
+    this.clearRoleCache(data.role);
+    return data;
+  }
+
+  private async afterRoleUpdate(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
+    // Cache já foi limpo no beforeRoleUpdate
+    return data;
+  }
+
+  private async beforeRoleAdd(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
+    // Não há cache para limpar ao adicionar nova role
+    return data;
+  }
+
+  private async afterRoleAdd(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
+    // Não há cache para limpar ao adicionar nova role
+    return data;
+  }
+
+  private async onError(data: HookData<P>, context: PluginContext<P>): Promise<HookData<P> | void> {
+    // Em caso de erro, limpar cache relacionado
+    this.clearRoleCache(data.role);
+    return data;
+  }
+
+  async onStartup(): Promise<void> {
+    console.log('[CACHE] Plugin de cache iniciado');
+  }
+
+  async onShutdown(): Promise<void> {
+    this.cache.clear();
+    console.log('[CACHE] Plugin de cache finalizado');
   }
 
   // Métodos públicos para gerenciamento do cache
@@ -199,6 +242,16 @@ export class CachePlugin<P = unknown> implements RBACPlugin<P> {
     }
 
     expiredKeys.forEach(key => this.cache.delete(key));
+  }
+
+  private clearRoleCache(role: string): void {
+    const keysToDelete: string[] = [];
+    for (const key of this.cache.keys()) {
+      if (key.includes(`rbac:${role}:`)) {
+        keysToDelete.push(key);
+      }
+    }
+    keysToDelete.forEach(key => this.cache.delete(key));
   }
 
   // Métodos de estatísticas

@@ -89,11 +89,12 @@ export class HookSystem<P = unknown> extends EventEmitter {
         }
 
       } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
         this.emit('hook.error', { 
           hookName, 
           plugin, 
           priority, 
-          error: error.message,
+          error: errorMessage,
           data: currentData 
         });
 
