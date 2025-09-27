@@ -88,9 +88,12 @@ export const regexFromOperation = (value: string | RegExp): RegExp | null => {
   if (isRegex(value)) return value;
   const cached = regexCache.get(value);
   if (cached) return cached;
+  if (value.length <= 2 || value.charCodeAt(0) !== 47) return null;
+  const lastSlash = value.lastIndexOf('/');
+  if (lastSlash <= 0) return null;
+  const pattern = value.slice(1, lastSlash);
+  const flags = value.slice(lastSlash + 1);
   try {
-    const flags = value.replace(/.*\/([gimy]*)$/, '$1');
-    const pattern = value.replace(new RegExp('^/(.*?)/' + flags + '$'), '$1');
     const regex = new RegExp(pattern, flags);
     regexCache.set(value, regex);
     return regex;

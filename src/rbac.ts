@@ -4,7 +4,6 @@ import {
   isGlob,
   globToRegex,
   hasMatchingOperation,
-  normalizeWhen,
   buildPermissionData
 } from './helpers';
 import type {
@@ -70,9 +69,20 @@ const can =
         whenFn = resolvedRole.conditional.get(operation);
       }
 
-      const regexOperation = regexFromOperation(operation);
-      const isGlobOperation =
-        typeof operation === 'string' ? isGlob(operation) : false;
+      let regexOperation: RegExp | null = null;
+      let isGlobOperation = false;
+
+      if (operation instanceof RegExp) {
+        regexOperation = operation;
+      } else if (typeof operation === 'string') {
+        isGlobOperation = operation.includes('*');
+        if (operation.length > 1 && operation.charCodeAt(0) === 47) {
+          const lastSlashIndex = operation.lastIndexOf('/');
+          if (lastSlashIndex > 0) {
+            regexOperation = regexFromOperation(operation);
+          }
+        }
+      }
 
       if (regexOperation || isGlobOperation) {
         const regex = isGlobOperation
@@ -99,8 +109,10 @@ const can =
       }
 
       if (!whenFn) {
+        const operationString =
+          typeof operation === 'string' ? operation : String(operation);
         const matchPattern = resolvedRole.patterns.find(p =>
-          p.regex.test(String(operation))
+          p.regex.test(operationString)
         );
         if (matchPattern) whenFn = matchPattern.when;
       }

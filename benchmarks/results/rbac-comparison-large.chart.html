@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
-    <title>RBAC Performance Comparison</title>
+    <title>RBAC Performance Comparison - Large Dataset</title>
     <style>
       body {
         margin: 0;
@@ -28,7 +28,7 @@
   </head>
   <body>
     <div class="container">
-      <canvas id="chart1758991575998" width="16" height="9"></canvas>
+      <canvas id="chart1758991681582" width="16" height="9"></canvas>
     </div>
     <script>
       const format = (num) => {
@@ -51,18 +51,18 @@
           chunked.map((chunk) => chunk.join('')).join(' ') + fractionStr
         )
       }
-      const ctx1758991575998 = document
-        .getElementById('chart1758991575998')
+      const ctx1758991681582 = document
+        .getElementById('chart1758991681582')
         .getContext('2d')
-      const chart1758991575998 = new Chart(ctx1758991575998, {
+      const chart1758991681582 = new Chart(ctx1758991681582, {
         type: 'bar',
         data: {
-          labels: ["@rbac/rbac - direct permission","@rbac/rbac - inherited permission","@rbac/rbac - glob permission","AccessControl - direct permission","AccessControl - inherited permission","AccessControl - admin permission","Popular RBAC - direct permission","Popular RBAC - inherited permission","Popular RBAC - admin permission","Easy RBAC - direct permission","Easy RBAC - inherited permission","Easy RBAC - glob permission","Fast RBAC - direct permission","Fast RBAC - inherited permission","Fast RBAC - glob permission"],
+          labels: ["@rbac/rbac - large direct","@rbac/rbac - large inherited","@rbac/rbac - large glob","@rbac/rbac - large callback","@rbac/rbac - large async","@rbac/rbac - large promise","AccessControl - large direct","AccessControl - large inherited","AccessControl - large admin","Popular RBAC - large direct","Popular RBAC - large inherited","Popular RBAC - large admin","Easy RBAC - large direct","Easy RBAC - large inherited","Easy RBAC - large glob","Fast RBAC - large direct","Fast RBAC - large inherited","Fast RBAC - large glob"],
           datasets: [
             {
-              data: [6859456,6193737,4427263,1044834,774925,547698,241094,234459,226614,5141060,425797,2891746,2943731,2792511,2843941],
-              backgroundColor: ["hsl(120, 85%, 55%)","hsl(108.34799999999998, 85%, 55%)","hsl(77.448, 85%, 55%)","hsl(18.276000000000007, 85%, 55%)","hsl(13.559999999999997, 85%, 55%)","hsl(9.576000000000004, 85%, 55%)","hsl(4.212000000000006, 85%, 55%)","hsl(4.104000000000002, 85%, 55%)","hsl(3.959999999999997, 85%, 55%)","hsl(89.94000000000001, 85%, 55%)","hsl(7.451999999999993, 85%, 55%)","hsl(50.592, 85%, 55%)","hsl(51.492, 85%, 55%)","hsl(48.852000000000004, 85%, 55%)","hsl(49.752, 85%, 55%)"],
-              borderColor: ["hsl(120, 85%, 55%)","hsl(108.34799999999998, 85%, 55%)","hsl(77.448, 85%, 55%)","hsl(18.276000000000007, 85%, 55%)","hsl(13.559999999999997, 85%, 55%)","hsl(9.576000000000004, 85%, 55%)","hsl(4.212000000000006, 85%, 55%)","hsl(4.104000000000002, 85%, 55%)","hsl(3.959999999999997, 85%, 55%)","hsl(89.94000000000001, 85%, 55%)","hsl(7.451999999999993, 85%, 55%)","hsl(50.592, 85%, 55%)","hsl(51.492, 85%, 55%)","hsl(48.852000000000004, 85%, 55%)","hsl(49.752, 85%, 55%)"],
+              data: [3277352,3396327,3424089,519655,2782469,2812238,997400,523367,471535,124292,56598,57477,3911146,3702963,127834,2983747,2933572,2920038],
+              backgroundColor: ["hsl(100.56, 85%, 55%)","hsl(104.20800000000001, 85%, 55%)","hsl(105.05999999999999, 85%, 55%)","hsl(15.94800000000001, 85%, 55%)","hsl(85.36800000000001, 85%, 55%)","hsl(86.28000000000002, 85%, 55%)","hsl(30.6, 85%, 55%)","hsl(16.055999999999994, 85%, 55%)","hsl(14.472000000000003, 85%, 55%)","hsl(3.8160000000000087, 85%, 55%)","hsl(1.7400000000000033, 85%, 55%)","hsl(1.7639999999999987, 85%, 55%)","hsl(120, 85%, 55%)","hsl(113.61600000000001, 85%, 55%)","hsl(3.923999999999995, 85%, 55%)","hsl(91.54799999999999, 85%, 55%)","hsl(90.01200000000001, 85%, 55%)","hsl(89.59199999999998, 85%, 55%)"],
+              borderColor: ["hsl(100.56, 85%, 55%)","hsl(104.20800000000001, 85%, 55%)","hsl(105.05999999999999, 85%, 55%)","hsl(15.94800000000001, 85%, 55%)","hsl(85.36800000000001, 85%, 55%)","hsl(86.28000000000002, 85%, 55%)","hsl(30.6, 85%, 55%)","hsl(16.055999999999994, 85%, 55%)","hsl(14.472000000000003, 85%, 55%)","hsl(3.8160000000000087, 85%, 55%)","hsl(1.7400000000000033, 85%, 55%)","hsl(1.7639999999999987, 85%, 55%)","hsl(120, 85%, 55%)","hsl(113.61600000000001, 85%, 55%)","hsl(3.923999999999995, 85%, 55%)","hsl(91.54799999999999, 85%, 55%)","hsl(90.01200000000001, 85%, 55%)","hsl(89.59199999999998, 85%, 55%)"],
               borderWidth: 2,
             },
           ],
@@ -72,7 +72,7 @@
           plugins: {
             title: {
               display: true,
-              text: 'RBAC Performance Comparison',
+              text: 'RBAC Performance Comparison - Large Dataset',
               font: { size: 20 },
               padding: 20,
             },
