@@ -13,8 +13,8 @@
 
 
 * ⏱ Lightweight
-* 🔥 Blazing Fast
-* ⚡️️ low dependency
+* ⚡️Fastest RBAC (check benchmarks)
+* ️🍃low dependency
 
 ## Features
 
@@ -217,12 +217,20 @@ respectively with a similar API.
 
 ## Benchmarks
 
-Run `npm run bench` to execute performance tests.
+Run `npm run bench` to execute the performance suite. The script runs two end-to-end scenarios:
+
+- **Baseline comparison** – compares `@rbac/rbac` with AccessControl, RBAC, Easy RBAC and Fast RBAC using the default dataset.
+- **Large dataset comparison** – stresses the libraries with hundreds of resources, deep inheritance chains and three `when` flavours (callback, async function and promise).
+
+For each scenario the suite generates detailed reports (JSON/CSV/HTML chart) under `benchmarks/results/` and prints a human-readable summary (ops/sec, margins, standard deviation, samples, etc.).
 
 ```
 $ npm run bench
-Benchmark ops/sec: 457270 (direct), 435470 (inherited), 45681 (glob)
+RBAC Performance Comparison ops/sec: 6859456, 6193737, 4427263, ...
+RBAC Performance Comparison - Large Dataset ops/sec: 3277352, 3396327, 3424089, ...
 ```
+
+The baseline run shows @rbac/rbac leading all categories; the large dataset confirms the same behaviour when conditional checks and large permission sets come into play.
 
 ## More Information
 

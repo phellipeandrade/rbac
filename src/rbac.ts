@@ -4,7 +4,6 @@ import {
   isGlob,
   globToRegex,
   hasMatchingOperation,
-  normalizeWhen,
   buildPermissionData
 } from './helpers';
 import type {
@@ -20,10 +19,31 @@ import type {
 
 export type { RBACConfig, Role, Roles } from './types';
 
+const cacheAndReturn = (
+  cache: Map<string, boolean>,
+  key: string,
+  value: boolean
+): boolean => {
+  cache.set(key, value);
+  return value;
+};
+
 const can =
   <P>(config: RBACConfig = { logger: defaultLogger, enableLogger: true }) =>
-  (mappedRoles: MappedRoles<P>) => {
+  (
+    mappedRoles: MappedRoles<P>,
+    matchCache: Map<string, Map<string, boolean>>
+  ) => {
     const logger = config.logger || defaultLogger;
+
+    const patternMatchCache = new Map<
+      string,
+      Map<string, NormalizedWhenFn<P> | true | null>
+    >();
+    const operationHintCache = new Map<
+      string,
+      { regex: RegExp | null; isGlob: boolean }
+    >();
 
     const log = config.enableLogger
       ? (roleName: string, operation: string | RegExp, result: boolean, enabled: boolean): boolean => {
@@ -31,6 +51,38 @@ const can =
           return result;
         }
       : (_r: string, _o: string | RegExp, result: boolean): boolean => result;
+
+    const getRoleCache = (roleName: string): Map<string, boolean> => {
+      let cached = matchCache.get(roleName);
+      if (!cached) {
+        cached = new Map<string, boolean>();
+        matchCache.set(roleName, cached);
+      }
+      return cached;
+    };
+
+    const getPatternCache = (
+      roleName: string
+    ): Map<string, NormalizedWhenFn<P> | true | null> => {
+      let cached = patternMatchCache.get(roleName);
+      if (!cached) {
+        cached = new Map<string, NormalizedWhenFn<P> | true | null>();
+        patternMatchCache.set(roleName, cached);
+      }
+      return cached;
+    };
+
+    const getOperationHint = (
+      op: string
+    ): { regex: RegExp | null; isGlob: boolean } => {
+      let hint = operationHintCache.get(op);
+      if (hint) return hint;
+      const regex = regexFromOperation(op);
+      const isGlobOperation = !regex ? isGlob(op) : false;
+      hint = { regex, isGlob: isGlobOperation };
+      operationHintCache.set(op, hint);
+      return hint;
+    };
 
     const checkDirect = async (
       logRole: string,
@@ -49,26 +101,54 @@ const can =
         whenFn = resolvedRole.conditional.get(operation);
       }
 
-      const regexOperation = regexFromOperation(operation);
-      const isGlobOperation = isGlob(operation);
+      let regexOperation: RegExp | null = null;
+      let isGlobOperation = false;
+
+      if (operation instanceof RegExp) {
+        regexOperation = operation;
+      } else if (typeof operation === 'string') {
+        const hint = getOperationHint(operation);
+        regexOperation = hint.regex;
+        isGlobOperation = hint.isGlob;
+      }
 
       if (regexOperation || isGlobOperation) {
         const regex = isGlobOperation
           ? globToRegex(operation as string)
           : (regexOperation as RegExp);
+        const cacheKey = isGlobOperation
+          ? `glob:${operation as string}`
+          : `regex:${regex.toString()}`;
+        const cache = getRoleCache(logRole);
+        const cached = cache.get(cacheKey);
+        if (cached !== undefined) {
+          return log(logRole, operation, cached, logEnabled);
+        }
         return log(
           logRole,
           operation,
-          hasMatchingOperation(regex, resolvedRole.allOps),
+          cacheAndReturn(
+            cache,
+            cacheKey,
+            hasMatchingOperation(regex, resolvedRole.allOps)
+          ),
           logEnabled
         );
       }
 
       if (!whenFn) {
-        const matchPattern = resolvedRole.patterns.find(p =>
-          p.regex.test(String(operation))
-        );
-        if (matchPattern) whenFn = matchPattern.when;
+        const operationString =
+          typeof operation === 'string' ? operation : String(operation);
+        const patternCache = getPatternCache(logRole);
+        let cachedWhen = patternCache.get(operationString);
+        if (cachedWhen === undefined) {
+          const matchPattern = resolvedRole.patterns.find(p =>
+            p.regex.test(operationString)
+          );
+          cachedWhen = matchPattern ? matchPattern.when : null;
+          patternCache.set(operationString, cachedWhen);
+        }
+        if (cachedWhen) whenFn = cachedWhen;
       }
 
       if (!whenFn) {
@@ -182,22 +262,25 @@ const RBAC =
   (roles: Roles<P>) => {
     let allRoles = { ...roles };
     let mappedRoles = flattenRoles(allRoles);
+    const matchCache = new Map<string, Map<string, boolean>>();
     const checker = can<P>(config);
 
     const canFn = (
       role: string,
       operation: string | RegExp,
       params?: P
-    ) => checker(mappedRoles)(role, operation, params);
+    ) => checker(mappedRoles, matchCache)(role, operation, params);
 
     const updateRoles = (newRoles: Roles<P>): void => {
       allRoles = { ...allRoles, ...newRoles };
       mappedRoles = flattenRoles(allRoles);
+      matchCache.clear();
     };
 
     const addRole = (roleName: string, roleDef: Role<P>): void => {
       allRoles = { ...allRoles, [roleName]: roleDef };
       mappedRoles = flattenRoles(allRoles);
+      matchCache.clear();
     };
 
     return {

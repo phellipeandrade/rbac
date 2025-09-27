@@ -89,7 +89,7 @@ export const regexFromOperation = (value: string | RegExp): RegExp | null => {
   const cached = regexCache.get(value);
   if (cached) return cached;
   try {
-    const flags = value.replace(/.*\/([gimy]*)$/, '$1');
+    const flags = value.replace(/.*\/([gimsuy]*)$/, '$1');
     const pattern = value.replace(new RegExp('^/(.*?)/' + flags + '$'), '$1');
     const regex = new RegExp(pattern, flags);
     regexCache.set(value, regex);
