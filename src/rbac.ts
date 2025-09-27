@@ -20,6 +20,27 @@ import type {
 
 export type { RBACConfig, Role, Roles } from './types';
 
+const roleMatchCache: WeakMap<MappedRole<unknown>, Map<string, boolean>> =
+  new WeakMap();
+
+const cacheAndReturn = (
+  cache: Map<string, boolean>,
+  key: string,
+  value: boolean
+): boolean => {
+  cache.set(key, value);
+  return value;
+};
+
+const getRoleMatchCache = <P>(role: MappedRole<P>): Map<string, boolean> => {
+  let cache = roleMatchCache.get(role as unknown as MappedRole<unknown>);
+  if (!cache) {
+    cache = new Map<string, boolean>();
+    roleMatchCache.set(role as unknown as MappedRole<unknown>, cache);
+  }
+  return cache as Map<string, boolean>;
+};
+
 const can =
   <P>(config: RBACConfig = { logger: defaultLogger, enableLogger: true }) =>
   (mappedRoles: MappedRoles<P>) => {
@@ -49,17 +70,29 @@ const can =
         whenFn = resolvedRole.conditional.get(operation);
       }
 
-      const regexOperation = regexFromOperation(operation);
-      const isGlobOperation = isGlob(operation);
+    const regexOperation = regexFromOperation(operation);
+    const isGlobOperation = typeof operation === 'string' ? isGlob(operation) : false;
 
       if (regexOperation || isGlobOperation) {
         const regex = isGlobOperation
           ? globToRegex(operation as string)
           : (regexOperation as RegExp);
+      const cacheKey = isGlobOperation
+        ? `glob:${operation as string}`
+        : `regex:${regex.toString()}`;
+      const cache = getRoleMatchCache(resolvedRole);
+      const cached = cache.get(cacheKey);
+      if (cached !== undefined) {
+        return log(logRole, operation, cached, logEnabled);
+      }
         return log(
           logRole,
           operation,
-          hasMatchingOperation(regex, resolvedRole.allOps),
+        cacheAndReturn(
+          cache,
+          cacheKey,
+          hasMatchingOperation(regex, resolvedRole.allOps)
+        ),
           logEnabled
         );
       }
