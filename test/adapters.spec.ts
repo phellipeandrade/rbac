@@ -1,5 +1,4 @@
-import { describe, expect, it, afterAll } from '@jest/globals';
-import Module from 'node:module';
+import { describe, expect, it, jest } from '@jest/globals';
 
 class FakeMongoCollection {
   docs: Array<Record<string, unknown>>;
@@ -111,7 +110,7 @@ class FakeMySQLConnection {
 
 let lastMySQLConnection: FakeMySQLConnection | undefined;
 
-function fakeCreateConnection() {
+function createFakeMySQLConnection() {
   lastMySQLConnection = new FakeMySQLConnection();
   return Promise.resolve(lastMySQLConnection);
 }
@@ -158,53 +157,20 @@ class FakePGClient {
 
 let lastPGClient: FakePGClient | undefined;
 
-const moduleLoader = Module as unknown as {
-  _load?: (request: string, parent: unknown, isMain: boolean) => unknown;
-};
+jest.mock('mongodb', () => ({ MongoClient: FakeMongoClient }), { virtual: true });
 
-const originalLoad = moduleLoader._load;
+jest.mock('mysql2/promise', () => ({
+  createConnection: createFakeMySQLConnection
+}), { virtual: true });
 
-const setupMocks = originalLoad
-  ? () => {
-      moduleLoader._load = function (this: unknown, request: string, parent: unknown, isMain: boolean) {
-        if (request === 'mongodb') {
-          return { MongoClient: FakeMongoClient };
-        }
-        if (request === 'mysql2/promise') {
-          return { createConnection: fakeCreateConnection };
-        }
-        if (request === 'pg') {
-          return {
-            Client: function () {
-              lastPGClient = new FakePGClient();
-              return lastPGClient;
-            }
-          };
-        }
-        return originalLoad.call(Module, request, parent, isMain);
-      };
-    }
-  : undefined;
+jest.mock('pg', () => ({
+  Client: function () {
+    lastPGClient = new FakePGClient();
+    return lastPGClient;
+  }
+}), { virtual: true });
 
-const restoreMocks = originalLoad
-  ? () => {
-      moduleLoader._load = originalLoad;
-    }
-  : undefined;
-
-if (!setupMocks || !restoreMocks) {
-  describe.skip('Role Adapters', () => {
-    it('skipped because Module._load is unavailable', () => {
-      expect(true).toBe(true);
-    });
-  });
-} else {
-  setupMocks();
-
-  describe('Role Adapters', () => {
-    afterAll(() => {
-      restoreMocks();
-    });
+describe('Role Adapters', () => {
 
     describe('MongoRoleAdapter', () => {
     it('should add and retrieve roles', async () => {
@@ -376,4 +342,4 @@ if (!setupMocks || !restoreMocks) {
       expect(aWrong).toBe(false);
     });
   });
-}
+});
