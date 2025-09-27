@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+    <title>RBAC Performance Comparison</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #ddd;
+      }
+
+      .container {
+        box-sizing: border-box;
+        height: 96vh;
+        width: 96vw;
+        margin: 2vh 2vw;
+        resize: both;
+        overflow: hidden;
+        padding: 20px;
+        background: white;
+        box-shadow: 0 0 15px #aaa;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <canvas id="chart1758989801345" width="16" height="9"></canvas>
+    </div>
+    <script>
+      const format = (num) => {
+        const [whole, fraction] = String(num).split('.')
+        const chunked = []
+        whole
+          .split('')
+          .reverse()
+          .forEach((char, index) => {
+            if (index % 3 === 0) {
+              chunked.unshift([char])
+            } else {
+              chunked[0].unshift(char)
+            }
+          })
+
+        const fractionStr = fraction !== undefined ? '.' + fraction : ''
+
+        return (
+          chunked.map((chunk) => chunk.join('')).join(' ') + fractionStr
+        )
+      }
+      const ctx1758989801345 = document
+        .getElementById('chart1758989801345')
+        .getContext('2d')
+      const chart1758989801345 = new Chart(ctx1758989801345, {
+        type: 'bar',
+        data: {
+          labels: ["@rbac/rbac - direct permission","@rbac/rbac - inherited permission","@rbac/rbac - glob permission","AccessControl - direct permission","AccessControl - inherited permission","AccessControl - admin permission","Popular RBAC - direct permission","Popular RBAC - inherited permission","Popular RBAC - admin permission","Easy RBAC - direct permission","Easy RBAC - inherited permission","Easy RBAC - glob permission","Fast RBAC - direct permission","Fast RBAC - inherited permission","Fast RBAC - glob permission"],
+          datasets: [
+            {
+              data: [7548457,7041993,4808820,1101408,795947,577566,263306,253712,231580,5375285,469284,3168318,3189264,3096414,2972681],
+              backgroundColor: ["hsl(120, 85%, 55%)","hsl(111.94800000000001, 85%, 55%)","hsl(76.452, 85%, 55%)","hsl(17.508000000000003, 85%, 55%)","hsl(12.648000000000007, 85%, 55%)","hsl(9.180000000000007, 85%, 55%)","hsl(4.187999999999994, 85%, 55%)","hsl(4.031999999999999, 85%, 55%)","hsl(3.6839999999999917, 85%, 55%)","hsl(85.45200000000001, 85%, 55%)","hsl(7.463999999999999, 85%, 55%)","hsl(50.364, 85%, 55%)","hsl(50.699999999999996, 85%, 55%)","hsl(49.224000000000004, 85%, 55%)","hsl(47.25600000000001, 85%, 55%)"],
+              borderColor: ["hsl(120, 85%, 55%)","hsl(111.94800000000001, 85%, 55%)","hsl(76.452, 85%, 55%)","hsl(17.508000000000003, 85%, 55%)","hsl(12.648000000000007, 85%, 55%)","hsl(9.180000000000007, 85%, 55%)","hsl(4.187999999999994, 85%, 55%)","hsl(4.031999999999999, 85%, 55%)","hsl(3.6839999999999917, 85%, 55%)","hsl(85.45200000000001, 85%, 55%)","hsl(7.463999999999999, 85%, 55%)","hsl(50.364, 85%, 55%)","hsl(50.699999999999996, 85%, 55%)","hsl(49.224000000000004, 85%, 55%)","hsl(47.25600000000001, 85%, 55%)"],
+              borderWidth: 2,
+            },
+          ],
+        },
+        options: {
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: 'RBAC Performance Comparison',
+              font: { size: 20 },
+              padding: 20,
+            },
+            legend: {
+              display: false,
+            },
+            tooltip: {
+              callbacks: {
+                label: (context) => {
+                  return format(context.parsed.y) + ' ops/s'
+                },
+              },
+              displayColors: false,
+              backgroundColor: '#222222',
+              padding: 10,
+              cornerRadius: 5,
+              intersect: false,
+            },
+          },
+          scales: {
+            x: {
+              grid: {
+                color: '#888888',
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Operations per second',
+                padding: 10,
+              },
+              grid: {
+                color: '#888888',
+              },
+            },
+          },
+        },
+      })
+    </script>
+  </body>
+</html>
