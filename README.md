@@ -13,7 +13,7 @@
 
 
 * ⏱ Lightweight
-* ⚡️Fastest RBAC on npm
+* ⚡️Fastest RBAC (check benchmarks)
 * ️🍃low dependency
 
 ## Features
