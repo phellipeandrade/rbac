@@ -12,5 +12,6 @@
     "allowJs": true,
     "checkJs": false
   },
-  "include": ["src/**/*", "test/**/*", "jest.setup.ts"]
+  "include": ["src/**/*"],
+  "exclude": ["test", "jest.setup.ts"]
 }
