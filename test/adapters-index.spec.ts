@@ -18,9 +18,10 @@ describe('adapters/index', () => {
   it('should have proper exports structure', async () => {
     const adapters = await import('../src/adapters');
     
-    // Verify that the exports are constructors
-    expect(() => new adapters.MongoRoleAdapter({} as any)).toThrow();
+    // Verify that the exports are constructors and can be instantiated
+    // All adapters should be able to be instantiated (they handle missing dependencies internally)
+    expect(() => new adapters.MongoRoleAdapter({} as any)).not.toThrow();
+    expect(() => new adapters.PostgresRoleAdapter({} as any)).not.toThrow();
     expect(() => new adapters.MySQLRoleAdapter({} as any)).not.toThrow();
-    expect(() => new adapters.PostgresRoleAdapter({} as any)).toThrow();
   });
 });

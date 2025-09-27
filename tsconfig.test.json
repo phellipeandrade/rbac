@@ -6,6 +6,6 @@
     "noEmit": true,
     "types": ["node", "jest"]
   },
-  "include": ["src/**/*", "test/**/*"],
+  "include": ["src/**/*", "test/**/*", "jest.setup.ts"],
   "exclude": ["node_modules", "lib"]
 }
