@@ -59,7 +59,7 @@ async function testCommunityPluginSystem() {
   });
 
   // Install plugin manually
-  await rbacWithPlugins.plugins.install(examplePlugin, {
+  await rbacWithPlugins.pluginSystem.install(examplePlugin, {
     enabled: true,
     priority: 50,
     settings: {
@@ -82,7 +82,7 @@ async function testCommunityPluginSystem() {
 
   // 7. List active plugins
   console.log('\n7. Active plugins:');
-  const plugins = rbacWithPlugins.plugins.getPlugins();
+  const plugins = rbacWithPlugins.pluginSystem.getPlugins();
   plugins.forEach((plugin: any) => {
     console.log(`- ${plugin.name}@${plugin.metadata.version} (${plugin.config.enabled ? 'Enabled' : 'Disabled'})`);
   });
@@ -97,7 +97,7 @@ async function testCommunityPluginSystem() {
     metadata: { userId: '123', ipAddress: '192.168.1.1' }
   };
 
-  const hookResult = await rbacWithPlugins.plugins.executeHooks('beforePermissionCheck', testData);
+  const hookResult = await rbacWithPlugins.pluginSystem.executeHooks('beforePermissionCheck', testData);
   console.log('Hook result:', hookResult);
 
   console.log('\n✅ Test completed successfully!');

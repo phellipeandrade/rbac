@@ -50,7 +50,7 @@ export const createRBACWithAutoPlugins = async (
         }
 
         const config = pluginConfigs[plugin.metadata.name] || { enabled: true, priority: 50, settings: {} };
-        await rbacWithPlugins.plugins.install(plugin, config);
+        await rbacWithPlugins.pluginSystem.install(plugin, config);
         
         console.log(`Plugin da comunidade ${plugin.metadata.name}@${plugin.metadata.version} instalado com sucesso`);
         
@@ -102,7 +102,7 @@ export const loadSpecificPlugins = async (
       }
 
       const config = options.pluginConfigs?.[plugin.metadata.name] || { enabled: true, priority: 50, settings: {} };
-      await rbacWithPlugins.plugins.install(plugin, config);
+      await rbacWithPlugins.pluginSystem.install(plugin, config);
       
       console.log(`Plugin ${plugin.metadata.name}@${plugin.metadata.version} carregado com sucesso`);
       

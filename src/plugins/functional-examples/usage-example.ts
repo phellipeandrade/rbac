@@ -22,7 +22,7 @@ async function usageExample() {
   const rbacWithPlugins = createRBACWithPlugins(rbac);
 
   // 3. Install plugins
-  await rbacWithPlugins.plugins.install(
+  await rbacWithPlugins.pluginSystem.install(
     createCachePlugin({
       enabled: true,
       priority: 50,
@@ -34,7 +34,7 @@ async function usageExample() {
     })
   );
 
-  await rbacWithPlugins.plugins.install(
+  await rbacWithPlugins.pluginSystem.install(
     createNotificationPlugin({
       enabled: true,
       priority: 40,
@@ -51,7 +51,7 @@ async function usageExample() {
     })
   );
 
-  await rbacWithPlugins.plugins.install(
+  await rbacWithPlugins.pluginSystem.install(
     createValidationPlugin({
       enabled: true,
       priority: 60,
@@ -77,7 +77,7 @@ async function usageExample() {
   console.log('Admin can delete products:', result3); // true
 
   // 5. List installed plugins
-  const plugins = rbacWithPlugins.plugins.getPlugins();
+  const plugins = rbacWithPlugins.pluginSystem.getPlugins();
   console.log('Installed plugins:', plugins.map((p: any) => p.name));
 
   // 6. Use utility hooks
@@ -116,22 +116,22 @@ async function usageExample() {
     })
   };
 
-  await rbacWithPlugins.plugins.install(customPlugin);
+  await rbacWithPlugins.pluginSystem.install(customPlugin);
 
   // 8. Test with custom plugin
   console.log('\nTesting with custom plugin...');
   await rbacWithPlugins.can('user', 'products:read');
 
   // 9. Disable plugin
-  await rbacWithPlugins.plugins.disable('custom-logger');
+  await rbacWithPlugins.pluginSystem.disable('custom-logger');
   console.log('Custom plugin disabled');
 
   // 10. Re-enable plugin
-  await rbacWithPlugins.plugins.enable('custom-logger');
+  await rbacWithPlugins.pluginSystem.enable('custom-logger');
   console.log('Custom plugin re-enabled');
 
   // 11. Uninstall plugin
-  await rbacWithPlugins.plugins.uninstall('custom-logger');
+  await rbacWithPlugins.pluginSystem.uninstall('custom-logger');
   console.log('Custom plugin uninstalled');
 }
 

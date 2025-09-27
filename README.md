@@ -219,7 +219,7 @@ RBAC comes with several built-in plugins:
 
 ```ts
 import RBAC from '@rbac/rbac';
-import { createCachePlugin, createAuditPlugin } from '@rbac/rbac/plugins';
+import { createRBACWithPlugins, createCachePlugin, createAuditPlugin } from '@rbac/rbac/plugins';
 
 // Create RBAC instance
 const rbac = RBAC({ enableLogger: false })({
@@ -227,8 +227,11 @@ const rbac = RBAC({ enableLogger: false })({
   admin: { can: ['products:*'], inherits: ['user'] }
 });
 
+// Add plugin capabilities to the RBAC instance
+const rbacWithPlugins = createRBACWithPlugins(rbac);
+
 // Install plugins
-await rbac.plugins.install(createCachePlugin({
+await rbacWithPlugins.pluginSystem.install(createCachePlugin({
   enabled: true,
   priority: 50,
   settings: {
@@ -238,7 +241,7 @@ await rbac.plugins.install(createCachePlugin({
   }
 }));
 
-await rbac.plugins.install(createAuditPlugin({
+await rbacWithPlugins.pluginSystem.install(createAuditPlugin({
   enabled: true,
   priority: 30,
   settings: {
@@ -248,7 +251,7 @@ await rbac.plugins.install(createAuditPlugin({
 }));
 
 // Use RBAC normally - plugins work automatically
-const canRead = await rbac.can('user', 'products:read');
+const canRead = await rbacWithPlugins.can('user', 'products:read');
 ```
 
 #### Creating Custom Plugins
@@ -300,23 +303,24 @@ export class MyCustomPlugin implements RBACPlugin {
 #### Plugin Management
 
 ```ts
+// Using the instance created via createRBACWithPlugins
 // List installed plugins
-const plugins = rbac.plugins.getPlugins();
+const plugins = rbacWithPlugins.pluginSystem.getPlugins();
 console.log('Installed plugins:', plugins);
 
 // Get specific plugin
-const plugin = rbac.plugins.getPlugin('cache-plugin');
+const plugin = rbacWithPlugins.pluginSystem.getPlugin('cache-plugin');
 console.log('Cache plugin:', plugin);
 
 // Update plugin configuration
-await rbac.plugins.updatePluginConfig('cache-plugin', {
+await rbacWithPlugins.pluginSystem.configure('cache-plugin', {
   enabled: true,
   priority: 80,
   settings: { ttl: 600 }
 });
 
 // Uninstall plugin
-await rbac.plugins.uninstall('cache-plugin');
+await rbacWithPlugins.pluginSystem.uninstall('cache-plugin');
 ```
 
 #### Community Plugins

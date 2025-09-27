@@ -26,7 +26,7 @@ async function simpleExample() {
 
   // 3. Install cache plugin
   console.log('📦 Installing cache plugin...');
-  await rbacWithPlugins.plugins.install(
+  await rbacWithPlugins.pluginSystem.install(
     createCachePlugin({
       enabled: true,
       priority: 50,
@@ -40,7 +40,7 @@ async function simpleExample() {
 
   // 4. Install notification plugin
   console.log('📦 Installing notification plugin...');
-  await rbacWithPlugins.plugins.install(
+  await rbacWithPlugins.pluginSystem.install(
     createNotificationPlugin({
       enabled: true,
       priority: 40,
@@ -92,7 +92,7 @@ async function simpleExample() {
 
   // 7. List installed plugins
   console.log('\n📋 Installed plugins:');
-  const plugins = rbacWithPlugins.plugins.getPlugins();
+  const plugins = rbacWithPlugins.pluginSystem.getPlugins();
   plugins.forEach((plugin: any) => {
     console.log(`  - ${plugin.name} v${plugin.metadata.version} (${plugin.config.enabled ? 'enabled' : 'disabled'})`);
   });
@@ -136,7 +136,7 @@ async function simpleExample() {
     })
   };
 
-  await rbacWithPlugins.plugins.install(customPlugin);
+  await rbacWithPlugins.pluginSystem.install(customPlugin);
 
   // 9. Test with custom plugin
   console.log('\n🧪 Testing with custom plugin...');
@@ -144,7 +144,7 @@ async function simpleExample() {
 
   // 10. Disable plugin
   console.log('\n⏸ Disabling custom plugin...');
-  await rbacWithPlugins.plugins.disable('custom-logger');
+  await rbacWithPlugins.pluginSystem.disable('custom-logger');
 
   // 11. Test without custom plugin
   console.log('🔇 Testing without custom plugin...');
@@ -152,11 +152,11 @@ async function simpleExample() {
 
   // 12. Re-enable plugin
   console.log('\n▶ Re-enabling custom plugin...');
-  await rbacWithPlugins.plugins.enable('custom-logger');
+  await rbacWithPlugins.pluginSystem.enable('custom-logger');
 
   // 13. Uninstall plugin
   console.log('\n🗑 Uninstalling custom plugin...');
-  await rbacWithPlugins.plugins.uninstall('custom-logger');
+  await rbacWithPlugins.pluginSystem.uninstall('custom-logger');
 
   console.log('\n🎯 Example completed successfully!');
   console.log('\n📚 For more examples, check the documentation at src/plugins/README.md');

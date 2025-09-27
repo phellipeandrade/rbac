@@ -53,7 +53,7 @@ export const basicExample = async () => {
   console.log(`Admin pode deletar produtos: ${canDelete}`); // true
 
   // Listar plugins instalados
-  const plugins = rbacWithPlugins.plugins.getPlugins();
+  const plugins = rbacWithPlugins.pluginSystem.getPlugins();
   console.log('\nPlugins ativos:');
   plugins.forEach((plugin: any) => {
     console.log(`- ${plugin.name}@${plugin.metadata.version} (${plugin.config.enabled ? 'Habilitado' : 'Desabilitado'})`);

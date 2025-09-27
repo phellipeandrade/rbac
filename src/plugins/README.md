@@ -50,7 +50,7 @@ const rbacWithPlugins = createRBACWithPlugins(rbac);
 import { createCachePlugin, createNotificationPlugin } from '@rbac/rbac/plugins';
 
 // Instalar plugin de cache
-await rbacWithPlugins.plugins.install(
+await rbacWithPlugins.pluginSystem.install(
   createCachePlugin({
     enabled: true,
     priority: 50,
@@ -63,7 +63,7 @@ await rbacWithPlugins.plugins.install(
 );
 
 // Instalar plugin de notificações
-await rbacWithPlugins.plugins.install(
+await rbacWithPlugins.pluginSystem.install(
   createNotificationPlugin({
     enabled: true,
     priority: 40,
@@ -128,7 +128,7 @@ const meuPlugin = {
 };
 
 // Instalar plugin
-await rbacWithPlugins.plugins.install(meuPlugin);
+await rbacWithPlugins.pluginSystem.install(meuPlugin);
 ```
 
 ### Hooks Disponíveis
@@ -267,14 +267,14 @@ const userFilter = hooks.createUserFilter(['user1', 'user2']);
 ### Listar Plugins
 
 ```typescript
-const plugins = rbacWithPlugins.plugins.getPlugins();
+const plugins = rbacWithPlugins.pluginSystem.getPlugins();
 console.log(plugins.map(p => p.name));
 ```
 
 ### Obter Plugin Específico
 
 ```typescript
-const plugin = rbacWithPlugins.plugins.getPlugin('meu-plugin');
+const plugin = rbacWithPlugins.pluginSystem.getPlugin('meu-plugin');
 if (plugin) {
   console.log('Plugin encontrado:', plugin.metadata);
 }
@@ -284,16 +284,16 @@ if (plugin) {
 
 ```typescript
 // Desabilitar plugin
-await rbacWithPlugins.plugins.disable('meu-plugin');
+await rbacWithPlugins.pluginSystem.disable('meu-plugin');
 
 // Reabilitar plugin
-await rbacWithPlugins.plugins.enable('meu-plugin');
+await rbacWithPlugins.pluginSystem.enable('meu-plugin');
 ```
 
 ### Desinstalar Plugin
 
 ```typescript
-await rbacWithPlugins.plugins.uninstall('meu-plugin');
+await rbacWithPlugins.pluginSystem.uninstall('meu-plugin');
 ```
 
 ## 🔄 Sistema de Eventos
@@ -413,7 +413,7 @@ context.logger('Erro crítico', 'error');
 ### Verificar Estado dos Plugins
 
 ```typescript
-const plugins = rbacWithPlugins.plugins.getPlugins();
+const plugins = rbacWithPlugins.pluginSystem.getPlugins();
 plugins.forEach(plugin => {
   console.log(`${plugin.name}: ${plugin.config.enabled ? 'Habilitado' : 'Desabilitado'}`);
 });
