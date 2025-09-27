@@ -1,12 +1,10 @@
 /* global describe, it */
-import chai from 'chai';
+import { describe, expect, it } from '@jest/globals';
 import rbac, {
   createExpressMiddleware,
   createNestMiddleware,
   createFastifyMiddleware
 } from '../src/index';
-
-const expect = chai.expect;
 
 const RBAC = rbac({ enableLogger: false })({
   user: { can: ['products:find'] }

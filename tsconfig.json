@@ -8,7 +8,9 @@
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node"]
+    "types": ["node", "@jest/globals"],
+    "allowJs": true,
+    "checkJs": false
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "test/**/*", "jest.setup.ts"]
 }

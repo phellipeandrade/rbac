@@ -1,26 +1,18 @@
-/* global describe, it, before */
-
-import chai from 'chai';
+import { describe, expect, it, beforeEach } from '@jest/globals';
 import rbac from '../src/index';
 
-chai.expect();
+const belongsToAccount = (params: boolean, done: (err: unknown, value: boolean) => void) => done(null, params);
 
-const expect = chai.expect;
+const promiseBelongsToAccount = Promise.resolve(true);
 
-const belongsToAccount = (params, done) => done(null, params);
-
-const PromisebelongsToAccount = new Promise((resolve) => {
-  resolve(true);
-});
-
-const asyncBelongsToAccount = async (params) => params;
+const asyncBelongsToAccount = async (params: boolean) => params;
 
 const defaultRoles = {
   user: {
     can: ['products:find']
   },
   supervisor: {
-    can: [{name: 'products:edit', when: PromisebelongsToAccount }],
+    can: [{ name: 'products:edit', when: promiseBelongsToAccount }],
     inherits: ['user']
   },
   admin: {

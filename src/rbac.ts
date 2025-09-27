@@ -36,6 +36,15 @@ const can =
   ) => {
     const logger = config.logger || defaultLogger;
 
+    const patternMatchCache = new Map<
+      string,
+      Map<string, NormalizedWhenFn<P> | true | null>
+    >();
+    const operationHintCache = new Map<
+      string,
+      { regex: RegExp | null; isGlob: boolean }
+    >();
+
     const log = config.enableLogger
       ? (roleName: string, operation: string | RegExp, result: boolean, enabled: boolean): boolean => {
           if (enabled) logger(roleName, operation, result);
@@ -50,6 +59,29 @@ const can =
         matchCache.set(roleName, cached);
       }
       return cached;
+    };
+
+    const getPatternCache = (
+      roleName: string
+    ): Map<string, NormalizedWhenFn<P> | true | null> => {
+      let cached = patternMatchCache.get(roleName);
+      if (!cached) {
+        cached = new Map<string, NormalizedWhenFn<P> | true | null>();
+        patternMatchCache.set(roleName, cached);
+      }
+      return cached;
+    };
+
+    const getOperationHint = (
+      op: string
+    ): { regex: RegExp | null; isGlob: boolean } => {
+      let hint = operationHintCache.get(op);
+      if (hint) return hint;
+      const regex = regexFromOperation(op);
+      const isGlobOperation = !regex ? isGlob(op) : false;
+      hint = { regex, isGlob: isGlobOperation };
+      operationHintCache.set(op, hint);
+      return hint;
     };
 
     const checkDirect = async (
@@ -75,10 +107,9 @@ const can =
       if (operation instanceof RegExp) {
         regexOperation = operation;
       } else if (typeof operation === 'string') {
-        regexOperation = regexFromOperation(operation);
-        if (!regexOperation) {
-          isGlobOperation = isGlob(operation);
-        }
+        const hint = getOperationHint(operation);
+        regexOperation = hint.regex;
+        isGlobOperation = hint.isGlob;
       }
 
       if (regexOperation || isGlobOperation) {
@@ -108,10 +139,16 @@ const can =
       if (!whenFn) {
         const operationString =
           typeof operation === 'string' ? operation : String(operation);
-        const matchPattern = resolvedRole.patterns.find(p =>
-          p.regex.test(operationString)
-        );
-        if (matchPattern) whenFn = matchPattern.when;
+        const patternCache = getPatternCache(logRole);
+        let cachedWhen = patternCache.get(operationString);
+        if (cachedWhen === undefined) {
+          const matchPattern = resolvedRole.patterns.find(p =>
+            p.regex.test(operationString)
+          );
+          cachedWhen = matchPattern ? matchPattern.when : null;
+          patternCache.set(operationString, cachedWhen);
+        }
+        if (cachedWhen) whenFn = cachedWhen;
       }
 
       if (!whenFn) {
