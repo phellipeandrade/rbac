@@ -1,177 +1,32 @@
-`./configuredRBAC.ts`:
+# RBAC Examples
 
-```ts
-import rbac from '@rbac/rbac';
+This directory contains self-contained TypeScript snippets that showcase how to use the library in different scenarios. Each file can be executed with `ts-node` (or transpiled to JavaScript) and is fully documented in English.
 
-const rbacConfig = {
-  enableLogger: false
-};
+## Core building blocks
 
-export const configuredRBAC = rbac(rbacConfig);
-```
+- [`configuredRBAC.ts`](./configuredRBAC.ts) creates a reusable RBAC factory configured with logging disabled.
+- [`roles.ts`](./roles.ts) defines a role hierarchy with conditional permissions using the `when` callback for additional context checks.
+- [`index.ts`](./index.ts) demonstrates how to instantiate RBAC with the predefined roles and perform permission checks for multiple roles.
+- [`basicUsage.ts`](./basicUsage.ts) shows a real-world check where user data is passed as context to evaluate permissions.
 
-`./RBAC.ts`:
+## Updating roles at runtime
 
-```ts
-import configuredRBAC from './configuredRBAC';
+- [`updateRoles.ts`](./updateRoles.ts) illustrates how to add new roles and merge updates without restarting your application.
 
-import type { Roles } from '@rbac/rbac';
+## Database adapters
 
-const roles: Roles = {
-  user: {
-    can: ['products:find']
-  },
-  supervisor: {
-    can: [{ name: 'products:find', when: PromiseThatReturnsTruthyOrFalsyValue }],
-    inherits: ['user']
-  },
-  admin: {
-    can: [{ name: 'products:delete', when: FunctionThatReturnsTruthyOrFalsyValue }],
-    inherits: ['supervisor']
-  },
-  superadmin: {
-    can: ['products:find', 'products:edit', 'products:delete']
-  }
-};
+- [`mongodbAdapter.ts`](./mongodbAdapter.ts) loads role definitions from MongoDB and performs checks against the retrieved data.
+- [`mysqlAdapter.ts`](./mysqlAdapter.ts) does the same using a MySQL database.
+- [`postgresAdapter.ts`](./postgresAdapter.ts) demonstrates the PostgreSQL adapter with custom column mappings.
 
-export const RBAC = configuredRBAC(roles);
-```
+## Multi-tenant environments
 
-`./example.ts`:
+- [`multiTenant.ts`](./multiTenant.ts) stores and retrieves tenant-scoped roles using the MongoDB adapter and `createTenantRBAC` helper.
 
-```ts
-import RBAC from './RBAC';
+## Framework middlewares
 
-const myUser = {
-  name: 'John Doe',
-  role: 'user',
-  registered: false
-}
+- [`expressMiddleware.ts`](./expressMiddleware.ts) integrates RBAC checks into Express routes.
+- [`fastifyMiddleware.ts`](./fastifyMiddleware.ts) adds RBAC validation to Fastify handlers.
+- [`nestMiddleware.ts`](./nestMiddleware.ts) shows how to plug RBAC into a NestJS module using middleware.
 
-// Async / Await style
-const result = await RBAC.can(myUser.role, 'products:find', myUser.registered);
-
-// Promise style
-RBAC.can(myUser.role, 'products:find')
- .then(result => {
-   doSomething(result);
- })
-  .catch(error => {
-    somethingWentWrong();
-  });
-```
-
-`./updateRoles.ts`:
-
-```ts
-import rbac from '@rbac/rbac';
-import type { Roles } from '@rbac/rbac';
-import {
-  USER,
-  PRODUCTS_FIND,
-  PRODUCTS_UPDATE,
-  PRODUCTS_CREATE
-} from './constants';
-
-const baseRoles: Roles = {
-  [USER]: { can: [PRODUCTS_FIND] }
-};
-
-const RBAC = rbac()(baseRoles);
-
-RBAC.addRole('editor', { can: [PRODUCTS_UPDATE], inherits: [USER] });
-await RBAC.can('editor', PRODUCTS_UPDATE); // true
-
-RBAC.updateRoles({
-  [USER]: { can: [PRODUCTS_FIND, PRODUCTS_CREATE] }
-});
-await RBAC.can(USER, PRODUCTS_CREATE); // true
-```
-
-`./mongodbAdapter.ts`:
-
-```ts
-import rbac, { MongoRoleAdapter } from '@rbac/rbac';
-
-async function run(): Promise<void> {
-  const adapter = new MongoRoleAdapter({
-    uri: 'mongodb://localhost:27017',
-    dbName: 'rbac',
-    collection: 'roles',
-    columns: { name: 'rname', role: 'rdef', tenantId: 'tid' }
-  });
-
-  const roles = await adapter.getRoles();
-  const RBAC = rbac()(roles);
-
-  await RBAC.can('user', 'products:find');
-}
-
-run().catch(console.error);
-```
-
-`./mysqlAdapter.ts`:
-
-```ts
-import rbac, { MySQLRoleAdapter } from '@rbac/rbac';
-
-async function run(): Promise<void> {
-  const adapter = new MySQLRoleAdapter({
-    uri: 'mysql://user:pass@localhost/rbac',
-    table: 'roles',
-    columns: { name: 'rname', role: 'rdef', tenantId: 'tid' }
-  });
-
-  const roles = await adapter.getRoles();
-  const RBAC = rbac()(roles);
-
-  await RBAC.can('user', 'products:find');
-}
-
-run().catch(console.error);
-```
-
-`./postgresAdapter.ts`:
-
-```ts
-import rbac, { PostgresRoleAdapter } from '@rbac/rbac';
-
-async function run(): Promise<void> {
-  const adapter = new PostgresRoleAdapter({
-    host: 'localhost',
-    user: 'user',
-    password: 'pass',
-    database: 'rbac',
-    table: 'roles',
-    columns: { name: 'rname', role: 'rdef', tenantId: 'tid' }
-  });
-
-  const roles = await adapter.getRoles();
-  const RBAC = rbac()(roles);
-
-  await RBAC.can('user', 'products:find');
-}
-
-run().catch(console.error);
-```
-
-
-`./multiTenant.ts`:
-
-```ts
-import rbac, { MongoRoleAdapter, createTenantRBAC } from '@rbac/rbac';
-
-async function run(): Promise<void> {
-  const adapter = new MongoRoleAdapter({
-    uri: 'mongodb://localhost:27017',
-    dbName: 'rbac',
-    collection: 'roles'
-  });
-
-  await adapter.addRole('user', { can: ['products:find'] }, 'tenant-a');
-  const rbacTenantA = await createTenantRBAC(adapter, 'tenant-a');
-  await rbacTenantA.can('user', 'products:find'); // true
-}
-
-run().catch(console.error);
-```
+Each example is intentionally concise and focuses on a single scenario so you can copy the file that best matches your use case and adapt it to your project.

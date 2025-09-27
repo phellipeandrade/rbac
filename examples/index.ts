@@ -1,34 +1,22 @@
+import configuredRBAC from './configuredRBAC';
+import roles from './roles';
 import {
-  USER,
   ADMIN,
-  SUPERVISOR,
-  SUPERADMIN,
   PRODUCTS_DELETE,
   PRODUCTS_EDIT,
-  PRODUCTS_FIND
+  PRODUCTS_FIND,
+  SUPERADMIN,
+  SUPERVISOR,
+  USER
 } from './constants';
 
-import rbac from '@rbac/rbac';
-import type { Roles } from '@rbac/rbac';
+const RBAC = configuredRBAC(roles);
 
-const defaultRoles: Roles = {
-  [USER]: {
-    can: [PRODUCTS_FIND]
-  },
-  [SUPERVISOR]: {
-    can: [{ name: PRODUCTS_EDIT }],
-    inherits: [USER]
-  },
-  [ADMIN]: {
-    can: [{ name: PRODUCTS_DELETE }],
-    inherits: [SUPERVISOR]
-  },
-  [SUPERADMIN]: {
-    can: [PRODUCTS_FIND, PRODUCTS_EDIT, PRODUCTS_DELETE]
-  }
-};
+async function run(): Promise<void> {
+  await RBAC.can(USER, PRODUCTS_FIND);
+  await RBAC.can(SUPERVISOR, PRODUCTS_EDIT, { registered: true });
+  await RBAC.can(ADMIN, PRODUCTS_DELETE, { registered: true });
+  await RBAC.can(SUPERADMIN, PRODUCTS_EDIT, { registered: true, isOwner: true });
+}
 
-const RBAC = rbac()(defaultRoles);
-
-RBAC.can(USER, PRODUCTS_FIND);
-RBAC.can(USER, PRODUCTS_EDIT);
+run().catch(console.error);
