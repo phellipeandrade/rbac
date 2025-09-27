@@ -312,5 +312,241 @@ describe('RBAC', () => {
       expect(allowed).toBe(true);
       expect(denied).toBe(false);
     });
+
+    it('should handle empty roles object', async () => {
+      const emptyRBAC = rbac({ enableLogger: false })({});
+      const res = await emptyRBAC.can('any', 'any');
+      expect(res).toBe(false);
+    });
+
+    it('should handle role with empty can array', async () => {
+      RBAC.addRole('empty', { can: [] });
+      const res = await RBAC.can('empty', 'products:find');
+      expect(res).toBe(false);
+    });
+
+    it('should handle role with undefined can', async () => {
+      RBAC.addRole('undefined', { can: [] });
+      const res = await RBAC.can('undefined', 'products:find');
+      expect(res).toBe(false);
+    });
+
+    it('should handle role with null can', async () => {
+      RBAC.addRole('null', { can: [] });
+      const res = await RBAC.can('null', 'products:find');
+      expect(res).toBe(false);
+    });
+
+    it('should handle complex circular inheritance', async () => {
+      RBAC.addRole('x', { can: ['test'], inherits: ['y'] });
+      RBAC.addRole('y', { can: [], inherits: ['z'] });
+      RBAC.addRole('z', { can: [], inherits: ['x'] });
+      const res = await RBAC.can('x', 'test');
+      expect(res).toBe(true);
+    });
+
+    it('should handle deeply nested inheritance', async () => {
+      RBAC.addRole('level1', { can: ['level1:action'] });
+      RBAC.addRole('level2', { can: ['level2:action'], inherits: ['level1'] });
+      RBAC.addRole('level3', { can: ['level3:action'], inherits: ['level2'] });
+      RBAC.addRole('level4', { can: ['level4:action'], inherits: ['level3'] });
+      RBAC.addRole('level5', { can: ['level5:action'], inherits: ['level4'] });
+      
+      const res = await RBAC.can('level5', 'level1:action');
+      expect(res).toBe(true);
+    });
+
+    it('should handle role with mixed permission types', async () => {
+      RBAC.addRole('mixed', {
+        can: [
+          'direct:permission',
+          { name: 'conditional:permission', when: async () => true },
+          { name: 'glob:*', when: true },
+          { name: '/regex:\\d+/', when: true }
+        ]
+      });
+      
+      expect(await RBAC.can('mixed', 'direct:permission')).toBe(true);
+      expect(await RBAC.can('mixed', 'conditional:permission')).toBe(true);
+      expect(await RBAC.can('mixed', 'glob:anything')).toBe(true);
+      expect(await RBAC.can('mixed', 'regex:123')).toBe(true);
+      expect(await RBAC.can('mixed', 'regex:abc')).toBe(false);
+    });
+
+    it('should handle when function that throws', async () => {
+      RBAC.addRole('throwing', {
+        can: [{ name: 'test', when: async () => { throw new Error('test'); } }]
+      });
+      
+      const res = await RBAC.can('throwing', 'test');
+      expect(res).toBe(false);
+    });
+
+    it('should handle when function that returns false', async () => {
+      RBAC.addRole('false', {
+        can: [{ name: 'test', when: async () => false }]
+      });
+      
+      const res = await RBAC.can('false', 'test');
+      expect(res).toBe(false);
+    });
+
+    it('should handle when function that returns truthy non-boolean', async () => {
+      RBAC.addRole('truthy', {
+        can: [{ name: 'test', when: async () => 'truthy' as any }]
+      });
+      
+      const res = await RBAC.can('truthy', 'test');
+      expect(res).toBe(true);
+    });
+
+    it('should handle when function that returns falsy non-boolean', async () => {
+      RBAC.addRole('falsy', {
+        can: [{ name: 'test', when: async () => 0 as any }]
+      });
+      
+      const res = await RBAC.can('falsy', 'test');
+      expect(res).toBe(false);
+    });
+
+    it('should handle callback when function with error', async () => {
+      const callbackWhen = (params: any, done: (err: Error | null, result: boolean) => void) => {
+        setImmediate(() => done(new Error('test'), false));
+      };
+      
+      RBAC.addRole('callback-error', {
+        can: [{ name: 'test', when: callbackWhen }]
+      });
+      
+      const res = await RBAC.can('callback-error', 'test');
+      expect(res).toBe(false);
+    });
+
+    it('should handle callback when function with success', async () => {
+      const callbackWhen = (params: any, done: (err: Error | null, result: boolean) => void) => {
+        setImmediate(() => done(null, true));
+      };
+      
+      RBAC.addRole('callback-success', {
+        can: [{ name: 'test', when: callbackWhen }]
+      });
+      
+      const res = await RBAC.can('callback-success', 'test');
+      expect(res).toBe(true);
+    });
+
+    it('should handle Promise when function', async () => {
+      RBAC.addRole('promise', {
+        can: [{ name: 'test', when: Promise.resolve(true) }]
+      });
+      
+      const res = await RBAC.can('promise', 'test');
+      expect(res).toBe(true);
+    });
+
+    it('should handle Promise when function that rejects', async () => {
+      const rejectingPromise = new Promise<boolean>((_, reject) => {
+        setTimeout(() => reject(new Error('test')), 0);
+      });
+      RBAC.addRole('promise-reject', {
+        can: [{ name: 'test', when: rejectingPromise }]
+      });
+      
+      const res = await RBAC.can('promise-reject', 'test');
+      expect(res).toBe(false);
+    });
+
+    it('should handle when function with parameters', async () => {
+      const whenWithParams = async (params: any) => {
+        return params?.userId === 'admin';
+      };
+      
+      RBAC.addRole('params', {
+        can: [{ name: 'test', when: whenWithParams }]
+      });
+      
+      const res1 = await RBAC.can('params', 'test', { userId: 'admin' } as any);
+      const res2 = await RBAC.can('params', 'test', { userId: 'user' } as any);
+      expect(res1).toBe(true);
+      expect(res2).toBe(false);
+    });
+
+    it('should handle RegExp operations', async () => {
+      RBAC.addRole('regex', { can: [{ name: 'user:123', when: true }] });
+      
+      expect(await RBAC.can('regex', 'user:123')).toBe(true);
+      expect(await RBAC.can('regex', 'user:abc')).toBe(false);
+      expect(await RBAC.can('regex', 'admin:123')).toBe(false);
+    });
+
+    it('should handle string regex operations', async () => {
+      RBAC.addRole('string-regex', { can: ['/user:\\d+/'] });
+      
+      expect(await RBAC.can('string-regex', 'user:123')).toBe(true);
+      expect(await RBAC.can('string-regex', 'user:abc')).toBe(false);
+    });
+
+    it('should handle invalid regex strings gracefully', async () => {
+      RBAC.addRole('invalid-regex', { can: ['/invalid[/'] });
+      
+      const res = await RBAC.can('invalid-regex', 'test');
+      expect(res).toBe(false);
+    });
+
+    it('should handle glob patterns', async () => {
+      RBAC.addRole('glob', { can: ['user:*'] });
+      
+      expect(await RBAC.can('glob', 'user:read')).toBe(true);
+      expect(await RBAC.can('glob', 'user:write')).toBe(true);
+      expect(await RBAC.can('glob', 'admin:read')).toBe(false);
+    });
+
+    it('should handle complex glob patterns', async () => {
+      RBAC.addRole('complex-glob', { can: ['**/*.js'] });
+      
+      expect(await RBAC.can('complex-glob', 'src/file.js')).toBe(true);
+      expect(await RBAC.can('complex-glob', 'src/subdir/file.js')).toBe(true);
+      expect(await RBAC.can('complex-glob', 'src/file.ts')).toBe(false);
+    });
+
+    it('should handle updateRoles with new roles', async () => {
+      const newRoles = {
+        newRole: { can: ['new:permission'] }
+      };
+      
+      RBAC.updateRoles(newRoles);
+      const res = await RBAC.can('newRole', 'new:permission');
+      expect(res).toBe(true);
+    });
+
+    it('should handle updateRoles with existing roles', async () => {
+      RBAC.updateRoles({
+        user: { can: ['products:find', 'products:view'] }
+      });
+      
+      expect(await RBAC.can('user', 'products:find')).toBe(true);
+      expect(await RBAC.can('user', 'products:view')).toBe(true);
+      expect(await RBAC.can('user', 'products:edit')).toBe(false);
+    });
+
+    it('should handle addRole with complex role definition', async () => {
+      RBAC.addRole('complex', {
+        can: [
+          'direct:permission',
+          { name: 'conditional:permission', when: async () => true },
+          'glob:*',
+          '/regex:\\d+/',
+          { name: 'callback:permission', when: (params: any, done: any) => done(null, true) }
+        ],
+        inherits: ['user']
+      });
+      
+      expect(await RBAC.can('complex', 'direct:permission')).toBe(true);
+      expect(await RBAC.can('complex', 'conditional:permission')).toBe(true);
+      expect(await RBAC.can('complex', 'glob:anything')).toBe(true);
+      expect(await RBAC.can('complex', 'regex:123')).toBe(true);
+      expect(await RBAC.can('complex', 'callback:permission')).toBe(true);
+      expect(await RBAC.can('complex', 'products:find')).toBe(true); // inherited
+    });
   });
 });

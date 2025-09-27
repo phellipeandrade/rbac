@@ -66,7 +66,45 @@ describe('Middlewares', () => {
     expect(res.code).toBe(403);
   });
 
-  it('nest middleware behaves like express', async () => {
+  it('express middleware allows access with next callback', async () => {
+    const middleware = createExpressMiddleware(RBAC)('products:find');
+    const req: MockExpressRequest = { role: 'user' };
+    const res = mockRes();
+    const nextFn = jest.fn();
+    await middleware(req as never, res as never, nextFn);
+    expect(nextFn).toHaveBeenCalled();
+  });
+
+  it('express middleware denies access with next callback', async () => {
+    const middleware = createExpressMiddleware(RBAC)('products:edit');
+    const req: MockExpressRequest = { role: 'user' };
+    const res = mockRes();
+    const nextFn = jest.fn();
+    await middleware(req as never, res as never, nextFn);
+    expect(nextFn).not.toHaveBeenCalled();
+  });
+
+  it('nest middleware allows access', async () => {
+    const middleware = createNestMiddleware(RBAC)('products:find');
+    const res = mockRes();
+    const nextFn = jest.fn();
+    const context: MockNestContext & { role: string } = {
+      role: 'user',
+      switchToHttp() {
+        return {
+          getRequest: () => ({ role: 'user' }),
+          getResponse: () => res,
+          getNext: () => nextFn
+        };
+      }
+    } as any;
+    await middleware(context as never, res as never, nextFn);
+    // The middleware calls next() directly when access is allowed
+    expect(nextFn).toHaveBeenCalled();
+    expect(res.code).toBeUndefined();
+  });
+
+  it('nest middleware denies access', async () => {
     const middleware = createNestMiddleware(RBAC)('products:edit');
     const res = mockRes();
     const nextFn = jest.fn();
@@ -84,11 +122,43 @@ describe('Middlewares', () => {
     expect(res.code).toBe(403);
   });
 
+  it('fastify middleware allows access', async () => {
+    const middleware = createFastifyMiddleware(RBAC)('products:find');
+    const req: MockExpressRequest = { role: 'user' };
+    const reply = mockRes();
+    await middleware(req as never, reply as never);
+    expect(reply.code).toBeUndefined();
+  });
+
   it('fastify middleware denies access', async () => {
     const middleware = createFastifyMiddleware(RBAC)('products:edit');
     const req: MockExpressRequest = { role: 'user' };
     const reply = mockRes();
     await middleware(req as never, reply as never);
     expect(reply.code).toBe(403);
+  });
+
+  it('handles missing role in request', async () => {
+    const middleware = createExpressMiddleware(RBAC)('products:find');
+    const req = {} as MockExpressRequest;
+    const res = mockRes();
+    let called = false;
+    await middleware(req as never, res as never, () => {
+      called = true;
+    });
+    expect(called).toBe(false);
+    expect(res.code).toBe(403);
+  });
+
+  it('handles undefined role in request', async () => {
+    const middleware = createExpressMiddleware(RBAC)('products:find');
+    const req = { role: undefined } as unknown as MockExpressRequest;
+    const res = mockRes();
+    let called = false;
+    await middleware(req as never, res as never, () => {
+      called = true;
+    });
+    expect(called).toBe(false);
+    expect(res.code).toBe(403);
   });
 });
