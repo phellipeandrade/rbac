@@ -1,5 +1,5 @@
 /* global describe, it */
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
 import rbac, {
   createExpressMiddleware,
   createNestMiddleware,
@@ -69,20 +69,18 @@ describe('Middlewares', () => {
   it('nest middleware behaves like express', async () => {
     const middleware = createNestMiddleware(RBAC)('products:edit');
     const res = mockRes();
-    let called = false;
+    const nextFn = jest.fn();
     const context: MockNestContext = {
       switchToHttp() {
         return {
           getRequest: () => ({ role: 'user' }),
           getResponse: () => res,
-          getNext: () => () => {
-            called = true;
-          }
+          getNext: () => nextFn
         };
       }
     };
-    await middleware(context as never, () => {});
-    expect(called).toBe(false);
+    await middleware(context as never, res as never, nextFn as never);
+    expect(nextFn).not.toHaveBeenCalled();
     expect(res.code).toBe(403);
   });
 

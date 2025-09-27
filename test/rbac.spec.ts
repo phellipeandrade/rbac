@@ -1,13 +1,17 @@
 import { describe, expect, it } from '@jest/globals';
 import rbac from '../src/index';
+import type { Roles } from '../src/types';
 
-const belongsToAccount = (params: boolean, done: (err: unknown, value: boolean) => void): void => done(null, params);
+const belongsToAccount = (
+  params: boolean,
+  done: (err: unknown, value?: boolean) => void
+): void => done(null, params);
 
-const promiseBelongsToAccount = Promise.resolve(true);
+const promiseBelongsToAccount: Promise<boolean> = Promise.resolve(true);
 
 const asyncBelongsToAccount = async (params: boolean): Promise<boolean> => params;
 
-const defaultRoles = {
+const defaultRoles: Roles<boolean> = {
   user: {
     can: ['products:find']
   },
@@ -36,19 +40,19 @@ describe('RBAC lib aspects', () => {
   });
 
   it('should return a function', () => {
-    const result = rbac();
+    const result = rbac<boolean>();
     expect(typeof result).toBe('function');
   });
 
   it('should return an object with a property named [can] when rbac function is called', () => {
-    const instance = rbac()(defaultRoles);
+    const instance = rbac<boolean>()(defaultRoles);
     expect(typeof instance).toBe('object');
     expect(instance).toHaveProperty('can');
   });
 });
 
 describe('RBAC', () => {
-  const RBAC = rbac({ enableLogger: false })(defaultRoles);
+  const RBAC = rbac<boolean>({ enableLogger: false })(defaultRoles);
 
   describe('user role', () => {
     it('[user] should have permission [products:find]', async () => {

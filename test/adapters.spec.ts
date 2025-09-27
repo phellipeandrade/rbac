@@ -1,5 +1,5 @@
 import { describe, expect, it, afterAll } from '@jest/globals';
-import Module from 'module';
+import Module from 'node:module';
 
 class FakeMongoCollection {
   docs: Array<Record<string, unknown>>;
@@ -158,10 +158,14 @@ class FakePGClient {
 
 let lastPGClient: FakePGClient | undefined;
 
-const originalLoad = Module._load;
+const moduleLoader = Module as unknown as {
+  _load: (request: string, parent: unknown, isMain: boolean) => unknown;
+};
+
+const originalLoad = moduleLoader._load;
 
 function setupMocks() {
-  Module._load = function (request: string, parent: unknown, isMain: boolean) {
+  moduleLoader._load = function (this: unknown, request: string, parent: unknown, isMain: boolean) {
     if (request === 'mongodb') {
       return { MongoClient: FakeMongoClient };
     }
@@ -176,12 +180,12 @@ function setupMocks() {
         }
       };
     }
-    return originalLoad.call(this, request, parent, isMain);
+    return originalLoad.call(Module, request, parent, isMain);
   };
 }
 
 function restoreMocks() {
-  Module._load = originalLoad;
+  moduleLoader._load = originalLoad;
 }
 
 setupMocks();
