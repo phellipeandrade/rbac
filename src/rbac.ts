@@ -75,12 +75,9 @@ const can =
       if (operation instanceof RegExp) {
         regexOperation = operation;
       } else if (typeof operation === 'string') {
-        isGlobOperation = operation.includes('*');
-        if (operation.length > 1 && operation.charCodeAt(0) === 47) {
-          const lastSlashIndex = operation.lastIndexOf('/');
-          if (lastSlashIndex > 0) {
-            regexOperation = regexFromOperation(operation);
-          }
+        regexOperation = regexFromOperation(operation);
+        if (!regexOperation) {
+          isGlobOperation = isGlob(operation);
         }
       }
 
