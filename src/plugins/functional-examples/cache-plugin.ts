@@ -12,6 +12,7 @@ interface CacheState {
     hits: number;
     misses: number;
   };
+  cleanupInterval?: NodeJS.Timeout;
 }
 
 // Criar estado inicial do cache
@@ -48,7 +49,7 @@ export const createCachePlugin = (config: PluginConfig = { enabled: true, priori
       context.logger('CachePlugin installed', 'info');
       
       // Configurar limpeza automática
-      setInterval(() => {
+      state.cleanupInterval = setInterval(() => {
         if (state) {
           cleanExpiredEntries(state);
         }
@@ -57,6 +58,10 @@ export const createCachePlugin = (config: PluginConfig = { enabled: true, priori
 
     uninstall: () => {
       if (state) {
+        // Limpar o interval se existir
+        if (state.cleanupInterval) {
+          clearInterval(state.cleanupInterval);
+        }
         state.cache.clear();
         state = null;
       }

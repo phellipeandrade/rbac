@@ -23,6 +23,7 @@ interface NotificationState {
     totalSent: number;
     errors: number;
   };
+  processingInterval?: NodeJS.Timeout;
 }
 
 // Criar estado inicial das notificações
@@ -85,12 +86,16 @@ export const createNotificationPlugin = (config: PluginConfig = { enabled: true,
       }
       
       if (state) {
-      // Processar eventos restantes
-      processNotifications(state, { 
-        logger: () => {}, 
-        rbac: {} as any, 
-        events: {} as any 
-      } as PluginContext);
+        // Limpar o interval de processamento se existir
+        if (state.processingInterval) {
+          clearInterval(state.processingInterval);
+        }
+        // Processar eventos restantes
+        processNotifications(state, { 
+          logger: () => {}, 
+          rbac: {} as any, 
+          events: {} as any 
+        } as PluginContext);
         state = null;
       }
     },
@@ -152,7 +157,7 @@ export const createNotificationPlugin = (config: PluginConfig = { enabled: true,
 
 const setupNotificationProcessing = (state: NotificationState, context: PluginContext): void => {
   // Processar notificações em lote a cada 5 segundos
-  setInterval(() => {
+  state.processingInterval = setInterval(() => {
     processNotifications(state, context);
   }, state.config.flushInterval);
 };
