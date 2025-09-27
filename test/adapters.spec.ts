@@ -1,8 +1,195 @@
-/* global describe, it, before, after */
-import { afterAll, afterEach, beforeAll, describe, expect, it, jest } from '@jest/globals';
+import { describe, expect, it, afterAll } from '@jest/globals';
 import Module from 'module';
 
-// ... existing code ...
+class FakeMongoCollection {
+  docs: Array<Record<string, unknown>>;
+
+  constructor() {
+    this.docs = [];
+  }
+
+  find(query: Record<string, unknown> = {}) {
+    return {
+      toArray: async () =>
+        this.docs
+          .filter(doc =>
+            Object.keys(query).every(key => doc[key] === query[key])
+          )
+          .map(doc => ({ ...doc }))
+    };
+  }
+
+  insertOne(doc: Record<string, unknown>) {
+    this.docs.push(doc);
+    return Promise.resolve();
+  }
+
+  updateOne(
+    filter: Record<string, unknown>,
+    update: { $set: Record<string, unknown> },
+    options?: { upsert?: boolean }
+  ) {
+    const idx = this.docs.findIndex(doc =>
+      Object.keys(filter).every(key => doc[key] === filter[key])
+    );
+    if (idx >= 0) {
+      Object.assign(this.docs[idx], update.$set);
+    } else if (options?.upsert) {
+      this.docs.push({ ...filter, ...update.$set });
+    }
+    return Promise.resolve();
+  }
+}
+
+class FakeMongoDB {
+  collections: Record<string, FakeMongoCollection>;
+
+  constructor() {
+    this.collections = {};
+  }
+
+  collection(name: string) {
+    if (!this.collections[name]) {
+      this.collections[name] = new FakeMongoCollection();
+    }
+    return this.collections[name];
+  }
+}
+
+class FakeMongoClient {
+  uri: string;
+  dbInstance: FakeMongoDB;
+
+  constructor(uri: string) {
+    this.uri = uri;
+    this.dbInstance = new FakeMongoDB();
+  }
+
+  connect() {
+    return Promise.resolve();
+  }
+
+  db() {
+    return this.dbInstance;
+  }
+}
+
+class FakeMySQLConnection {
+  tables: Record<string, Record<string, Record<string, unknown>>>;
+
+  constructor() {
+    this.tables = {};
+  }
+
+  async query(sql: string, params: unknown[]) {
+    if (sql.trim().startsWith('SELECT')) {
+      const tenantId = params[0] as string;
+      const tableMatch = sql.match(/FROM\s+`?(\w+)`?/i);
+      const table = tableMatch ? tableMatch[1] : 'roles';
+      const columnsMatch = sql.match(/SELECT\s+`?(\w+)`?,\s*`?(\w+)`?\s+FROM/i);
+      const nameCol = columnsMatch ? columnsMatch[1] : 'name';
+      const roleCol = columnsMatch ? columnsMatch[2] : 'role';
+      const tenantTable = (this.tables[table] || {})[tenantId] || {};
+      const rows = Object.entries(tenantTable).map(([name, role]) => ({
+        [nameCol]: name,
+        [roleCol]: JSON.stringify(role)
+      }));
+      return [rows];
+    }
+    if (/INSERT INTO/.test(sql) || /REPLACE INTO/.test(sql)) {
+      const [name, roleStr, tenantId] = params as [string, string, string];
+      const tableMatch = sql.match(/INTO\s+`?(\w+)`?/i);
+      const table = tableMatch ? tableMatch[1] : 'roles';
+      this.tables[table] = this.tables[table] || {};
+      this.tables[table][tenantId] = this.tables[table][tenantId] || {};
+      this.tables[table][tenantId][name] = JSON.parse(roleStr);
+      return [];
+    }
+    return [];
+  }
+}
+
+let lastMySQLConnection: FakeMySQLConnection | undefined;
+
+function fakeCreateConnection() {
+  lastMySQLConnection = new FakeMySQLConnection();
+  return Promise.resolve(lastMySQLConnection);
+}
+
+class FakePGClient {
+  tables: Record<string, Record<string, Record<string, unknown>>>;
+
+  constructor() {
+    this.tables = {};
+  }
+
+  connect() {
+    return Promise.resolve();
+  }
+
+  async query(sql: string, params: unknown[]) {
+    if (sql.trim().startsWith('SELECT')) {
+      const tenantId = params[0] as string;
+      const tableMatch = sql.match(/FROM\s+(\w+)/i);
+      const table = tableMatch ? tableMatch[1] : 'roles';
+      const columnsMatch = sql.match(/SELECT\s+(\w+),\s*(\w+)\s+FROM/i);
+      const nameCol = columnsMatch ? columnsMatch[1] : 'name';
+      const roleCol = columnsMatch ? columnsMatch[2] : 'role';
+      const tenantTable = (this.tables[table] || {})[tenantId] || {};
+      return {
+        rows: Object.entries(tenantTable).map(([name, role]) => ({
+          [nameCol]: name,
+          [roleCol]: JSON.stringify(role)
+        }))
+      };
+    }
+    if (sql.trim().startsWith('INSERT')) {
+      const [name, roleStr, tenantId] = params as [string, string, string];
+      const tableMatch = sql.match(/INTO\s+(\w+)/i);
+      const table = tableMatch ? tableMatch[1] : 'roles';
+      this.tables[table] = this.tables[table] || {};
+      this.tables[table][tenantId] = this.tables[table][tenantId] || {};
+      this.tables[table][tenantId][name] = JSON.parse(roleStr);
+      return {};
+    }
+    return {};
+  }
+}
+
+let lastPGClient: FakePGClient | undefined;
+
+const originalLoad = Module._load;
+
+function setupMocks() {
+  Module._load = function (request: string, parent: unknown, isMain: boolean) {
+    if (request === 'mongodb') {
+      return { MongoClient: FakeMongoClient };
+    }
+    if (request === 'mysql2/promise') {
+      return { createConnection: fakeCreateConnection };
+    }
+    if (request === 'pg') {
+      return {
+        Client: function () {
+          lastPGClient = new FakePGClient();
+          return lastPGClient;
+        }
+      };
+    }
+    return originalLoad.call(this, request, parent, isMain);
+  };
+}
+
+function restoreMocks() {
+  Module._load = originalLoad;
+}
+
+setupMocks();
+
+describe('Role Adapters', () => {
+  afterAll(() => {
+    restoreMocks();
+  });
 
   describe('MongoRoleAdapter', () => {
     it('should add and retrieve roles', async () => {
@@ -10,13 +197,13 @@ import Module from 'module';
       const adapter = new MongoRoleAdapter({ uri: '', dbName: 'db', collection: 'roles' });
       await adapter.addRole('user', { can: ['a'] });
       let roles = await adapter.getRoles();
-      expect(roles).to.have.property('user');
-      expect(roles.user.can).to.deep.equal(['a']);
+      expect(roles).toHaveProperty('user');
+      expect(roles.user.can).toEqual(['a']);
 
       await adapter.updateRoles({ user: { can: ['b'] }, admin: { can: ['c'] } });
       roles = await adapter.getRoles();
-      expect(roles.user.can).to.deep.equal(['b']);
-      expect(roles.admin.can).to.deep.equal(['c']);
+      expect(roles.user.can).toEqual(['b']);
+      expect(roles.admin.can).toEqual(['c']);
     });
 
     it('should work with custom columns', async () => {
@@ -29,7 +216,7 @@ import Module from 'module';
       });
       await adapter.addRole('user', { can: ['a'] }, 't1');
       const roles = await adapter.getRoles('t1');
-      expect(roles.user.can).to.deep.equal(['a']);
+      expect(roles.user.can).toEqual(['a']);
     });
 
     it('should update roles with custom columns', async () => {
@@ -42,7 +229,7 @@ import Module from 'module';
       });
       await adapter.updateRoles({ user: { can: ['b'] } }, 't2');
       const roles = await adapter.getRoles('t2');
-      expect(roles.user.can).to.deep.equal(['b']);
+      expect(roles.user.can).toEqual(['b']);
     });
 
     it('should respect the collection option', async () => {
@@ -56,8 +243,8 @@ import Module from 'module';
       const rolesA = await a.getRoles();
       const rolesB = await b.getRoles();
 
-      expect(rolesA.user.can).to.deep.equal(['a']);
-      expect(rolesB.user.can).to.deep.equal(['b']);
+      expect(rolesA.user.can).toEqual(['a']);
+      expect(rolesB.user.can).toEqual(['b']);
     });
   });
 
@@ -67,12 +254,12 @@ import Module from 'module';
       const adapter = new MySQLRoleAdapter({ table: 'roles' });
       await adapter.addRole('user', { can: ['a'] });
       let roles = await adapter.getRoles();
-      expect(roles.user.can).to.deep.equal(['a']);
+      expect(roles.user.can).toEqual(['a']);
 
       await adapter.updateRoles({ user: { can: ['b'] }, admin: { can: ['c'] } });
       roles = await adapter.getRoles();
-      expect(roles.user.can).to.deep.equal(['b']);
-      expect(roles.admin.can).to.deep.equal(['c']);
+      expect(roles.user.can).toEqual(['b']);
+      expect(roles.admin.can).toEqual(['c']);
     });
 
     it('should work with custom columns', async () => {
@@ -83,7 +270,7 @@ import Module from 'module';
       });
       await adapter.addRole('user', { can: ['a'] });
       const roles = await adapter.getRoles();
-      expect(roles.user.can).to.deep.equal(['a']);
+      expect(roles.user.can).toEqual(['a']);
     });
 
     it('should update roles with custom columns', async () => {
@@ -94,16 +281,16 @@ import Module from 'module';
       });
       await adapter.updateRoles({ user: { can: ['c'] } });
       const roles = await adapter.getRoles();
-      expect(roles.user.can).to.deep.equal(['c']);
+      expect(roles.user.can).toEqual(['c']);
     });
 
     it('should respect the table option', async () => {
       const { MySQLRoleAdapter } = require('../src/adapters/mysql');
       const adapter = new MySQLRoleAdapter({ table: 'custom_roles' });
       await adapter.addRole('user', { can: ['a'] });
-      expect(lastMySQLConnection.tables).to.have.property('custom_roles');
+      expect(lastMySQLConnection?.tables).toHaveProperty('custom_roles');
       const roles = await adapter.getRoles();
-      expect(roles.user.can).to.deep.equal(['a']);
+      expect(roles.user.can).toEqual(['a']);
     });
   });
 
@@ -113,12 +300,12 @@ import Module from 'module';
       const adapter = new PostgresRoleAdapter({ table: 'roles' });
       await adapter.addRole('user', { can: ['a'] });
       let roles = await adapter.getRoles();
-      expect(roles.user.can).to.deep.equal(['a']);
+      expect(roles.user.can).toEqual(['a']);
 
       await adapter.updateRoles({ user: { can: ['b'] }, admin: { can: ['c'] } });
       roles = await adapter.getRoles();
-      expect(roles.user.can).to.deep.equal(['b']);
-      expect(roles.admin.can).to.deep.equal(['c']);
+      expect(roles.user.can).toEqual(['b']);
+      expect(roles.admin.can).toEqual(['c']);
     });
 
     it('should work with custom columns', async () => {
@@ -129,7 +316,7 @@ import Module from 'module';
       });
       await adapter.addRole('user', { can: ['a'] });
       const roles = await adapter.getRoles();
-      expect(roles.user.can).to.deep.equal(['a']);
+      expect(roles.user.can).toEqual(['a']);
     });
 
     it('should update roles with custom columns', async () => {
@@ -140,16 +327,16 @@ import Module from 'module';
       });
       await adapter.updateRoles({ user: { can: ['c'] } });
       const roles = await adapter.getRoles();
-      expect(roles.user.can).to.deep.equal(['c']);
+      expect(roles.user.can).toEqual(['c']);
     });
 
     it('should respect the table option', async () => {
       const { PostgresRoleAdapter } = require('../src/adapters/postgres');
       const adapter = new PostgresRoleAdapter({ table: 'custom_roles' });
       await adapter.addRole('user', { can: ['a'] });
-      expect(lastPGClient.tables).to.have.property('custom_roles');
+      expect(lastPGClient?.tables).toHaveProperty('custom_roles');
       const roles = await adapter.getRoles();
-      expect(roles.user.can).to.deep.equal(['a']);
+      expect(roles.user.can).toEqual(['a']);
     });
   });
 
@@ -169,9 +356,9 @@ import Module from 'module';
       const bFind = await rbacB.can('user', 'b');
       const aWrong = await rbacA.can('user', 'b');
 
-      expect(aFind).to.be.true;
-      expect(bFind).to.be.true;
-      expect(aWrong).to.be.false;
-    });
+      expect(aFind).toBe(true);
+      expect(bFind).toBe(true);
+      expect(aWrong).toBe(false);
   });
+});
 });
