@@ -32,3 +32,4 @@ nav:
   - Installation: installation.md
   - Basic Usage: basic-usage.md
   - Comparison: comparison.md
+  - Migrating from v1 to v2: migrating-v1-to-v2.md
