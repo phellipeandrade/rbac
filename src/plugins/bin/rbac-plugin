@@ -1,0 +1,22 @@
+#!/usr/bin/env node
+
+/**
+ * CLI para gerenciar plugins do RBAC
+ * 
+ * Uso:
+ *   rbac-plugin list
+ *   rbac-plugin validate <package>
+ *   rbac-plugin status <package>
+ *   rbac-plugin generate <name>
+ */
+
+import { runCLI } from '../cli';
+
+// Obter argumentos da linha de comando
+const args = process.argv.slice(2);
+
+// Executar CLI
+runCLI(args).catch(error => {
+  console.error('❌ Erro no CLI:', error.message);
+  process.exit(1);
+});
