@@ -1,0 +1,34 @@
+site_name: RBAC
+site_description: Hierarchical, curried RBAC utilities for Node.js and TypeScript
+site_url: https://github.com/phellipeandrade/rbac
+repo_url: https://github.com/phellipeandrade/rbac
+repo_name: phellipeandrade/rbac
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - toc.integrate
+    - content.code.copy
+    - content.tabs.link
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+markdown_extensions:
+  - admonition
+  - codehilite
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+nav:
+  - Home: index.md
+  - Get Started: get-started.md
+  - LE Introduction: le-introduction.md
+  - Installation: installation.md
+  - Basic Usage: basic-usage.md
+  - Comparison: comparison.md
