@@ -4,6 +4,9 @@
   "description": "Blazing Fast, Zero dependency, Hierarchical Role-Based Access Control for Node.js",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "bin": {
+    "rbac-plugin": "./lib/plugins/bin/rbac-plugin"
+  },
   "scripts": {
     "build": "tsc && vite build",
     "dev": "tsc -w",

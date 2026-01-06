@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "commonjs",
+    "rootDir": "src",
+    "outDir": "lib",
+    "declaration": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "downlevelIteration": true,
+    "types": ["node"],
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/plugins/plugin-loader.ts",
+    "src/plugins/auto-plugin-loader.ts", 
+    "src/plugins/plugin-validator.ts",
+    "src/plugins/cli.ts",
+    "src/plugins/community-template.ts",
+    "src/plugins/examples/example-community-plugin.ts",
+    "src/plugins/examples/community-plugin-example.ts",
+    "src/plugins/test-community-plugins.ts",
+    "src/plugins/functional-types.ts",
+    "src/plugins/functional-plugin-system.ts",
+    "src/rbac.ts"
+  ]
+}

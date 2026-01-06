@@ -26,6 +26,9 @@
 * Optional database adapters (MongoDB, MySQL, PostgreSQL)
 * Express, NestJS and Fastify middlewares
 * Roles can be updated at runtime
+* **Plugin System**: Extensible architecture with hooks and community plugins
+* **Built-in Plugins**: Cache, Audit, Notification, Validation, and Middleware plugins
+* **TypeScript Support**: Full type safety and IntelliSense support
 
 ## Thanks
 
@@ -176,7 +179,167 @@ const rbacTenantA = await createTenantRBAC(adapter, 'tenant-a');
 await rbacTenantA.can('user', 'products:find'); // true
 ```
 
-Want more? Check out the [examples](examples/) folder.
+### Plugin System
+
+RBAC v2.2.0 introduces a powerful plugin system that allows you to extend and customize the RBAC functionality. The plugin system provides hooks for intercepting and modifying permission checks, role updates, and other RBAC operations.
+
+#### Key Features
+
+- **Extensible Architecture**: Add custom functionality without modifying core RBAC code
+- **Hook System**: Intercept operations at various points in the RBAC lifecycle
+- **Plugin Management**: Install, configure, and manage plugins dynamically
+- **Type Safety**: Full TypeScript support with comprehensive type definitions
+- **Community Plugins**: Share and use community-developed plugins
+
+#### Available Hooks
+
+The plugin system provides several hooks that allow you to intercept and modify RBAC operations:
+
+- `beforePermissionCheck`: Execute logic before permission validation
+- `afterPermissionCheck`: Execute logic after permission validation
+- `beforeRoleUpdate`: Execute logic before role updates
+- `afterRoleUpdate`: Execute logic after role updates
+- `beforeRoleAdd`: Execute logic before adding new roles
+- `afterRoleAdd`: Execute logic after adding new roles
+- `onError`: Handle errors that occur during RBAC operations
+- `onStartup`: Execute logic when the plugin is initialized
+- `onShutdown`: Execute logic when the plugin is uninstalled
+
+#### Built-in Plugins
+
+RBAC comes with several built-in plugins:
+
+- **Cache Plugin**: Optimize permission checks with in-memory caching
+- **Audit Plugin**: Track security activities and compliance events
+- **Notification Plugin**: Send alerts for security events
+- **Validation Plugin**: Validate roles, operations, and parameters
+- **Middleware Plugin**: Express.js middleware for HTTP request handling
+
+#### Basic Usage
+
+```ts
+import RBAC from '@rbac/rbac';
+import { createCachePlugin, createAuditPlugin } from '@rbac/rbac/plugins';
+
+// Create RBAC instance
+const rbac = RBAC({ enableLogger: false })({
+  user: { can: ['products:read'] },
+  admin: { can: ['products:*'], inherits: ['user'] }
+});
+
+// Install plugins
+await rbac.plugins.install(createCachePlugin({
+  enabled: true,
+  priority: 50,
+  settings: {
+    ttl: 300, // 5 minutes
+    maxSize: 1000,
+    strategy: 'lru'
+  }
+}));
+
+await rbac.plugins.install(createAuditPlugin({
+  enabled: true,
+  priority: 30,
+  settings: {
+    logLevel: 'info',
+    enableConsoleLogging: true
+  }
+}));
+
+// Use RBAC normally - plugins work automatically
+const canRead = await rbac.can('user', 'products:read');
+```
+
+#### Creating Custom Plugins
+
+You can create custom plugins by implementing the `RBACPlugin` interface:
+
+```ts
+import { RBACPlugin, PluginContext, PluginConfig } from '@rbac/rbac/plugins';
+
+export class MyCustomPlugin implements RBACPlugin {
+  metadata = {
+    name: 'my-custom-plugin',
+    version: '1.0.0',
+    description: 'My custom RBAC plugin',
+    author: 'Your Name',
+    license: 'MIT'
+  };
+
+  async install(context: PluginContext): Promise<void> {
+    // Plugin initialization logic
+    context.logger('My custom plugin installed', 'info');
+  }
+
+  async uninstall(): Promise<void> {
+    // Plugin cleanup logic
+  }
+
+  getHooks() {
+    return {
+      beforePermissionCheck: this.beforePermissionCheck.bind(this),
+      afterPermissionCheck: this.afterPermissionCheck.bind(this)
+    };
+  }
+
+  private async beforePermissionCheck(data: any, context: PluginContext): Promise<any> {
+    // Custom logic before permission check
+    context.logger(`Checking permission: ${data.role} -> ${data.operation}`, 'info');
+    return data;
+  }
+
+  private async afterPermissionCheck(data: any, context: PluginContext): Promise<any> {
+    // Custom logic after permission check
+    context.logger(`Permission result: ${data.result}`, 'info');
+    return data;
+  }
+}
+```
+
+#### Plugin Management
+
+```ts
+// List installed plugins
+const plugins = rbac.plugins.getPlugins();
+console.log('Installed plugins:', plugins);
+
+// Get specific plugin
+const plugin = rbac.plugins.getPlugin('cache-plugin');
+console.log('Cache plugin:', plugin);
+
+// Update plugin configuration
+await rbac.plugins.updatePluginConfig('cache-plugin', {
+  enabled: true,
+  priority: 80,
+  settings: { ttl: 600 }
+});
+
+// Uninstall plugin
+await rbac.plugins.uninstall('cache-plugin');
+```
+
+#### Community Plugins
+
+The plugin system supports community-developed plugins. You can:
+
+- Discover available plugins
+- Install plugins from npm packages
+- Validate plugin security and compatibility
+- Share your own plugins with the community
+
+```ts
+import { createRBACWithAutoPlugins } from '@rbac/rbac/plugins';
+
+// Auto-load community plugins
+const rbacWithPlugins = await createRBACWithAutoPlugins(rbac, {
+  autoLoadCommunityPlugins: true,
+  validatePlugins: true,
+  strictMode: false
+});
+```
+
+Want more? Check out the [examples](examples/) folder and the [plugin documentation](src/plugins/README.md).
 
 ### Middlewares
 
@@ -206,6 +369,24 @@ respectively with a similar API.
 - [X] Async `when` callbacks
 - [X] Database adapters (MongoDB, MySQL, PostgreSQL)
 - [X] Middlewares for Express, NestJS and Fastify
+- [X] Plugin system with hooks
+- [X] Built-in plugins (Cache, Audit, Notification, Validation, Middleware)
+- [X] Community plugin support
+- [X] TypeScript support
+
+## v2.2.0
+
+- **Complete Internationalization**: All code, comments, and documentation translated to English
+- **Enhanced Plugin System**: Improved plugin management and error handling
+- **Better TypeScript Support**: Enhanced type definitions and IntelliSense
+- **Improved Documentation**: Comprehensive README with plugin system documentation
+
+## v2.1.0
+
+- **Plugin System**: Extensible architecture with hooks and community plugins
+- **Built-in Plugins**: Cache, Audit, Notification, Validation, and Middleware plugins
+- **Community Plugin Support**: Share and use community-developed plugins
+- **Enhanced TypeScript Support**: Full type safety and IntelliSense support
 
 ## v2.0.0
 
@@ -251,7 +432,13 @@ The baseline run shows @rbac/rbac leading all categories; the large dataset conf
 3. Running the tests
   * Run `yarn test` 
 
-4. Scripts
+4. Plugin Development
+  * Check out the [plugin documentation](src/plugins/README.md) for detailed information
+  * Use the [community plugin template](src/plugins/community-template.ts) as a starting point
+  * Follow the [plugin development guidelines](src/plugins/COMMUNITY_PLUGINS.md)
+  * Test your plugins using the provided examples and test suites
+
+5. Scripts
 * `npm run build` - produces production version of your library under the `lib` folder and generates `lib/@rbac/rbac.min.js` via Vite
 * `npm run dev` - produces development version of your library and runs a watcher
 * `npm test` - well ... it runs the tests :)
