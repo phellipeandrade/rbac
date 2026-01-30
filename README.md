@@ -87,8 +87,9 @@ You can use it in many ways, below is one of them:
 
 | Property     	| Type          	| Params                                                      	| Default       	| Description                             	|
 |--------------	|---------------	|-------------------------------------------------------------	|---------------	|-----------------------------------------	|
-| logger       	| **Function**  	| role: **String**<br/>operation: **String**<br/>result: **Boolean** 	| defaultLogger 	| Function that logs operations to console 	|
+| logger       	| **Function**  	| role: **String**<br/>operation: **String**<br/>result: **Boolean**<br/>colorsEnabled: **Boolean** (optional) 	| defaultLogger 	| Function that logs operations to console 	|
 | enableLogger 	| **Boolean**   	|                                                             	| true          	| Enable or disable logger                	|
+| colors       	| **Boolean**   	|                                                             	| auto-detect   	| Enable, disable, or auto-detect color support in logger output 	|
 
 #### Creating some roles
 ![step 02](./img/002.png)
@@ -153,6 +154,40 @@ base.updateRoles({
 })
 await base.can('user', 'products:create') // true
 ```
+
+### Color Configuration
+
+The default logger automatically detects color support in your terminal and applies ANSI color codes accordingly. You can also manually control color output:
+
+```ts
+import RBAC from '@rbac/rbac'
+
+// Auto-detect color support (default behavior)
+const rbacAuto = RBAC({ enableLogger: true })({
+  user: { can: ['products:find'] }
+})
+
+// Force colors enabled
+const rbacWithColors = RBAC({ enableLogger: true, colors: true })({
+  user: { can: ['products:find'] }
+})
+
+// Force colors disabled (plain text output)
+const rbacNoColors = RBAC({ enableLogger: true, colors: false })({
+  user: { can: ['products:find'] }
+})
+```
+
+**Color Detection Logic:**
+1. If `colors: true` is set, colors are always enabled
+2. If `colors: false` is set, colors are always disabled
+3. If `colors` is not specified (default), the logger automatically detects:
+   - `FORCE_COLOR` environment variable (enables colors)
+   - `NO_COLOR` environment variable (disables colors)
+   - TTY detection (`process.stdout.isTTY`)
+   - CI environment detection (GitHub Actions, GitLab CI, CircleCI)
+
+This ensures readable logs across all environments including CI systems, Windows terminals, and redirected output.
 
 ### Database adapters
 

@@ -7,7 +7,8 @@ import {
   regexFromOperation,
   globToRegex,
   hasMatchingOperation,
-  buildPermissionData
+  buildPermissionData,
+  colorize
 } from '../src/helpers';
 import type { When, WhenCallback, PatternPermission } from '../src/types';
 
@@ -29,6 +30,28 @@ describe('helpers', () => {
       expect(isGlob(null)).toBe(false);
       expect(isGlob(undefined)).toBe(false);
       expect(isGlob({})).toBe(false);
+    });
+  });
+
+  describe('colorize', () => {
+    it('should return text with ANSI codes when enabled', () => {
+      const result = colorize('test', '1;32', true);
+      expect(result).toBe('\x1b[1;32mtest\x1b[0m');
+    });
+
+    it('should return plain text when disabled', () => {
+      const result = colorize('test', '1;32', false);
+      expect(result).toBe('test');
+    });
+
+    it('should handle different color codes', () => {
+      const result = colorize('hello', '1;31', true);
+      expect(result).toBe('\x1b[1;31mhello\x1b[0m');
+    });
+
+    it('should handle empty text', () => {
+      const result = colorize('', '1;33', true);
+      expect(result).toBe('\x1b[1;33m\x1b[0m');
     });
   });
 
@@ -68,6 +91,29 @@ describe('helpers', () => {
 
     it('should handle RegExp operations', () => {
       defaultLogger('admin', /user:\d+/, true);
+      expect(consoleSpy).toHaveBeenCalledTimes(3);
+    });
+
+    it('should respect manual color disable', () => {
+      defaultLogger('admin', 'read', true, false);
+      expect(consoleSpy).toHaveBeenCalledTimes(3);
+      // Check that output doesn't contain ANSI codes
+      const calls = consoleSpy.mock.calls;
+      const allOutput = calls.map((call: any[]) => call.join('')).join('');
+      expect(allOutput).not.toContain('\x1b[');
+    });
+
+    it('should respect manual color enable', () => {
+      defaultLogger('admin', 'read', true, true);
+      expect(consoleSpy).toHaveBeenCalledTimes(3);
+      // Check that output contains ANSI codes
+      const calls = consoleSpy.mock.calls;
+      const allOutput = calls.map((call: any[]) => call.join('')).join('');
+      expect(allOutput).toContain('\x1b[');
+    });
+
+    it('should maintain backward compatibility when color param is omitted', () => {
+      defaultLogger('user', 'write', false);
       expect(consoleSpy).toHaveBeenCalledTimes(3);
     });
   });

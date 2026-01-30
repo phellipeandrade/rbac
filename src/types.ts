@@ -1,6 +1,7 @@
 export interface RBACConfig {
-  logger?: (role: string, operation: string | RegExp, result: boolean) => void;
+  logger?: (role: string, operation: string | RegExp, result: boolean, colorsEnabled?: boolean) => void;
   enableLogger?: boolean;
+  colors?: boolean;
 }
 
 export type WhenCallback<P = unknown> = (

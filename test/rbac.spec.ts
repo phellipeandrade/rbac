@@ -1,4 +1,4 @@
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
 import rbac from '../src/index';
 import type { Roles } from '../src/types';
 
@@ -547,6 +547,35 @@ describe('RBAC', () => {
       expect(await RBAC.can('complex', 'regex:123')).toBe(true);
       expect(await RBAC.can('complex', 'callback:permission')).toBe(true);
       expect(await RBAC.can('complex', 'products:find')).toBe(true); // inherited
+    });
+  });
+
+  describe('color configuration', () => {
+    it('should accept colors option in config', () => {
+      const customLogger = jest.fn();
+      const instance = rbac<boolean>({ logger: customLogger, enableLogger: true, colors: false })(defaultRoles);
+      expect(typeof instance.can).toBe('function');
+    });
+
+    it('should pass colors option to logger when colors is false', async () => {
+      const customLogger = jest.fn();
+      const instance = rbac<boolean>({ logger: customLogger, enableLogger: true, colors: false })(defaultRoles);
+      await instance.can('user', 'products:find');
+      expect(customLogger).toHaveBeenCalledWith('user', 'products:find', true, false);
+    });
+
+    it('should pass colors option to logger when colors is true', async () => {
+      const customLogger = jest.fn();
+      const instance = rbac<boolean>({ logger: customLogger, enableLogger: true, colors: true })(defaultRoles);
+      await instance.can('user', 'products:find');
+      expect(customLogger).toHaveBeenCalledWith('user', 'products:find', true, true);
+    });
+
+    it('should pass undefined to logger when colors is not specified', async () => {
+      const customLogger = jest.fn();
+      const instance = rbac<boolean>({ logger: customLogger, enableLogger: true })(defaultRoles);
+      await instance.can('user', 'products:find');
+      expect(customLogger).toHaveBeenCalledWith('user', 'products:find', true, undefined);
     });
   });
 });

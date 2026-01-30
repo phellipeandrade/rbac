@@ -47,7 +47,7 @@ const can =
 
     const log = config.enableLogger
       ? (roleName: string, operation: string | RegExp, result: boolean, enabled: boolean): boolean => {
-          if (enabled) logger(roleName, operation, result);
+          if (enabled) logger(roleName, operation, result, config.colors);
           return result;
         }
       : (_r: string, _o: string | RegExp, result: boolean): boolean => result;
