@@ -231,6 +231,21 @@ app.get('/products', canFindProducts, handler);
 For NestJS and Fastify you can use `createNestMiddleware` and `createFastifyMiddleware`
 respectively with a similar API.
 
+### Custom Logger
+
+You can provide a custom logger function to integrate with your logging infrastructure:
+
+```ts
+const customLogger = (role: string, operation: string | RegExp, result: boolean) => {
+  // Send to your logging service
+  logger.info({ role, operation, result, timestamp: Date.now() });
+};
+
+const rbac = RBAC({ logger: customLogger })(roles);
+```
+
+The logger receives `role`, `operation`, `result`, and an optional `colorsEnabled` parameter. Disable logging with `enableLogger: false`.
+
 ### Logger Color Configuration
 
 The default logger automatically detects color support and applies ANSI color codes when appropriate. You can manually control this behavior via the `colors` configuration option:
