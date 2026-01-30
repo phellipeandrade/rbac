@@ -1,0 +1,12 @@
+{
+  "name": "rbac-cjs-test",
+  "version": "1.0.0",
+  "description": "Test CommonJS import without .default accessor",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js && node test-backward-compat.js && node test-named-exports.js"
+  },
+  "dependencies": {
+    "@rbac/rbac": "file:../../"
+  }
+}

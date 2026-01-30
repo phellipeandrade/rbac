@@ -43,6 +43,38 @@
 This library is written in TypeScript and the published package ships with
 its declaration files for a great developer experience.
 
+#### Import
+
+The package supports both ES modules and CommonJS.
+
+**ES Modules (recommended)**
+
+```ts
+// Default import
+import RBAC from '@rbac/rbac';
+
+// Named imports
+import { createTenantRBAC, MongoRoleAdapter } from '@rbac/rbac';
+
+// Combined
+import RBAC, { createTenantRBAC } from '@rbac/rbac';
+```
+
+**CommonJS**
+
+```js
+// Default import
+const RBAC = require('@rbac/rbac');
+
+// Named imports
+const { createTenantRBAC, MongoRoleAdapter } = require('@rbac/rbac');
+
+// Combined
+const RBAC = require('@rbac/rbac');
+const { createTenantRBAC } = require('@rbac/rbac');
+```
+
+#### Usage
 
 RBAC is a curried function thats initially takes an object with configurations, 
 then returns another function that takes an object with roles, 

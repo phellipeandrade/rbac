@@ -1,7 +1,7 @@
 const assert = require('assert');
 const rbac = require('@rbac/rbac').default;
 
-// Definindo as roles padrão
+// Defining default roles
 const defaultRoles = {
   user: {
     can: ['products:find']
@@ -11,57 +11,57 @@ const defaultRoles = {
   }
 };
 
-// Testando a importação do pacote
-console.log('Testando importação do pacote...');
-assert(typeof rbac === 'function', 'O pacote deve exportar uma função');
+// Testing package import
+console.log('Testing package import...');
+assert(typeof rbac === 'function', 'The package must export a function');
 
-// Testando configuração básica
-console.log('Testando configuração básica...');
+// Testing basic configuration
+console.log('Testing basic configuration...');
 const RBACInstance = rbac({ enableLogger: false })(defaultRoles);
-assert(typeof RBACInstance === 'object', 'A configuração deve retornar um objeto');
-assert(typeof RBACInstance.can === 'function', 'O objeto deve ter o método can');
+assert(typeof RBACInstance === 'object', 'The configuration must return an object');
+assert(typeof RBACInstance.can === 'function', 'The object must have a can method');
 
-// Testando permissões básicas
-console.log('Testando permissões básicas...');
+// Testing basic permissions
+console.log('Testing basic permissions...');
 
-// Testando permissões do usuário
+// Testing user permissions
 async function testUserPermissions() {
   const userCanFind = await RBACInstance.can('user', 'products:find');
-  assert(userCanFind, 'Usuário deve ter permissão para encontrar produtos');
+  assert(userCanFind, 'User should have permission to find products');
 
   const userCannotEdit = await RBACInstance.can('user', 'products:edit');
-  assert(!userCannotEdit, 'Usuário não deve ter permissão para editar produtos');
+  assert(!userCannotEdit, 'User should not have permission to edit products');
 }
 
-// Testando permissões do admin
+// Testing admin permissions
 async function testAdminPermissions() {
   const adminCanFind = await RBACInstance.can('admin', 'products:find');
-  assert(adminCanFind, 'Admin deve ter permissão para encontrar produtos');
+  assert(adminCanFind, 'Admin should have permission to find products');
 
   const adminCanEdit = await RBACInstance.can('admin', 'products:edit');
-  assert(adminCanEdit, 'Admin deve ter permissão para editar produtos');
+  assert(adminCanEdit, 'Admin should have permission to edit products');
 
   const adminCanDelete = await RBACInstance.can('admin', 'products:delete');
-  assert(adminCanDelete, 'Admin deve ter permissão para deletar produtos');
+  assert(adminCanDelete, 'Admin should have permission to delete products');
 }
 
-// Executando os testes
+// Running the tests
 (async () => {
   try {
     await testUserPermissions();
     await testAdminPermissions();
-    console.log('✅ Todos os testes passaram com sucesso!');
+    console.log('✅ All tests passed successfully!');
   } catch (error) {
-    console.error('❌ Teste falhou:', error);
+    console.error('❌ Test failed:', error);
     process.exit(1);
   }
 })();
 
-console.log('✅ Todos os testes passaram com sucesso!');
+console.log('✅ All tests passed successfully!');
 
-// Função para simular uma condição assíncrona
+// Function to simulate an asynchronous condition
 async function testAsyncCondition() {
-  console.log('Testando condição assíncrona...');
+  console.log('Testing asynchronous condition...');
   
   const rolesWithAsync = {
     user: {
@@ -80,38 +80,38 @@ async function testAsyncCondition() {
 
   const RBACAsync = rbac({ enableLogger: false })(rolesWithAsync);
   
-  // Testando condição verdadeira
+  // Testing true condition
   const canEdit = await RBACAsync.can('user', 'products:edit', { accountId: '123' });
-  assert(canEdit === true, 'Deve ter permissão quando condição é verdadeira');
+  assert(canEdit === true, 'Should have permission when condition is true');
   
-  // Testando condição falsa
+  // Testing false condition
   const cannotEdit = await RBACAsync.can('user', 'products:edit', { accountId: '456' });
-  assert(cannotEdit === false, 'Não deve ter permissão quando condição é falsa');
+  assert(cannotEdit === false, 'Should not have permission when condition is false');
   
-  // Testando permissão básica
+  // Testing basic permission
   const canFind = await RBACAsync.can('user', 'products:find');
-  assert(canFind === true, 'Deve ter permissão básica');
+  assert(canFind === true, 'Should have basic permission');
   
-  // Testando condição falsa com parâmetro undefined
+  // Testing false condition with undefined parameter
   const cannotEditNoParams = await RBACAsync.can('user', 'products:edit', { accountId: undefined });
-  assert(cannotEditNoParams === false, 'Não deve ter permissão sem parâmetros');
+  assert(cannotEditNoParams === false, 'Should not have permission without parameters');
   
-  // Testando condição falsa com parâmetro vazio
+  // Testing false condition with empty parameters
   const cannotEditEmptyParams = await RBACAsync.can('user', 'products:edit', {});
-  assert(cannotEditEmptyParams === false, 'Não deve ter permissão com parâmetros vazios');
+  assert(cannotEditEmptyParams === false, 'Should not have permission with empty parameters');
   
-  console.log('✅ Testes de condição assíncrona passaram com sucesso!');
+  console.log('✅ Asynchronous condition tests passed successfully!');
 }
 
-// Adicionando teste de condição assíncrona
+// Adding asynchronous condition test
 (async () => {
   try {
     await testUserPermissions();
     await testAdminPermissions();
     await testAsyncCondition();
-    console.log('✅ Todos os testes passaram com sucesso!');
+    console.log('✅ All tests passed successfully!');
   } catch (error) {
-    console.error('❌ Teste falhou:', error);
+    console.error('❌ Test failed:', error);
     process.exit(1);
   }
 })();

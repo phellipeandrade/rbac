@@ -1,9 +1,17 @@
 {
   "name": "@rbac/rbac",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Blazing Fast, Zero dependency, Hierarchical Role-Based Access Control for Node.js",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.mjs",
+      "require": "./lib/index.cjs",
+      "default": "./lib/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc && vite build",
     "dev": "tsc -w",

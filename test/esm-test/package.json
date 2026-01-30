@@ -1,0 +1,13 @@
+{
+  "name": "rbac-esm-test",
+  "version": "1.0.0",
+  "description": "Test project to validate RBAC ES module imports",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "dependencies": {
+    "@rbac/rbac": "file:../../"
+  }
+}

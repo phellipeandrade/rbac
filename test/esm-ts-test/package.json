@@ -1,0 +1,17 @@
+{
+  "name": "rbac-esm-ts-test",
+  "version": "1.0.0",
+  "description": "TypeScript ES module test project to validate RBAC imports with type checking",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@rbac/rbac": "file:../../"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
