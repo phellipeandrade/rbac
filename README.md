@@ -155,40 +155,6 @@ base.updateRoles({
 await base.can('user', 'products:create') // true
 ```
 
-### Color Configuration
-
-The default logger automatically detects color support in your terminal and applies ANSI color codes accordingly. You can also manually control color output:
-
-```ts
-import RBAC from '@rbac/rbac'
-
-// Auto-detect color support (default behavior)
-const rbacAuto = RBAC({ enableLogger: true })({
-  user: { can: ['products:find'] }
-})
-
-// Force colors enabled
-const rbacWithColors = RBAC({ enableLogger: true, colors: true })({
-  user: { can: ['products:find'] }
-})
-
-// Force colors disabled (plain text output)
-const rbacNoColors = RBAC({ enableLogger: true, colors: false })({
-  user: { can: ['products:find'] }
-})
-```
-
-**Color Detection Logic:**
-1. If `colors: true` is set, colors are always enabled
-2. If `colors: false` is set, colors are always disabled
-3. If `colors` is not specified (default), the logger automatically detects:
-   - `FORCE_COLOR` environment variable (enables colors)
-   - `NO_COLOR` environment variable (disables colors)
-   - TTY detection (`process.stdout.isTTY`)
-   - CI environment detection (GitHub Actions, GitLab CI, CircleCI)
-
-This ensures readable logs across all environments including CI systems, Windows terminals, and redirected output.
-
 ### Database adapters
 
 RBAC exposes optional adapters to load and persist role definitions using
@@ -264,6 +230,21 @@ app.get('/products', canFindProducts, handler);
 
 For NestJS and Fastify you can use `createNestMiddleware` and `createFastifyMiddleware`
 respectively with a similar API.
+
+### Logger Color Configuration
+
+The default logger automatically detects color support and applies ANSI color codes when appropriate. You can manually control this behavior via the `colors` configuration option:
+
+```ts
+// Force colors disabled (plain text output)
+const rbac = RBAC({ enableLogger: true, colors: false })(roles);
+
+// Force colors enabled
+const rbac = RBAC({ enableLogger: true, colors: true })(roles);
+
+// Auto-detect (default) - checks FORCE_COLOR, NO_COLOR, TTY, and CI environment
+const rbac = RBAC({ enableLogger: true })(roles);
+```
 
 ## Roadmap
 
