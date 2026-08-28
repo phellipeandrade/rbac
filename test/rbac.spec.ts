@@ -298,6 +298,31 @@ describe('RBAC', () => {
   });
 
   describe('edge cases', () => {
+    it('should enforce when guards for glob and regex operation queries', async () => {
+      const scopedRBAC = rbac<{ owner: boolean }>({ enableLogger: false })({
+        user: {
+          can: [{ name: 'products:delete', when: ({ owner }: { owner: boolean }) => owner === true }]
+        }
+      });
+
+      expect(
+        await scopedRBAC.can('user', 'products:delete', { owner: false })
+      ).toBe(false);
+      expect(
+        await scopedRBAC.can('user', 'products:*', { owner: false })
+      ).toBe(false);
+      expect(
+        await scopedRBAC.can('user', /products:/, { owner: false })
+      ).toBe(false);
+
+      expect(
+        await scopedRBAC.can('user', 'products:*', { owner: true })
+      ).toBe(true);
+      expect(
+        await scopedRBAC.can('user', /products:/, { owner: true })
+      ).toBe(true);
+    });
+
     it('should handle circular inheritance without crashing', async () => {
       RBAC.addRole('a', { can: ['products:find'], inherits: ['b'] });
       RBAC.addRole('b', { can: [], inherits: ['a'] });

@@ -3,7 +3,6 @@ import {
   regexFromOperation,
   isGlob,
   globToRegex,
-  hasMatchingOperation,
   buildPermissionData
 } from './helpers';
 import type {
@@ -94,6 +93,32 @@ const can =
     ): Promise<boolean> => {
       let whenFn: NormalizedWhenFn<P> | true | undefined;
 
+      const matchesOperationName = (regex: RegExp, name: string): boolean => {
+        regex.lastIndex = 0;
+        return regex.test(name);
+      };
+
+      const evaluateWhen = async (
+        when: NormalizedWhenFn<P> | true | undefined
+      ): Promise<boolean> => {
+        if (when === true) {
+          log(logRole, operation, true, logEnabled);
+          return true;
+        }
+        if (!when) {
+          if (!skipFalseLog) log(logRole, operation, false, logEnabled);
+          return false;
+        }
+        try {
+          const res = await when(params as P);
+          log(logRole, operation, res, logEnabled);
+          return res;
+        } catch {
+          log(logRole, operation, false, logEnabled);
+          return false;
+        }
+      };
+
       if (typeof operation === 'string') {
         if (resolvedRole.direct.has(operation)) {
           return log(logRole, operation, true, logEnabled);
@@ -124,16 +149,51 @@ const can =
         if (cached !== undefined) {
           return log(logRole, operation, cached, logEnabled);
         }
-        return log(
-          logRole,
-          operation,
-          cacheAndReturn(
-            cache,
-            cacheKey,
-            hasMatchingOperation(regex, resolvedRole.allOps)
-          ),
-          logEnabled
-        );
+
+        let sawConditionalMatch = false;
+
+        for (const name of resolvedRole.direct) {
+          if (matchesOperationName(regex, name)) {
+            return log(
+              logRole,
+              operation,
+              cacheAndReturn(cache, cacheKey, true),
+              logEnabled
+            );
+          }
+        }
+
+        for (const [name, conditionalWhen] of resolvedRole.conditional) {
+          if (!matchesOperationName(regex, name)) continue;
+          sawConditionalMatch = true;
+          if (await evaluateWhen(conditionalWhen)) return true;
+        }
+
+        for (const pattern of resolvedRole.patterns) {
+          if (!matchesOperationName(regex, pattern.name)) continue;
+          if (pattern.when === true) {
+            return log(
+              logRole,
+              operation,
+              cacheAndReturn(cache, cacheKey, true),
+              logEnabled
+            );
+          }
+          sawConditionalMatch = true;
+          if (await evaluateWhen(pattern.when)) return true;
+        }
+
+        if (!sawConditionalMatch) {
+          return log(
+            logRole,
+            operation,
+            cacheAndReturn(cache, cacheKey, false),
+            logEnabled
+          );
+        }
+
+        if (!skipFalseLog) log(logRole, operation, false, logEnabled);
+        return false;
       }
 
       if (!whenFn) {
@@ -157,25 +217,6 @@ const can =
       }
 
       return evaluateWhen(whenFn);
-
-      async function evaluateWhen(when: NormalizedWhenFn<P> | true | undefined): Promise<boolean> {
-        if (when === true) {
-          log(logRole, operation, true, logEnabled);
-          return true;
-        }
-        if (!when) {
-          if (!skipFalseLog) log(logRole, operation, false, logEnabled);
-          return false;
-        }
-        try {
-          const res = await when(params as P);
-          log(logRole, operation, res, logEnabled);
-          return res;
-        } catch {
-          log(logRole, operation, false, logEnabled);
-          return false;
-        }
-      }
     };
 
     const check = async (
