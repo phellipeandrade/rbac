@@ -19,7 +19,8 @@
     "test": "cross-env NODE_ENV=test jest --coverage",
     "test:watch": "cross-env NODE_ENV=test jest --watch",
     "test:npm": "cd test/npm-test && npm install && npm test",
-    "bench": "node ./benchmarks/perf.js"
+    "bench": "node ./benchmarks/perf.js",
+    "bench:micro": "node ./benchmarks/micro.js"
   },
   "repository": {
     "type": "git",

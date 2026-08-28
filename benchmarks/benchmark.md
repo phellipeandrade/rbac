@@ -53,6 +53,26 @@ Easy RBAC - large direct           3,867,626 ops/sec ±0.63%
 Fast RBAC - large direct           2,542,370 ops/sec ±3.36%
 ```
 
+## Large-dataset methodology note
+
+The large suite currently creates the `@rbac/rbac` and Easy RBAC operation
+string inside each timed callback (for example,
+`${largeDataset.resources[0]}:read`). Fast RBAC receives the pre-existing
+resource string and a literal action as separate arguments. This means the
+reported `@rbac/rbac` large direct/inherited/glob figures include allocating a
+new concatenated string and computing its hash for `Set.has`; the standard
+suite does not.
+
+`npm run bench:micro` makes the distinction reproducible with 200 exact
+permissions. On the profiling run recorded on 2026-08-28, the exact RBAC path
+was 12.49M ops/s with a stable operation string and 3.19M ops/s when the
+operation was interpolated in the loop. Bare `Set.has` measured 12.24M and
+3.23M ops/s respectively. Consequently the measured slowdown is attributable
+to caller-side string construction/hash work, not a permission-count-dependent
+authorization scan. The suite is left unchanged so historical competitor
+results remain comparable; use pre-built operation strings when measuring
+authorization lookup alone.
+
 ## Why `@rbac/rbac` stays ahead
 
 1. **Precompiled permission maps** – roles are flattened once and cached; lookups for direct, inherited and glob permissions remain O(1) regardless of tree depth or resource count.
@@ -61,5 +81,3 @@ Fast RBAC - large direct           2,542,370 ops/sec ±3.36%
 4. **Feature completeness without trade-offs** – wildcard support, inheritance, async guards and runtime updates are all enabled simultaneously with no need for separate “simple mode”.
 
 In practice this means you can use expressive glob patterns, deep inheritance chains and asynchronous guards while still outperforming other RBAC libraries by a wide margin.
-
-
