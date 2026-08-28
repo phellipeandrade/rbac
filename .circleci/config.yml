@@ -87,6 +87,11 @@ jobs:
           name: Build Project
           command: yarn build
 
+      # Test the package artifact that would be published to npm
+      - run:
+          name: Pack Built Package
+          command: npm pack --pack-destination test/npm-test
+
       # Install database adapters in main project
       - run:
           name: Install Database Adapters
@@ -105,7 +110,10 @@ jobs:
       # Run npm test
       - run:
           name: Test npm Package
-          command: yarn test:npm
+          command: |
+            cd test/npm-test
+            npm install ./*.tgz --no-save --package-lock=false
+            npm test
 
 workflows:
   test-workflow:
