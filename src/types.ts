@@ -36,6 +36,12 @@ export interface MappedRole<P = unknown> {
   direct: Set<string>;
   conditional: Map<string, NormalizedWhenFn<P>>;
   patterns: PatternPermission<P>[];
+  /**
+   * `resource:*` patterns indexed by their literal `resource:` prefix.  This
+   * is deliberately an additive index: `patterns` remains the source of
+   * truth for regex/glob queries and complex glob syntax.
+   */
+  simpleGlobs: Map<string, PatternPermission<P>[]>;
   inherits?: string[];
   allOps: string[];
 }

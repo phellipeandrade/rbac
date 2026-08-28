@@ -210,6 +210,29 @@ const can =
       if (!whenFn) {
         const operationString =
           typeof operation === 'string' ? operation : String(operation);
+        // The overwhelmingly common wildcard form is `resource:*`.  It is
+        // resolved by an exact Map lookup instead of scanning every pattern.
+        // Keep conditional exact permissions authoritative, matching the
+        // existing control flow below.
+        const separator = operationString.lastIndexOf(':');
+        if (separator !== -1) {
+          const prefix = operationString.slice(0, separator + 1);
+          const simplePatterns = resolvedRole.simpleGlobs.get(prefix);
+          if (
+            simplePatterns &&
+            operationString.length > prefix.length &&
+            operationString.indexOf('/', prefix.length) === -1
+          ) {
+            for (let i = 0; i < simplePatterns.length; i += 1) {
+              const pattern = simplePatterns[i];
+              if (pattern.when === true) {
+                return log(logRole, operation, true, logEnabled);
+              }
+              if (await evaluateWhen(pattern.when, false)) return true;
+            }
+          }
+        }
+
         const patternCache = getPatternCache(logRole);
         let cachedWhen = patternCache.get(operationString);
         if (cachedWhen === undefined) {
@@ -266,12 +289,67 @@ const can =
       if (!resolvedRole) {
         return log(role, operation, false, logEnabled);
       }
+      // Exact grants are fully resolved during construction (including
+      // inheritance).  Keeping this outside checkDirect avoids entering its
+      // async state machine for the hot O(1) path.
+      if (typeof operation === 'string' && resolvedRole.direct.has(operation)) {
+        return log(role, operation, true, logEnabled);
+      }
+      // This is the wildcard counterpart of the exact fast path.  A literal
+      // `resource:*` grant has no runtime-dependent work, so do not enter the
+      // generic pattern matcher just to execute its already-known result.
+      if (
+        typeof operation === 'string' &&
+        !resolvedRole.conditional.has(operation)
+      ) {
+        const separator = operation.lastIndexOf(':');
+        if (
+          separator !== -1 &&
+          separator + 1 < operation.length &&
+          operation.indexOf('/', separator + 1) === -1
+        ) {
+          const simplePatterns = resolvedRole.simpleGlobs.get(
+            operation.slice(0, separator + 1)
+          );
+          if (simplePatterns) {
+            for (let i = 0; i < simplePatterns.length; i += 1) {
+              if (simplePatterns[i].when === true) {
+                return log(role, operation, true, logEnabled);
+              }
+            }
+          }
+        }
+      }
       return checkDirect(role, resolvedRole, operation, params, logEnabled);
     };
 
     return (role: string, operation: string | RegExp, params?: P) =>
       check(role, operation, params);
   };
+
+const indexSimpleGlobs = <P>(
+  patterns: PatternPermission<P>[]
+): Map<string, PatternPermission<P>[]> => {
+  const index = new Map<string, PatternPermission<P>[]>();
+  for (let i = 0; i < patterns.length; i += 1) {
+    const pattern = patterns[i];
+    const name = pattern.name;
+    // A single final star after a colon is equivalent to a direct lookup by
+    // resource prefix.  Other glob forms keep their regular-expression
+    // semantics in the generic fallback.
+    if (
+      name.endsWith('*') &&
+      name.indexOf('*') === name.length - 1 &&
+      name.charCodeAt(name.length - 2) === 58
+    ) {
+      const prefix = name.slice(0, -1);
+      const existing = index.get(prefix);
+      if (existing) existing.push(pattern);
+      else index.set(prefix, [pattern]);
+    }
+  }
+  return index;
+};
 
 const flattenRoles = <P>(roles: Roles<P>): MappedRoles<P> => {
   const memo: MappedRoles<P> = {};
@@ -282,6 +360,7 @@ const flattenRoles = <P>(roles: Roles<P>): MappedRoles<P> => {
         direct: new Set(),
         conditional: new Map(),
         patterns: [],
+        simpleGlobs: new Map(),
         allOps: []
       } as MappedRole<P>;
     stack.add(name);
@@ -322,6 +401,7 @@ const flattenRoles = <P>(roles: Roles<P>): MappedRoles<P> => {
       direct,
       conditional,
       patterns: unique,
+      simpleGlobs: indexSimpleGlobs(unique),
       inherits,
       allOps: Array.from(new Set([...direct, ...conditional.keys(), ...unique.map(p => p.name)]))
     };
