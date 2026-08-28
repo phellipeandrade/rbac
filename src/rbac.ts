@@ -18,6 +18,8 @@ import type {
 
 export type { RBACConfig, Role, Roles } from './types';
 
+type PatternMatchCacheValue<P> = NormalizedWhenFn<P>[] | true | null;
+
 const cacheAndReturn = (
   cache: Map<string, boolean>,
   key: string,
@@ -37,7 +39,7 @@ const can =
 
     const patternMatchCache = new Map<
       string,
-      Map<string, NormalizedWhenFn<P> | true | null>
+      Map<string, PatternMatchCacheValue<P>>
     >();
     const operationHintCache = new Map<
       string,
@@ -62,10 +64,10 @@ const can =
 
     const getPatternCache = (
       roleName: string
-    ): Map<string, NormalizedWhenFn<P> | true | null> => {
+    ): Map<string, PatternMatchCacheValue<P>> => {
       let cached = patternMatchCache.get(roleName);
       if (!cached) {
-        cached = new Map<string, NormalizedWhenFn<P> | true | null>();
+        cached = new Map<string, PatternMatchCacheValue<P>>();
         patternMatchCache.set(roleName, cached);
       }
       return cached;
@@ -99,22 +101,31 @@ const can =
       };
 
       const evaluateWhen = async (
-        when: NormalizedWhenFn<P> | true | undefined
+        when: NormalizedWhenFn<P> | true | undefined,
+        shouldLogFalse = true
       ): Promise<boolean> => {
         if (when === true) {
           log(logRole, operation, true, logEnabled);
           return true;
         }
         if (!when) {
-          if (!skipFalseLog) log(logRole, operation, false, logEnabled);
+          if (shouldLogFalse && !skipFalseLog) {
+            log(logRole, operation, false, logEnabled);
+          }
           return false;
         }
         try {
           const res = await when(params as P);
-          log(logRole, operation, res, logEnabled);
+          if (res) {
+            log(logRole, operation, true, logEnabled);
+          } else if (shouldLogFalse && !skipFalseLog) {
+            log(logRole, operation, false, logEnabled);
+          }
           return res;
         } catch {
-          log(logRole, operation, false, logEnabled);
+          if (shouldLogFalse && !skipFalseLog) {
+            log(logRole, operation, false, logEnabled);
+          }
           return false;
         }
       };
@@ -202,13 +213,39 @@ const can =
         const patternCache = getPatternCache(logRole);
         let cachedWhen = patternCache.get(operationString);
         if (cachedWhen === undefined) {
-          const matchPattern = resolvedRole.patterns.find(p =>
-            p.regex.test(operationString)
-          );
-          cachedWhen = matchPattern ? matchPattern.when : null;
+          const matches: NormalizedWhenFn<P>[] = [];
+          cachedWhen = null;
+
+          for (const pattern of resolvedRole.patterns) {
+            pattern.regex.lastIndex = 0;
+            if (!pattern.regex.test(operationString)) continue;
+
+            if (pattern.when === true) {
+              cachedWhen = true;
+              break;
+            }
+
+            matches.push(pattern.when);
+          }
+
+          if (cachedWhen !== true && matches.length > 0) {
+            cachedWhen = matches;
+          }
+
           patternCache.set(operationString, cachedWhen);
         }
-        if (cachedWhen) whenFn = cachedWhen;
+
+        if (cachedWhen === true) {
+          return log(logRole, operation, true, logEnabled);
+        }
+
+        if (cachedWhen && cachedWhen.length > 0) {
+          for (const candidateWhen of cachedWhen) {
+            if (await evaluateWhen(candidateWhen, false)) return true;
+          }
+          if (!skipFalseLog) log(logRole, operation, false, logEnabled);
+          return false;
+        }
       }
 
       if (!whenFn) {
@@ -305,23 +342,26 @@ const RBAC =
     let mappedRoles = flattenRoles(allRoles);
     const matchCache = new Map<string, Map<string, boolean>>();
     const checker = can<P>(config);
+    let checkPermission = checker(mappedRoles, matchCache);
 
     const canFn = (
       role: string,
       operation: string | RegExp,
       params?: P
-    ) => checker(mappedRoles, matchCache)(role, operation, params);
+    ) => checkPermission(role, operation, params);
 
     const updateRoles = (newRoles: Roles<P>): void => {
       allRoles = { ...allRoles, ...newRoles };
       mappedRoles = flattenRoles(allRoles);
       matchCache.clear();
+      checkPermission = checker(mappedRoles, matchCache);
     };
 
     const addRole = (roleName: string, roleDef: Role<P>): void => {
       allRoles = { ...allRoles, [roleName]: roleDef };
       mappedRoles = flattenRoles(allRoles);
       matchCache.clear();
+      checkPermission = checker(mappedRoles, matchCache);
     };
 
     return {

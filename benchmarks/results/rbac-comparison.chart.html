@@ -28,7 +28,7 @@
   </head>
   <body>
     <div class="container">
-      <canvas id="chart1758993377375" width="16" height="9"></canvas>
+      <canvas id="chart1787937487059" width="16" height="9"></canvas>
     </div>
     <script>
       const format = (num) => {
@@ -51,18 +51,18 @@
           chunked.map((chunk) => chunk.join('')).join(' ') + fractionStr
         )
       }
-      const ctx1758993377375 = document
-        .getElementById('chart1758993377375')
+      const ctx1787937487059 = document
+        .getElementById('chart1787937487059')
         .getContext('2d')
-      const chart1758993377375 = new Chart(ctx1758993377375, {
+      const chart1787937487059 = new Chart(ctx1787937487059, {
         type: 'bar',
         data: {
           labels: ["@rbac/rbac - direct permission","@rbac/rbac - inherited permission","@rbac/rbac - glob permission","AccessControl - direct permission","AccessControl - inherited permission","AccessControl - admin permission","Popular RBAC - direct permission","Popular RBAC - inherited permission","Popular RBAC - admin permission","Easy RBAC - direct permission","Easy RBAC - inherited permission","Easy RBAC - glob permission","Fast RBAC - direct permission","Fast RBAC - inherited permission","Fast RBAC - glob permission"],
           datasets: [
             {
-              data: [6573670,6066681,4459437,1018523,745323,572856,239883,241585,234869,5129311,435438,2922226,3052062,2731943,2888216],
-              backgroundColor: ["hsl(120, 85%, 55%)","hsl(110.748, 85%, 55%)","hsl(81.408, 85%, 55%)","hsl(18.587999999999994, 85%, 55%)","hsl(13.608000000000004, 85%, 55%)","hsl(10.451999999999993, 85%, 55%)","hsl(4.380000000000007, 85%, 55%)","hsl(4.416000000000008, 85%, 55%)","hsl(4.283999999999992, 85%, 55%)","hsl(93.636, 85%, 55%)","hsl(7.944000000000006, 85%, 55%)","hsl(53.34, 85%, 55%)","hsl(55.716, 85%, 55%)","hsl(49.872, 85%, 55%)","hsl(52.727999999999994, 85%, 55%)"],
-              borderColor: ["hsl(120, 85%, 55%)","hsl(110.748, 85%, 55%)","hsl(81.408, 85%, 55%)","hsl(18.587999999999994, 85%, 55%)","hsl(13.608000000000004, 85%, 55%)","hsl(10.451999999999993, 85%, 55%)","hsl(4.380000000000007, 85%, 55%)","hsl(4.416000000000008, 85%, 55%)","hsl(4.283999999999992, 85%, 55%)","hsl(93.636, 85%, 55%)","hsl(7.944000000000006, 85%, 55%)","hsl(53.34, 85%, 55%)","hsl(55.716, 85%, 55%)","hsl(49.872, 85%, 55%)","hsl(52.727999999999994, 85%, 55%)"],
+              data: [3798300,3841347,3387220,924795,673490,505774,188150,190566,185137,5357449,320311,2914815,2724425,2461328,2608689],
+              backgroundColor: ["hsl(85.08000000000001, 85%, 55%)","hsl(86.04, 85%, 55%)","hsl(75.864, 85%, 55%)","hsl(20.712000000000007, 85%, 55%)","hsl(15.08399999999999, 85%, 55%)","hsl(11.327999999999998, 85%, 55%)","hsl(4.212000000000006, 85%, 55%)","hsl(4.272000000000002, 85%, 55%)","hsl(4.151999999999992, 85%, 55%)","hsl(120, 85%, 55%)","hsl(7.176000000000005, 85%, 55%)","hsl(65.29199999999999, 85%, 55%)","hsl(61.02000000000001, 85%, 55%)","hsl(55.128, 85%, 55%)","hsl(58.428, 85%, 55%)"],
+              borderColor: ["hsl(85.08000000000001, 85%, 55%)","hsl(86.04, 85%, 55%)","hsl(75.864, 85%, 55%)","hsl(20.712000000000007, 85%, 55%)","hsl(15.08399999999999, 85%, 55%)","hsl(11.327999999999998, 85%, 55%)","hsl(4.212000000000006, 85%, 55%)","hsl(4.272000000000002, 85%, 55%)","hsl(4.151999999999992, 85%, 55%)","hsl(120, 85%, 55%)","hsl(7.176000000000005, 85%, 55%)","hsl(65.29199999999999, 85%, 55%)","hsl(61.02000000000001, 85%, 55%)","hsl(55.128, 85%, 55%)","hsl(58.428, 85%, 55%)"],
               borderWidth: 2,
             },
           ],

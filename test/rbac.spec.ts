@@ -340,6 +340,21 @@ describe('RBAC', () => {
       expect(await instance.can('user', 'reports:*', { allowed: true })).toBe(true);
     });
 
+    it('should keep checking later matching glob permissions when an earlier conditional glob fails', async () => {
+      const instance = rbac<{ allowed: boolean }>({ enableLogger: false })({
+        user: {
+          can: [
+            { name: 'reports:*', when: ({ allowed }: { allowed: boolean }) => allowed },
+            { name: 'reports:d*', when: true }
+          ]
+        }
+      });
+
+      expect(await instance.can('user', 'reports:delete', { allowed: false })).toBe(true);
+      expect(await instance.can('user', 'reports:download', { allowed: false })).toBe(true);
+      expect(await instance.can('user', 'reports:view', { allowed: false })).toBe(false);
+    });
+
     it('should handle circular inheritance without crashing', async () => {
       RBAC.addRole('a', { can: ['products:find'], inherits: ['b'] });
       RBAC.addRole('b', { can: [], inherits: ['a'] });
@@ -569,6 +584,21 @@ describe('RBAC', () => {
       expect(await RBAC.can('user', 'products:find')).toBe(true);
       expect(await RBAC.can('user', 'products:view')).toBe(true);
       expect(await RBAC.can('user', 'products:edit')).toBe(false);
+    });
+
+    it('should invalidate cached glob lookups after updateRoles', async () => {
+      const instance = rbac({ enableLogger: false })({
+        user: { can: ['products:*'] }
+      });
+
+      expect(await instance.can('user', 'products:view')).toBe(true);
+
+      instance.updateRoles({
+        user: { can: ['reports:*'] }
+      });
+
+      expect(await instance.can('user', 'products:view')).toBe(false);
+      expect(await instance.can('user', 'reports:view')).toBe(true);
     });
 
     it('should handle addRole with complex role definition', async () => {
