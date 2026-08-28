@@ -323,6 +323,23 @@ describe('RBAC', () => {
       ).toBe(true);
     });
 
+    it('should evaluate conditional patterns for glob and global regex queries', async () => {
+      const instance = rbac<{ allowed: boolean }>({ enableLogger: false })({
+        user: {
+          can: [
+            { name: 'reports:view', when: (params: { allowed: boolean }) => params.allowed },
+            { name: 'reports:*', when: (params: { allowed: boolean }) => params.allowed }
+          ]
+        }
+      });
+      const globalRegex = /reports:/g;
+
+      expect(await instance.can('user', 'reports:*', { allowed: false })).toBe(false);
+      expect(await instance.can('user', globalRegex, { allowed: false })).toBe(false);
+      expect(await instance.can('user', globalRegex, { allowed: true })).toBe(true);
+      expect(await instance.can('user', 'reports:*', { allowed: true })).toBe(true);
+    });
+
     it('should handle circular inheritance without crashing', async () => {
       RBAC.addRole('a', { can: ['products:find'], inherits: ['b'] });
       RBAC.addRole('b', { can: [], inherits: ['a'] });

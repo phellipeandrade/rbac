@@ -8,7 +8,8 @@ import {
   globToRegex,
   hasMatchingOperation,
   buildPermissionData,
-  colorize
+  colorize,
+  supportsColor
 } from '../src/helpers';
 import type { When, WhenCallback, PatternPermission } from '../src/types';
 
@@ -52,6 +53,48 @@ describe('helpers', () => {
     it('should handle empty text', () => {
       const result = colorize('', '1;33', true);
       expect(result).toBe('\x1b[1;33m\x1b[0m');
+    });
+  });
+
+  describe('supportsColor', () => {
+    const loadHelpersWithFreshColorCache = (): typeof import('../src/helpers') => {
+      jest.resetModules();
+      return require('../src/helpers');
+    };
+
+    it('honors FORCE_COLOR and caches the result', () => {
+      const originalForceColor = process.env.FORCE_COLOR;
+      process.env.FORCE_COLOR = '1';
+
+      try {
+        const freshHelpers = loadHelpersWithFreshColorCache();
+        expect(freshHelpers.supportsColor()).toBe(true);
+        process.env.FORCE_COLOR = '0';
+        expect(freshHelpers.supportsColor()).toBe(true);
+      } finally {
+        if (originalForceColor === undefined) delete process.env.FORCE_COLOR;
+        else process.env.FORCE_COLOR = originalForceColor;
+      }
+    });
+
+    it('honors NO_COLOR when color is not forced', () => {
+      const originalForceColor = process.env.FORCE_COLOR;
+      const originalNoColor = process.env.NO_COLOR;
+      delete process.env.FORCE_COLOR;
+      process.env.NO_COLOR = '1';
+
+      try {
+        expect(loadHelpersWithFreshColorCache().supportsColor()).toBe(false);
+      } finally {
+        if (originalForceColor === undefined) delete process.env.FORCE_COLOR;
+        else process.env.FORCE_COLOR = originalForceColor;
+        if (originalNoColor === undefined) delete process.env.NO_COLOR;
+        else process.env.NO_COLOR = originalNoColor;
+      }
+    });
+
+    it('returns the cached value from the imported helper module', () => {
+      expect(supportsColor()).toBe(supportsColor());
     });
   });
 

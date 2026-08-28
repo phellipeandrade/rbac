@@ -161,4 +161,73 @@ describe('Middlewares', () => {
     expect(called).toBe(false);
     expect(res.code).toBe(403);
   });
+
+  it('express middleware uses custom role and params extractors', async () => {
+    const conditionalRbac = rbac<{ owner: boolean }>({ enableLogger: false })({
+      user: { can: [{ name: 'products:update', when: (params: { owner: boolean }) => params.owner }] }
+    });
+    const middleware = createExpressMiddleware(conditionalRbac)('products:update', {
+      getRole: req => (req as any).account.role,
+      getParams: req => ({ owner: (req as any).account.owner })
+    });
+    const res = mockRes();
+    const next = jest.fn();
+
+    await middleware({ account: { role: 'user', owner: true } } as never, res as never, next);
+
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
+  it('express middleware delegates denials and errors to configured handlers', async () => {
+    const onDenied = jest.fn();
+    const denied = createExpressMiddleware(RBAC)('products:edit', { onDenied });
+    const res = mockRes();
+    const next = jest.fn();
+    await denied({ role: 'user' } as never, res as never, next);
+    expect(onDenied).toHaveBeenCalledWith(expect.anything(), res, next);
+
+    const error = new Error('role lookup failed');
+    const failing = createExpressMiddleware(RBAC)('products:find', {
+      getRole: () => { throw error; }
+    });
+    await failing({ role: 'user' } as never, mockRes() as never, next);
+    expect(next).toHaveBeenCalledWith(error);
+  });
+
+  it('fastify middleware uses custom extractors and denial handler', async () => {
+    const onDenied = jest.fn();
+    const middleware = createFastifyMiddleware(RBAC)('products:edit', {
+      getRole: req => req.account.role,
+      getParams: req => ({ accountId: req.account.id }),
+      onDenied
+    });
+    const req = { account: { role: 'user', id: '123' } };
+    const reply = mockRes();
+
+    await middleware(req, reply as never);
+
+    expect(onDenied).toHaveBeenCalledWith(req, reply);
+    expect(reply.code).toBeUndefined();
+  });
+
+  it('nest middleware uses custom extractors and delegates errors', async () => {
+    const onDenied = jest.fn();
+    const denied = createNestMiddleware(RBAC)('products:edit', {
+      getRole: req => (req as any).account.role,
+      getParams: req => ({ accountId: (req as any).account.id }),
+      onDenied
+    });
+    const res = mockRes();
+    const next = jest.fn();
+    const req = { account: { role: 'user', id: '123' } };
+    await denied(req as never, res as never, next);
+    expect(onDenied).toHaveBeenCalledWith(req, res, next);
+
+    const error = new Error('role lookup failed');
+    const failing = createNestMiddleware(RBAC)('products:find', {
+      getRole: () => { throw error; }
+    });
+    await failing(req as never, res as never, next);
+    expect(next).toHaveBeenCalledWith(error);
+  });
 });
