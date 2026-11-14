@@ -64,6 +64,13 @@ Benchmark snapshot: small exact 7,282,499 ops/s; 200-resource exact 7,086,106 op
 
 Validation on 2026-11-14: `npm run bench` (both 15-case small and 18-case large suites), `node benchmarks/engine.js --json`, `npm run bench:micro` (stable exact 14,055,829 ops/s, interpolated 3,662,664 ops/s), `npm run lint`, `npm run typecheck`, `npm test -- --coverage=false` (7 suites, 185 tests), `npm run test:package` (six isolated tarballs, CJS/ESM/NodeNext), `npm run examples`, and `npm pack --dry-run --workspaces` passed. Website `npm run typecheck` and `npm run build` passed, including 76 localized current pages and both generated `/docs/benchmarks/` routes. Microbenchmarks vary between runs (the earlier v4 exact measurement was 14,484,315 ops/s). No release or push performed.
 
+## Interactive playground update (2026-11-14)
+
+- [x] Replace the JSON-only playground editor with a constrained JavaScript example parser that reads literal roles and one `await rbac.can()` check, then evaluates it through the playground's RBAC engine without executing arbitrary source.
+- [x] Add the JavaScript editor mode and declare the parser/editor dependencies in the website workspace.
+
+Validation: `website/npm run typecheck` and `website/npm run build` passed. The build checked examples and translations (76 current pages; 89 total pages per locale) and generated English and pt-BR static sites.
+
 ## Blockers and unresolved questions
 
 - `@rbac/core` appears unregistered, but an npm 404 is not proof that this account can publish to the `@rbac` scope. Verify registry rights at publication time; the user confirms ownership of `@rbac`.

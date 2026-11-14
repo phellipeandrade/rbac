@@ -16,7 +16,7 @@
     "clear": "docusaurus clear"
   },
   "dependencies": {
-    "@codemirror/lang-json": "^6.0.1",
+    "@codemirror/lang-javascript": "^6.2.5",
     "@docusaurus/core": "3.10.2",
     "@docusaurus/preset-classic": "3.10.2",
     "@docusaurus/theme-mermaid": "3.10.2",
@@ -24,6 +24,7 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@uiw/react-codemirror": "^4.25.4",
     "@xyflow/react": "^12.9.3",
+    "acorn": "^8.15.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.554.0",
     "motion": "^12.23.24",
