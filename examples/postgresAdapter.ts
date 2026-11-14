@@ -1,4 +1,5 @@
-import rbac, { PostgresRoleAdapter } from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
+import { PostgresRoleAdapter } from '@rbac/adapters';
 
 async function run(): Promise<void> {
   const adapter = new PostgresRoleAdapter({
@@ -11,7 +12,7 @@ async function run(): Promise<void> {
   });
 
   const roles = await adapter.getRoles();
-  const RBAC = rbac()(roles);
+  const RBAC = createRBAC({ roles });
 
   await RBAC.can('user', 'products:find');
 }

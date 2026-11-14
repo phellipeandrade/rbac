@@ -1,14 +1,15 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import rbac, { createNestMiddleware } from '@rbac/rbac';
-import type { Roles } from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
+import { createNestMiddleware } from '@rbac/nestjs';
+import type { Roles } from '@rbac/core';
 import { USER, PRODUCTS_FIND } from './constants';
 
 const roles: Roles = {
   [USER]: { can: [PRODUCTS_FIND] }
 };
 
-const RBAC = rbac()(roles);
+const RBAC = createRBAC({ roles });
 const canFindProducts = createNestMiddleware(RBAC)(PRODUCTS_FIND);
 
 @Module({})

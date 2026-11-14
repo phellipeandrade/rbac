@@ -1,15 +1,13 @@
 /* global describe, it */
 import { describe, expect, it, jest } from '@jest/globals';
-import rbac, {
-  createExpressMiddleware,
-  createNestMiddleware,
-  createNestGuard,
-  createFastifyMiddleware
-} from '../src/index';
+import { createRBAC } from '@rbac/core';
+import { createExpressMiddleware } from '@rbac/express';
+import { createFastifyMiddleware } from '@rbac/fastify';
+import { createNestMiddleware, createNestGuard } from '@rbac/nestjs';
 
-const RBAC = rbac({ enableLogger: false })({
+const RBAC = createRBAC({ ...({ enableLogger: false }), roles: {
   user: { can: ['products:find'] }
-});
+} });
 
 type MockResponse = {
   code?: number;
@@ -105,9 +103,9 @@ describe('Middlewares', () => {
   });
 
   it('nest guard forwards typed conditional parameters', async () => {
-    const conditional = rbac<{ owner: boolean }>({ enableLogger: false })({
+    const conditional = createRBAC<{ owner: boolean }>({ ...({ enableLogger: false }), roles: {
       user: { can: [{ name: 'products:edit', when: (params: { owner: boolean }) => params.owner }] }
-    });
+    } });
     const guard = createNestGuard(conditional)('products:edit', {
       getRole: request => request.role ?? '',
       getParams: request => ({ owner: request.owner === true })
@@ -158,9 +156,9 @@ describe('Middlewares', () => {
   });
 
   it('express middleware uses custom role and params extractors', async () => {
-    const conditionalRbac = rbac<{ owner: boolean }>({ enableLogger: false })({
+    const conditionalRbac = createRBAC<{ owner: boolean }>({ ...({ enableLogger: false }), roles: {
       user: { can: [{ name: 'products:update', when: (params: { owner: boolean }) => params.owner }] }
-    });
+    } });
     const middleware = createExpressMiddleware(conditionalRbac)('products:update', {
       getRole: req => (req as any).account.role,
       getParams: req => ({ owner: (req as any).account.owner })

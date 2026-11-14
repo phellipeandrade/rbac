@@ -1,5 +1,5 @@
-import rbac from '@rbac/rbac';
-import type { Roles } from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
+import type { Roles } from '@rbac/core';
 import {
   USER,
   PRODUCTS_FIND,
@@ -11,7 +11,7 @@ const baseRoles: Roles = {
   [USER]: { can: [PRODUCTS_FIND] }
 };
 
-const RBAC = rbac()(baseRoles);
+const RBAC = createRBAC({ roles: baseRoles });
 
 async function run(): Promise<void> {
   RBAC.addRole('editor', { can: [PRODUCTS_UPDATE], inherits: [USER] });

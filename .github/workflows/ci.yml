@@ -1,10 +1,10 @@
-name: Validate and publish RBAC
+name: Validate RBAC and deploy documentation
 
 on:
   push:
-    branches: [master, main]
+    branches: [master, main, develop]
   pull_request:
-    branches: [master, main]
+    branches: [master, main, develop]
   workflow_dispatch:
 
 permissions:
@@ -28,6 +28,8 @@ jobs:
       - run: npm run typecheck
       - run: npm test -- --coverage=false
       - run: npm run test:package
+      - run: npm run examples
+      - run: npm pack --dry-run --workspaces
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
@@ -54,8 +56,10 @@ jobs:
           test -s website/build/pt-BR/docs/2.x/intro/index.html
           test -s website/build/docs/migration-1-to-2/index.html
           test -s website/build/docs/migration-2-to-3/index.html
+          test -s website/build/docs/migration-3-to-4/index.html
           test -s website/build/pt-BR/docs/migration-1-to-2/index.html
           test -s website/build/pt-BR/docs/migration-2-to-3/index.html
+          test -s website/build/pt-BR/docs/migration-3-to-4/index.html
       - uses: actions/upload-artifact@v4
         with:
           name: rbac-site-${{ github.sha }}

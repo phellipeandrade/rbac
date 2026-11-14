@@ -1,11 +1,11 @@
 const { performance } = require('node:perf_hooks');
-const RBAC = require('../lib').default;
+const { createRBAC } = require('@rbac/core');
 
 const RESOURCE_COUNT = 200;
 const ITERATIONS = 5_000_000;
 const resources = Array.from({ length: RESOURCE_COUNT }, (_, i) => `resource${i}`);
 const permissions = resources.map(resource => `${resource}:read`);
-const rbac = RBAC({ enableLogger: false })({ analyst: { can: permissions } });
+const rbac = createRBAC({ roles: { analyst: { can: permissions } }, enableLogger: false });
 const stableOperation = permissions[0];
 const directSet = new Set(permissions);
 

@@ -1,8 +1,8 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "entryPoints": ["../src/index.ts", "../src/adapters/index.ts", "../src/middlewares/index.ts", "../src/helpers.ts", "../src/roles.schema.ts"],
+  "entryPoints": ["../packages/core/src/index.ts", "../packages/core/src/helpers.ts", "../packages/adapters/src/index.ts", "../packages/express/src/index.ts", "../packages/fastify/src/index.ts", "../packages/nestjs/src/index.ts", "../packages/schemas/src/index.ts"],
   "entryPointStrategy": "resolve",
-  "tsconfig": "../tsconfig.json",
+  "tsconfig": "./tsconfig.typedoc.json",
   "plugin": ["typedoc-plugin-markdown"],
   "out": "docs/api/reference",
   "readme": "none",
@@ -10,21 +10,5 @@
   "excludeProtected": true,
   "disableSources": true,
   "hideBreadcrumbs": true,
-  "cleanOutputDir": true,
-  "intentionallyNotExported": [
-    "NormalizedWhenFn",
-    "AdapterColumns",
-    "ExpressRequestLike",
-    "ExpressResponseLike",
-    "ExpressNextFunction",
-    "ExpressOptions",
-    "FastifyRequestLike",
-    "FastifyReplyLike",
-    "FastifyOptions",
-    "NestOptions",
-    "NestRequest",
-    "NestResponse",
-    "NestNextFunction",
-    "NestExecutionContext"
-  ]
+  "cleanOutputDir": true
 }

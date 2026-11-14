@@ -8,9 +8,9 @@ title: Runtime role updates
 `addRole(name, role)` adds or replaces a role. `updateRoles(roles)` merges named definitions into the instance, replacing each matching role's complete definition, rebuilding inherited grants, and invalidating permission caches.
 
 ```ts
-import RBAC from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
 
-const auth = RBAC()({ member: { can: ['notes:read'] } });
+const auth = createRBAC({ roles: { member: { can: ['notes:read'] } } });
 console.log(await auth.can('member', 'notes:write')); // false
 
 auth.updateRoles({ member: { can: ['notes:read', 'notes:write'] } });

@@ -1,4 +1,4 @@
-import type { Roles } from '@rbac/rbac';
+import type { Roles } from '@rbac/core';
 import {
   ADMIN,
   PRODUCTS_DELETE,
@@ -41,7 +41,7 @@ const roles: Roles<ProductContext> = {
       PRODUCTS_FIND,
       {
         name: PRODUCTS_EDIT,
-        when: ({ isOwner }) => Boolean(isOwner)
+        when: ({ isOwner }: ProductContext) => Boolean(isOwner)
       },
       PRODUCTS_DELETE
     ]

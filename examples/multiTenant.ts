@@ -1,4 +1,5 @@
-import rbac, { MongoRoleAdapter, createTenantRBAC } from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
+import { MongoRoleAdapter, createTenantRBAC } from '@rbac/adapters';
 
 async function run(): Promise<void> {
   const adapter = new MongoRoleAdapter({
@@ -20,7 +21,7 @@ async function run(): Promise<void> {
   // default tenant still works without specifying tenantId
   await adapter.addRole('guest', { can: ['products:view'] });
   const roles = await adapter.getRoles();
-  const defaultRBAC = rbac()(roles);
+  const defaultRBAC = createRBAC({ roles });
   await defaultRBAC.can('guest', 'products:view'); // true
 }
 

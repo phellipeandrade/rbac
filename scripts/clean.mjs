@@ -1,3 +1,6 @@
 import { rm } from 'node:fs/promises';
-
-await rm(new URL('../lib/', import.meta.url), { recursive: true, force: true });
+import { entries } from './package-manifest.mjs';
+await Promise.all([
+  rm('lib', { recursive: true, force: true }),
+  ...entries.map(({name}) => rm(`packages/${name}/lib`, { recursive: true, force: true }))
+]);

@@ -1,6 +1,6 @@
 # RBAC documentation site
 
-This Docusaurus application publishes the RBAC guides, interactive playground and generated TypeScript API reference to GitHub Pages. The default locale is English; Brazilian Portuguese is available at `/pt-BR/`. The native documentation version dropdown includes **3.x (latest)**, **2.x** (based on npm 2.2.3) and **1.x** (based on npm 1.1.0). Previous majors show deprecation notices and migration guides.
+This Docusaurus application publishes the RBAC guides, interactive playground and generated TypeScript API reference to GitHub Pages. The default locale is English; Brazilian Portuguese is available at `/pt-BR/`. The native documentation version dropdown includes **4.x (latest)**, **2.x** (based on npm 2.2.3) and **1.x** (based on npm 1.1.0). Historical majors show deprecation notices and migration guides.
 
 ## Local development
 
@@ -19,7 +19,7 @@ npm run check:examples
 npm run build
 ```
 
-The build typechecks each standalone TypeScript example in the root README and **current** English and Brazilian Portuguese guides against the real source entry points. It also syntax-checks JavaScript and parses JSON examples, generates the current API pages with TypeDoc, checks documentation path parity for all versions and both locales, and builds both locales. Historical 1.x/2.x snippets are references to their respective npm artifacts and are not typechecked against the 3.x source. You can also run `npm run check:translations` after `npm run generate:api`.
+The build typechecks each standalone TypeScript example in the root README and **current** English and Brazilian Portuguese guides against the real v4 workspace entry points. It also syntax-checks JavaScript and parses JSON examples, generates the current API pages with TypeDoc, checks documentation path parity for all versions and both locales, and builds both locales. Historical snippets are references to their respective npm artifacts and are not typechecked against v4 source. You can also run `npm run check:translations` after `npm run generate:api`.
 
 ## Where to edit
 
@@ -33,7 +33,7 @@ The build typechecks each standalone TypeScript example in the root README and *
 | `sidebars.ts` | Documentation sidebar order |
 | `src/pages/` | Landing page and playground |
 | `src/css/custom.css` | Site and code-block styles |
-| `scripts/generate-api.mjs` | TypeDoc generation from `../src` |
+| `scripts/generate-api.mjs` | TypeDoc generation from `../packages/*/src` |
 | `scripts/check-translations.mjs` | Localized documentation path validation |
 | `scripts/check-examples.mjs` | README and bilingual example validation |
 
@@ -41,7 +41,7 @@ Do not edit files under `docs/api/reference/` directly. They are regenerated on 
 
 ## Documentation version policy
 
-Maintain **one documentation snapshot per published npm major**, using its final patch/minor release, rather than one snapshot for every individual release. The historical lines are 1.x (reference 1.1.0) and 2.x (reference 2.2.3); 3.x is the maintained `current` version. Important differences among minors should be documented explicitly when relevant. Older lines display a native Docusaurus unmaintained banner plus links to the sequential migration guides. Historical API pages are hand-authored from published artifacts; TypeDoc always documents `current`.
+Maintain **one documentation snapshot per published npm major**, using its final patch/minor release, rather than one snapshot for every individual release. Frozen website versions currently exist for 1.x (reference 1.1.0) and 2.x (reference 2.2.3). The 3.x (3.0.0) documentation was the unversioned `current` source before the v4 migration; it is retained in Git history but has no frozen Docusaurus snapshot. The maintained `current` website version is 4.x. Older version pages show a Docusaurus unmaintained banner and migration links. TypeDoc always documents `current`.
 
 When publishing the next major, freeze the current documentation using Docusaurus versioning, add localized snapshots and matching sidebars, update `versions.json` and `docusaurus.config.ts`, change `lastVersion`, add migration guides in both languages, and keep GitHub Pages output and CI route checks aligned. Do not remove a previously published major's documentation. Use npm's release history to choose the final patch of each previous major.
 

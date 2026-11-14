@@ -1,18 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "commonjs",
-    "rootDir": "src",
-    "outDir": "lib",
-    "declaration": true,
-    "sourceMap": true,
-    "declarationMap": true,
-    "strict": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "types": ["node"],
-    "skipLibCheck": true
+    "composite": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["test", "jest.setup.ts"]
+  "files": [],
+  "references": [
+    { "path": "packages/core" },
+    { "path": "packages/adapters" },
+    { "path": "packages/express" },
+    { "path": "packages/fastify" },
+    { "path": "packages/nestjs" },
+    { "path": "packages/schemas" }
+  ]
 }

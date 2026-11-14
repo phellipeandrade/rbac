@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.base.json",
+  "files": [
+    "../packages/core/src/index.ts",
+    "../packages/core/src/helpers.ts",
+    "../packages/adapters/src/index.ts",
+    "../packages/express/src/index.ts",
+    "../packages/fastify/src/index.ts",
+    "../packages/nestjs/src/index.ts",
+    "../packages/schemas/src/index.ts"
+  ],
+  "include": []
+}

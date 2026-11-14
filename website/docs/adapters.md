@@ -5,7 +5,7 @@ title: Database adapters and tenants
 
 # Persist role definitions
 
-`RoleAdapter<P>` defines `getRoles(tenantId?)`, `addRole(name, role, tenantId?)`, and `updateRoles(roles, tenantId?)`. MongoDB, MySQL, and PostgreSQL implementations expose this interface from `@rbac/rbac/adapters`. Database drivers are optional and loaded when the corresponding adapter is constructed or connects.
+`RoleAdapter<P>` defines `getRoles(tenantId?)`, `addRole(name, role, tenantId?)`, and `updateRoles(roles, tenantId?)`. MongoDB, MySQL, and PostgreSQL implementations expose this interface from `@rbac/adapters`. Database drivers are optional and loaded when the corresponding adapter is constructed or connects.
 
 | Adapter | Install driver | Constructor options |
 | --- | --- | --- |
@@ -16,8 +16,8 @@ title: Database adapters and tenants
 ## Load a tenant
 
 ```ts
-import { createTenantRBAC } from '@rbac/rbac';
-import { PostgresRoleAdapter } from '@rbac/rbac/adapters';
+import { createTenantRBAC } from '@rbac/adapters';
+import { PostgresRoleAdapter } from '@rbac/adapters';
 
 const adapter = new PostgresRoleAdapter({
   connectionString: process.env.DATABASE_URL,
@@ -36,7 +36,7 @@ console.log(await auth.can('reader', 'documents:read')); // true
 The storage must already exist. SQL expects name, serialized role, and tenant ID columns. Default SQL names are `name`, `role`, and `tenant_id`; MongoDB uses `name`, `role`, and `tenantId`. Change them with `columns`:
 
 ```ts
-import { MySQLRoleAdapter } from '@rbac/rbac/adapters';
+import { MySQLRoleAdapter } from '@rbac/adapters';
 
 const adapter = new MySQLRoleAdapter({
   table: 'rbac_roles',

@@ -8,14 +8,14 @@ title: Roles, permissions and inheritance
 Each role requires a `can` array. Entries are operation strings or `{name, when}` objects. `inherits` is an optional array of parent role names. An empty `can` array is valid.
 
 ```ts
-import RBAC from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
 
-const rbac = RBAC()({
+const rbac = createRBAC({ roles: {
   guest: { can: ['articles:read'] },
   writer: { inherits: ['guest'], can: ['articles:create', 'articles:edit'] },
   admin: { inherits: ['writer'], can: ['articles:delete'] },
   restricted: { can: [] }
-});
+} });
 
 console.log(await rbac.can('admin', 'articles:read')); // true
 console.log(await rbac.can('writer', 'articles:delete')); // false
@@ -29,15 +29,15 @@ Inheritance is **additive**: a child keeps its own grants and receives the paren
 Do not assume repeated permissions replace one another. The engine independently evaluates matching conditional grants and succeeds if any condition returns true:
 
 ```ts
-import RBAC from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
 
 type Context = { owns: boolean; isTeamLead: boolean };
-const auth = RBAC<Context>()({
+const auth = createRBAC<Context>({ roles: {
   editor: { can: [
     { name: 'post:update', when: ({ owns }: Context) => owns },
     { name: 'post:update', when: ({ isTeamLead }: Context) => isTeamLead }
   ] }
-});
+} });
 
 console.log(await auth.can('editor', 'post:update', { owns: false, isTeamLead: true })); // true
 ```

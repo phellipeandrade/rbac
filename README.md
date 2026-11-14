@@ -2,9 +2,9 @@
 
 **Hierarchical role-based access control for Node.js and TypeScript.**
 
-[![npm version](https://img.shields.io/npm/v/@rbac/rbac.svg)](https://www.npmjs.com/package/@rbac/rbac)
+[![npm version](https://img.shields.io/npm/v/@rbac/core.svg)](https://www.npmjs.com/package/@rbac/core)
 [![CI](https://github.com/phellipeandrade/rbac/actions/workflows/ci.yml/badge.svg)](https://github.com/phellipeandrade/rbac/actions/workflows/ci.yml)
-[![license](https://img.shields.io/npm/l/@rbac/rbac.svg)](LICENSE)
+[![license](https://img.shields.io/npm/l/@rbac/core.svg)](LICENSE)
 
 RBAC makes authorization decisions from roles, permission names, inheritance, and optional conditions. Define policies in code or load role definitions through a database adapter, then check operations with an asynchronous, **deny-by-default** API.
 
@@ -15,7 +15,7 @@ RBAC makes authorization decisions from roles, permission names, inheritance, an
 - **Optional integrations:** MongoDB, MySQL, PostgreSQL, Express, NestJS, and Fastify.
 - **Package interoperability:** CommonJS and ESM entry points with TypeScript declarations; matching caches are bounded.
 
-**Requirements:** Node.js **22.12.0+**. The current major version is **3.x**; review the [migration guide](https://phellipeandrade.github.io/rbac/docs/migration/) when upgrading.
+**Requirements:** Node.js **22.12.0+**. The current major version is **4.x**; review the [migration guide](https://phellipeandrade.github.io/rbac/docs/migration/) when upgrading.
 
 ## Documentation
 
@@ -28,19 +28,19 @@ See the runnable examples in [`examples/`](examples/) and version history in [`C
 ## Install
 
 ```bash
-npm install @rbac/rbac
+npm install @rbac/core
 ```
 
 ## Quick start
 
 ```ts
-import RBAC from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
 
-const auth = RBAC({ enableLogger: false })({
+const auth = createRBAC({ roles: {
   viewer: { can: ['posts:read'] },
   editor: { inherits: ['viewer'], can: ['posts:create', 'posts:update'] },
   admin: { inherits: ['editor'], can: ['posts:delete'] }
-});
+}, enableLogger: false });
 
 async function main() {
   console.log(await auth.can('editor', 'posts:read'));   // true: inherited
@@ -51,7 +51,7 @@ async function main() {
 void main();
 ```
 
-`RBAC(config?)(roles)` returns an instance with three methods:
+`createRBAC({ roles, ...options })` returns an instance with three methods:
 
 | Method | Description |
 | --- | --- |
@@ -64,18 +64,18 @@ The `can` parameter `operation` accepts a string or `RegExp`. Roles require a `c
 ### Conditions and asynchronous authorization
 
 ```ts
-import RBAC from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
 
 type Context = { userId: string; ownerId: string };
 
-const auth = RBAC<Context>()({
+const auth = createRBAC<Context>({ roles: {
   author: {
     can: [{
       name: 'article:edit',
       when: async ({ userId, ownerId }: Context) => userId === ownerId
     }]
   }
-});
+} });
 
 console.log(await auth.can('author', 'article:edit', {
   userId: '42',
@@ -83,18 +83,18 @@ console.log(await auth.can('author', 'article:edit', {
 })); // true
 ```
 
-Conditions may return a boolean or a promise. For existing Node-style callback predicates, use `callbackWhen()` from `@rbac/rbac/helpers`. Authorization errors and rejected conditions fail closed. **Validate ownership and role information on the server:** values supplied by a client are not trustworthy evidence.
+Conditions may return a boolean or a promise. For existing Node-style callback predicates, use `callbackWhen()` from `@rbac/core/helpers`. Authorization errors and rejected conditions fail closed. **Validate ownership and role information on the server:** values supplied by a client are not trustworthy evidence.
 
 Multiple conditional grants for an operation use OR semantics; each condition stays independently evaluable. Conditional results are evaluated for each call, including after role updates.
 
 ### Patterns
 
 ```ts
-import RBAC from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
 
-const auth = RBAC()({
+const auth = createRBAC({ roles: {
   operator: { can: ['orders:*', 'files/**', '/^reports:(read|export)$/'] }
-});
+} });
 
 console.log(await auth.can('operator', 'orders:approve')); // true
 console.log(await auth.can('operator', 'reports:read'));  // true
@@ -106,9 +106,9 @@ Use exact permissions for sensitive operations. [Pattern matching guide](https:/
 ### Update roles at runtime
 
 ```ts
-import RBAC from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
 
-const auth = RBAC()({ viewer: { can: ['tickets:read'] } });
+const auth = createRBAC({ roles: { viewer: { can: ['tickets:read'] } } });
 auth.addRole('support', { can: ['tickets:read'] });
 auth.updateRoles({ support: { can: ['tickets:read', 'tickets:reply'] } });
 console.log(await auth.can('support', 'tickets:reply')); // true
@@ -118,11 +118,11 @@ Updates merge role **definitions**, replacing the definition of any role name su
 
 ## Database adapters and multi-tenancy
 
-Use `@rbac/rbac/adapters` for `MongoRoleAdapter`, `MySQLRoleAdapter`, or `PostgresRoleAdapter`. Install only the database driver your application needs (`mongodb`, `mysql2`, or `pg`). Adapters implement `getRoles`, `addRole`, and `updateRoles`, with optional tenant IDs.
+Use `@rbac/adapters` for `MongoRoleAdapter`, `MySQLRoleAdapter`, or `PostgresRoleAdapter`. Install only the database driver your application needs (`mongodb`, `mysql2`, or `pg`). Adapters implement `getRoles`, `addRole`, and `updateRoles`, with optional tenant IDs.
 
 ```ts
-import { createTenantRBAC } from '@rbac/rbac';
-import { MongoRoleAdapter } from '@rbac/rbac/adapters';
+import { createTenantRBAC } from '@rbac/adapters';
+import { MongoRoleAdapter } from '@rbac/adapters';
 
 const adapter = new MongoRoleAdapter({
   uri: 'mongodb://localhost:27017',
@@ -138,9 +138,9 @@ This example assumes a running MongoDB instance and existing tenant role records
 
 ## Frameworks, schemas, and configuration
 
-Express, NestJS, and Fastify integrations are available via `@rbac/rbac/middlewares`. Authenticate users before extracting their roles. See [middleware integration examples](https://phellipeandrade.github.io/rbac/docs/middlewares/).
+Express, NestJS, and Fastify integrations are available through separate `@rbac/express`, `@rbac/nestjs`, and `@rbac/fastify` packages. Authenticate users before extracting their roles. See [middleware integration examples](https://phellipeandrade.github.io/rbac/docs/middlewares/).
 
-Validation schemas are opt-in via `@rbac/rbac/schemas` (also `/roles.schema`); importing the package root does not eagerly load Zod. The `RBACConfig` options are:
+Validation schemas are opt-in via `@rbac/schemas`; importing `@rbac/core` does not load Zod. The `RBACOptions` object requires `roles` and also accepts these optional configuration fields:
 
 | Option | Description |
 | --- | --- |

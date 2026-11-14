@@ -8,11 +8,11 @@ title: Wildcards e expressões regulares
 Prefira **strings exatas** para permissões simples. Para operações de um mesmo grupo, utilize glob como `posts:*`. O `*` corresponde a um segmento sem barras; `**` aceita caminhos mais profundos. O padrão corresponde à operação inteira.
 
 ```ts
-import RBAC from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
 
-const auth = RBAC()({
+const auth = createRBAC({ roles: {
   staff: { can: ['posts:*', 'files/**'] }
-});
+} });
 
 console.log(await auth.can('staff', 'posts:create')); // true
 console.log(await auth.can('staff', 'posts:remove')); // true
@@ -22,9 +22,9 @@ console.log(await auth.can('staff', 'users:create')); // false
 Strings com barras delimitadoras (`'/^reports:(read|export)$/'`) representam permissões com expressão regular. Strings comuns são **literais** quando não contêm wildcard. O argumento de operação de `can()` também aceita `RegExp` para consultar permissões compatíveis.
 
 ```ts
-import RBAC from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
 
-const reports = RBAC()({ analyst: { can: ['reports:read', 'reports:export'] } });
+const reports = createRBAC({ roles: { analyst: { can: ['reports:read', 'reports:export'] } } });
 console.log(await reports.can('analyst', /^reports:read$/)); // true
 ```
 

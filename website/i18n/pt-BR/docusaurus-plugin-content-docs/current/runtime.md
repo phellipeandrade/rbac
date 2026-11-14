@@ -8,9 +8,9 @@ title: Atualização de roles em execução
 `addRole(name, role)` adiciona ou substitui uma role. `updateRoles(roles)` mescla as definições por nome, substituindo toda a definição de cada role informada, reconstruindo as permissões herdadas e invalidando os caches.
 
 ```ts
-import RBAC from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
 
-const auth = RBAC()({ member: { can: ['notes:read'] } });
+const auth = createRBAC({ roles: { member: { can: ['notes:read'] } } });
 console.log(await auth.can('member', 'notes:write')); // false
 
 auth.updateRoles({ member: { can: ['notes:read', 'notes:write'] } });

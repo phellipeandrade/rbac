@@ -10,10 +10,12 @@ Esta referência é **gerada automaticamente a partir do TypeScript com TypeDoc*
 
 | Caminho de importação | Exports |
 | --- | --- |
-| `@rbac/rbac` | Factory padrão `RBAC`, `createTenantRBAC`, exports de adapters e middlewares, tipos públicos |
-| `@rbac/rbac/adapters` | `RoleAdapter`, `MongoRoleAdapter`, `MySQLRoleAdapter`, `PostgresRoleAdapter` |
-| `@rbac/rbac/middlewares` | `createExpressMiddleware`, `createNestMiddleware`, `createNestGuard`, `createFastifyMiddleware` |
-| `@rbac/rbac/helpers` | `callbackWhen`, utilitários de padrões, logging e normalização |
-| `@rbac/rbac/schemas` ou `/roles.schema` | `whenSchema`, `roleOperationSchema`, `roleSchema`, `rolesSchema` |
+| `@rbac/core` | `createRBAC`, `RBACOptions`, `RBACEngine`, tipos de roles e condições |
+| `@rbac/core/helpers` | `callbackWhen` e outros helpers do núcleo |
+| `@rbac/adapters` | `createTenantRBAC`, `RoleAdapter`, `MongoRoleAdapter`, `MySQLRoleAdapter`, `PostgresRoleAdapter` |
+| `@rbac/express` | `createExpressMiddleware` e tipos relacionados |
+| `@rbac/fastify` | `createFastifyMiddleware` e tipos relacionados |
+| `@rbac/nestjs` | `createNestMiddleware`, `createNestGuard` e tipos relacionados |
+| `@rbac/schemas` | `whenSchema`, `roleOperationSchema`, `roleSchema`, `rolesSchema` |
 
 Explore as **entradas geradas** na barra lateral desta seção ou acesse a [referência TypeDoc](./reference/README.md).

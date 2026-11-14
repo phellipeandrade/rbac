@@ -1,65 +1,24 @@
 {
-  "name": "@rbac/rbac",
-  "version": "3.0.0",
+  "name": "rbac-v4-workspace",
+  "version": "4.0.0",
   "description": "Blazing Fast, Zero dependency, Hierarchical Role-Based Access Control for Node.js",
-  "main": "./lib/index.cjs",
-  "module": "./lib/index.mjs",
-  "types": "lib/index.d.ts",
   "engines": {
     "node": ">=22.12.0"
   },
-  "exports": {
-    ".": {
-      "import": {
-        "types": "./lib/index.d.mts",
-        "default": "./lib/index.mjs"
-      },
-      "require": {
-        "types": "./lib/index.d.cts",
-        "default": "./lib/index.cjs"
-      }
-    },
-    "./adapters": {
-      "types": "./lib/adapters/index.d.ts",
-      "import": "./lib/adapters/index.mjs",
-      "require": "./lib/adapters/index.js"
-    },
-    "./middlewares": {
-      "types": "./lib/middlewares/index.d.ts",
-      "import": "./lib/middlewares/index.mjs",
-      "require": "./lib/middlewares/index.js"
-    },
-    "./schemas": {
-      "types": "./lib/roles.schema.d.ts",
-      "import": "./lib/roles.schema.mjs",
-      "require": "./lib/roles.schema.js"
-    },
-    "./roles.schema": {
-      "types": "./lib/roles.schema.d.ts",
-      "import": "./lib/roles.schema.mjs",
-      "require": "./lib/roles.schema.js"
-    },
-    "./helpers": {
-      "types": "./lib/helpers.d.ts",
-      "import": "./lib/helpers.mjs",
-      "require": "./lib/helpers.js"
-    },
-    "./package.json": "./package.json"
-  },
-  "files": [
-    "lib"
-  ],
   "scripts": {
-    "build": "node scripts/clean.mjs && tsc -p tsconfig.json && node scripts/build-entrypoints.mjs",
-    "prepack": "npm run build",
-    "dev": "tsc -w",
+    "clean": "node scripts/clean.mjs",
+    "build": "npm run clean && npm run build:packages && node scripts/build-entrypoints.mjs",
+    "build:packages": "npm run build:core && npm run build:integrations",
+    "build:core": "tsc -p packages/core",
+    "build:integrations": "tsc -p packages/adapters && tsc -p packages/express && tsc -p packages/fastify && tsc -p packages/nestjs && tsc -p packages/schemas",
+    "dev": "tsc -b -w",
     "examples": "node -r ts-node/register ./examples/index.ts",
     "test": "jest --coverage --runInBand",
     "test:watch": "jest --watch",
     "test:npm": "npm run test:package",
-    "test:package": "npm run build && node test/package-exports.test.mjs && tsc -p test/package-types",
-    "lint": "eslint src --max-warnings 0",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test:package": "npm run build && node test/package-exports.test.mjs && tsc -p test/package-types && node scripts/test-packed.mjs",
+    "lint": "eslint packages --max-warnings 0",
+    "typecheck": "npm run build && tsc -p test/package-types",
     "bench": "node ./benchmarks/perf.js",
     "bench:micro": "node ./benchmarks/micro.js"
   },
@@ -83,9 +42,6 @@
     "url": "https://github.com/phellipeandrade/rbac/issues"
   },
   "homepage": "https://github.com/phellipeandrade/rbac",
-  "publishConfig": {
-    "access": "public"
-  },
   "devDependencies": {
     "@eslint/js": "^9.35.0",
     "@types/express": "^5.0.3",
@@ -105,10 +61,11 @@
     "typescript-eslint": "^8.46.0",
     "fastify": "^5.6.0"
   },
-  "dependencies": {
-    "zod": "^3.25.76"
-  },
   "overrides": {
     "undici-types": "^7.10.0"
-  }
+  },
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
 }

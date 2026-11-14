@@ -8,16 +8,16 @@ title: Conditional and asynchronous permissions
 A conditional grant has the form `{name: string, when: When<P>}`. Supported `when` values include booleans, `Promise<boolean>`, synchronous predicates, asynchronous predicates, and Node-style callback functions. Prefer synchronous predicates for cheap checks and async predicates for data-dependent checks.
 
 ```ts
-import RBAC from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
 
 interface Context { userId: string; ownerId: string; suspended: boolean }
 
-const auth = RBAC<Context>()({
+const auth = createRBAC<Context>({ roles: {
   member: { can: [{
     name: 'records:update',
     when: async ({ userId, ownerId, suspended }: Context) => !suspended && userId === ownerId
   }] }
-});
+} });
 
 console.log(await auth.can('member', 'records:update', {
   userId: '42', ownerId: '42', suspended: false
@@ -29,15 +29,15 @@ console.log(await auth.can('member', 'records:update', {
 The `callbackWhen` helper explicitly wraps the Node-style callback form:
 
 ```ts
-import RBAC from '@rbac/rbac';
-import { callbackWhen } from '@rbac/rbac/helpers';
+import { createRBAC } from '@rbac/core';
+import { callbackWhen } from '@rbac/core/helpers';
 
-const auth = RBAC<{ verified: boolean }>()({
+const auth = createRBAC<{ verified: boolean }>({ roles: {
   member: { can: [{
     name: 'profile:update',
     when: callbackWhen((context, done) => done(null, context.verified))
   }] }
-});
+} });
 
 console.log(await auth.can('member', 'profile:update', { verified: true })); // true
 ```

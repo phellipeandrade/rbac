@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
-import rbac from '../src/index';
-import type { Roles } from '../src/types';
+import { createRBAC } from '@rbac/core';
+import type { Roles } from '@rbac/core';
 
 const belongsToAccount = (
   params: boolean,
@@ -36,23 +36,23 @@ const defaultRoles: Roles<boolean> = {
 
 describe('RBAC lib aspects', () => {
   it('RBAC config should be a function', () => {
-    expect(typeof rbac).toBe('function');
+    expect(typeof createRBAC).toBe('function');
   });
 
   it('should return a function', () => {
-    const result = rbac<boolean>();
-    expect(typeof result).toBe('function');
+    const result = createRBAC<boolean>({ roles: {} });
+    expect(typeof result).toBe('object');
   });
 
   it('should return an object with a property named [can] when rbac function is called', () => {
-    const instance = rbac<boolean>()(defaultRoles);
+    const instance = createRBAC<boolean>({ roles: defaultRoles });
     expect(typeof instance).toBe('object');
     expect(instance).toHaveProperty('can');
   });
 });
 
 describe('RBAC', () => {
-  const RBAC = rbac<boolean>({ enableLogger: false })(defaultRoles);
+  const RBAC = createRBAC<boolean>({ ...({ enableLogger: false }), roles: defaultRoles });
 
   describe('user role', () => {
     it('[user] should have permission [products:find]', async () => {
@@ -299,9 +299,9 @@ describe('RBAC', () => {
 
   describe('edge cases', () => {
     it('should resolve unknown prototype property names as false', async () => {
-      const instance = rbac({ enableLogger: false })({
+      const instance = createRBAC({ ...({ enableLogger: false }), roles: {
         user: { can: ['products:find'] }
-      });
+      } });
 
       for (const role of [
         'constructor',
@@ -319,7 +319,7 @@ describe('RBAC', () => {
       const roles = JSON.parse(
         '{"constructor":{"can":["products:find"]},"__proto__":{"can":["products:edit"]},"toString":{"can":[]},"guest":{"can":[],"inherits":["constructor"]}}'
       ) as Roles<boolean>;
-      const instance = rbac<boolean>({ enableLogger: false })(roles);
+      const instance = createRBAC<boolean>({ ...({ enableLogger: false }), roles: roles });
 
       await expect(instance.can('constructor', 'products:find')).resolves.toBe(true);
       await expect(instance.can('__proto__', 'products:edit')).resolves.toBe(true);
@@ -328,11 +328,11 @@ describe('RBAC', () => {
     });
 
     it('should enforce when guards for glob and regex operation queries', async () => {
-      const scopedRBAC = rbac<{ owner: boolean }>({ enableLogger: false })({
+      const scopedRBAC = createRBAC<{ owner: boolean }>({ ...({ enableLogger: false }), roles: {
         user: {
           can: [{ name: 'products:delete', when: ({ owner }: { owner: boolean }) => owner === true }]
         }
-      });
+      } });
 
       expect(
         await scopedRBAC.can('user', 'products:delete', { owner: false })
@@ -353,14 +353,14 @@ describe('RBAC', () => {
     });
 
     it('should evaluate conditional patterns for glob and global regex queries', async () => {
-      const instance = rbac<{ allowed: boolean }>({ enableLogger: false })({
+      const instance = createRBAC<{ allowed: boolean }>({ ...({ enableLogger: false }), roles: {
         user: {
           can: [
             { name: 'reports:view', when: (params: { allowed: boolean }) => params.allowed },
             { name: 'reports:*', when: (params: { allowed: boolean }) => params.allowed }
           ]
         }
-      });
+      } });
       const globalRegex = /reports:/g;
 
       expect(await instance.can('user', 'reports:*', { allowed: false })).toBe(false);
@@ -370,14 +370,14 @@ describe('RBAC', () => {
     });
 
     it('should keep checking later matching glob permissions when an earlier conditional glob fails', async () => {
-      const instance = rbac<{ allowed: boolean }>({ enableLogger: false })({
+      const instance = createRBAC<{ allowed: boolean }>({ ...({ enableLogger: false }), roles: {
         user: {
           can: [
             { name: 'reports:*', when: ({ allowed }: { allowed: boolean }) => allowed },
             { name: 'reports:d*', when: true }
           ]
         }
-      });
+      } });
 
       expect(await instance.can('user', 'reports:delete', { allowed: false })).toBe(true);
       expect(await instance.can('user', 'reports:download', { allowed: false })).toBe(true);
@@ -400,7 +400,7 @@ describe('RBAC', () => {
     });
 
     it('should handle empty roles object', async () => {
-      const emptyRBAC = rbac({ enableLogger: false })({});
+      const emptyRBAC = createRBAC({ ...({ enableLogger: false }), roles: {} });
       const res = await emptyRBAC.can('any', 'any');
       expect(res).toBe(false);
     });
@@ -616,9 +616,9 @@ describe('RBAC', () => {
     });
 
     it('should invalidate cached glob lookups after updateRoles', async () => {
-      const instance = rbac({ enableLogger: false })({
+      const instance = createRBAC({ ...({ enableLogger: false }), roles: {
         user: { can: ['products:*'] }
-      });
+      } });
 
       expect(await instance.can('user', 'products:view')).toBe(true);
 
@@ -654,27 +654,27 @@ describe('RBAC', () => {
   describe('color configuration', () => {
     it('should accept colors option in config', () => {
       const customLogger = jest.fn();
-      const instance = rbac<boolean>({ logger: customLogger, enableLogger: true, colors: false })(defaultRoles);
+      const instance = createRBAC<boolean>({ ...({ logger: customLogger, enableLogger: true, colors: false }), roles: defaultRoles });
       expect(typeof instance.can).toBe('function');
     });
 
     it('should pass colors option to logger when colors is false', async () => {
       const customLogger = jest.fn();
-      const instance = rbac<boolean>({ logger: customLogger, enableLogger: true, colors: false })(defaultRoles);
+      const instance = createRBAC<boolean>({ ...({ logger: customLogger, enableLogger: true, colors: false }), roles: defaultRoles });
       await instance.can('user', 'products:find');
       expect(customLogger).toHaveBeenCalledWith('user', 'products:find', true, false);
     });
 
     it('should pass colors option to logger when colors is true', async () => {
       const customLogger = jest.fn();
-      const instance = rbac<boolean>({ logger: customLogger, enableLogger: true, colors: true })(defaultRoles);
+      const instance = createRBAC<boolean>({ ...({ logger: customLogger, enableLogger: true, colors: true }), roles: defaultRoles });
       await instance.can('user', 'products:find');
       expect(customLogger).toHaveBeenCalledWith('user', 'products:find', true, true);
     });
 
     it('should pass undefined to logger when colors is not specified', async () => {
       const customLogger = jest.fn();
-      const instance = rbac<boolean>({ logger: customLogger, enableLogger: true })(defaultRoles);
+      const instance = createRBAC<boolean>({ ...({ logger: customLogger, enableLogger: true }), roles: defaultRoles });
       await instance.can('user', 'products:find');
       expect(customLogger).toHaveBeenCalledWith('user', 'products:find', true, undefined);
     });

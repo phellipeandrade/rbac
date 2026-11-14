@@ -6,10 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
-### Documentation
+### Breaking changes (planned 4.0.0)
 
-- Replace the legacy MkDocs documentation with a bilingual Docusaurus site, interactive playground, and generated TypeDoc API reference.
-- Rewrite the README and guides around the verified v3 API, with Shiki-highlighted examples and documentation build checks.
+- Replace the curried default `RBAC(config)(roles)` factory with the named `createRBAC({ roles, ...config })` API in `@rbac/core`.
+- Replace the single `@rbac/rbac` distribution with six independently installable packages: `@rbac/core`, `@rbac/adapters`, `@rbac/express`, `@rbac/fastify`, `@rbac/nestjs` and `@rbac/schemas`. There is no v4 compatibility alias for the old package or its subpaths.
+- Move `callbackWhen` and other core utilities to `@rbac/core/helpers`; move `createTenantRBAC` to `@rbac/adapters`. Migrate framework imports and schema imports to their dedicated packages.
+
+### Added
+
+- `RBACOptions<P>` and `RBACEngine<P>` types for the new factory and inferred request contexts.
+- npm workspace build and isolated tarball consumer checks for ESM, CommonJS, NodeNext types and shared core module identity.
+- A bilingual Docusaurus v3 → v4 guide, modular package examples, and generated TypeDoc reference for the v4 workspaces.
+
+### Changed
+
+- Keep the authorization core free of runtime dependencies; database drivers and framework runtimes are optional integrations, and Zod belongs to `@rbac/schemas`.
+- Update the interactive playground and website landing page to use the v4 factory and package imports.
+- Preserve deny-by-default, additive inheritance, conditional OR evaluation, tenant isolation and bounded cache semantics.
+
+### Performance
+
+- In one same-host Node.js 22.14.0 microbenchmark run, v4 exact-match checks measured 14.48M ops/s versus 13.11M for v3 (+10.4%), and interpolated checks 3.97M versus 3.34M (+18.9%). Single runs are not sufficient to establish a repeatable speedup.
 
 ## [3.0.0] - 2026-11-14
 

@@ -1,13 +1,14 @@
 import fastify from 'fastify';
-import rbac, { createFastifyMiddleware } from '@rbac/rbac';
-import type { Roles } from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
+import { createFastifyMiddleware } from '@rbac/fastify';
+import type { Roles } from '@rbac/core';
 import { USER, PRODUCTS_FIND } from './constants';
 
 const roles: Roles = {
   [USER]: { can: [PRODUCTS_FIND] }
 };
 
-const RBAC = rbac()(roles);
+const RBAC = createRBAC({ roles });
 const canFindProducts = createFastifyMiddleware(RBAC)(PRODUCTS_FIND);
 
 async function run(): Promise<void> {

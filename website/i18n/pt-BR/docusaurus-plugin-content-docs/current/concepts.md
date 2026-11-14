@@ -8,17 +8,17 @@ title: Conceitos fundamentais
 **Usuário**: identificado pela aplicação. O RBAC não mantém contas ou vínculos de usuários. **Role**: definição nomeada, como `editor`. **Operação**: string definida pela aplicação, como `invoices:approve`. **Permissão (grant)**: entrada no array `can` de uma role. **Condição**: regra opcional `when`, avaliada com parâmetros da requisição. **Herança**: soma de permissões obtidas de outra role.
 
 ```ts
-import RBAC from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
 
 type RequestContext = { ownerId: string; userId: string };
 
-const auth = RBAC<RequestContext>()({
+const auth = createRBAC<RequestContext>({ roles: {
   reader: { can: ['items:read'] },
   author: {
     inherits: ['reader'],
     can: [{ name: 'items:edit', when: ({ ownerId, userId }: RequestContext) => ownerId === userId }]
   }
-});
+} });
 
 console.log(await auth.can('author', 'items:read')); // true
 console.log(await auth.can('author', 'items:edit', { ownerId: 'a', userId: 'b' })); // false
@@ -30,7 +30,7 @@ O motor procura permissões exatas e padrões compatíveis, inclui permissões h
 
 | Membro | Finalidade |
 | --- | --- |
-| `RBAC<P>(config?)(roles)` | Cria uma instância em memória tipada pelo contexto `P`. |
+| `createRBAC<P>({ roles, ...options })` | Cria uma instância em memória tipada pelo contexto `P`. |
 | `can(role, operation, params?)` | Verifica a autorização como `Promise<boolean>`. |
 | `addRole(name, definition)` | Adiciona ou substitui uma role imediatamente. |
 | `updateRoles(definitions)` | Mescla definições por nome e invalida os caches de permissão. |

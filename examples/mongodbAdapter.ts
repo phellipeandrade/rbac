@@ -1,4 +1,5 @@
-import rbac, { MongoRoleAdapter } from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
+import { MongoRoleAdapter } from '@rbac/adapters';
 
 async function run(): Promise<void> {
   const adapter = new MongoRoleAdapter({
@@ -9,7 +10,7 @@ async function run(): Promise<void> {
   });
 
   const roles = await adapter.getRoles();
-  const RBAC = rbac()(roles);
+  const RBAC = createRBAC({ roles });
 
   await RBAC.can('user', 'products:find');
 }

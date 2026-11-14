@@ -10,8 +10,8 @@ import {
   buildPermissionData,
   colorize,
   supportsColor
-} from '../src/helpers';
-import type { When, WhenCallback, PatternPermission } from '../src/types';
+} from '../packages/core/src/helpers';
+import type { When, WhenCallback, PatternPermission } from '@rbac/core';
 
 describe('helpers', () => {
   describe('isGlob', () => {
@@ -57,9 +57,9 @@ describe('helpers', () => {
   });
 
   describe('supportsColor', () => {
-    const loadHelpersWithFreshColorCache = (): typeof import('../src/helpers') => {
+    const loadHelpersWithFreshColorCache = (): typeof import('../packages/core/src/helpers') => {
       jest.resetModules();
-      return require('../src/helpers');
+      return require('../packages/core/src/helpers');
     };
 
     it('honors FORCE_COLOR and caches the result', () => {

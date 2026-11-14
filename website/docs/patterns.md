@@ -8,11 +8,11 @@ title: Wildcards and regular expressions
 Use **exact strings** for simple grants. When multiple operations share a namespace, use a glob such as `posts:*`. `*` matches a non-slash segment; `**` supports deeper paths. Pattern matching is anchored to the full operation.
 
 ```ts
-import RBAC from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
 
-const auth = RBAC()({
+const auth = createRBAC({ roles: {
   staff: { can: ['posts:*', 'files/**'] }
-});
+} });
 
 console.log(await auth.can('staff', 'posts:create')); // true
 console.log(await auth.can('staff', 'posts:remove')); // true
@@ -22,9 +22,9 @@ console.log(await auth.can('staff', 'users:create')); // false
 Slash-delimited strings (`'/^reports:(read|export)$/'`) represent regex permission patterns. Plain strings are **literal** operation names unless they contain a glob wildcard. The `can()` operation argument also accepts `RegExp` for querying matching grants.
 
 ```ts
-import RBAC from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
 
-const reports = RBAC()({ analyst: { can: ['reports:read', 'reports:export'] } });
+const reports = createRBAC({ roles: { analyst: { can: ['reports:read', 'reports:export'] } } });
 console.log(await reports.can('analyst', /^reports:read$/)); // true
 ```
 
