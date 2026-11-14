@@ -7,7 +7,7 @@ Thanks for your interest in contributing! This document outlines how to get star
 1. Fork and clone the repository
 2. Install dependencies:
    ```bash
-   npm install
+   npm ci
    ```
 3. Build the project:
    ```bash
@@ -51,7 +51,7 @@ npm run bench    # Run performance benchmarks
 ├── test/          # Test files
 ├── examples/      # Usage examples (Node, web, React)
 ├── benchmarks/    # Performance benchmarks
-└── docs/          # Documentation
+└── website/       # Documentation site (Docusaurus, English and pt-BR)
 ```
 
 ## Making Changes
@@ -68,7 +68,21 @@ npm run bench    # Run performance benchmarks
 
 3. Add tests for new functionality
 
-4. Update documentation if needed (README.md, docs/, examples/)
+4. Update documentation if needed (README.md, website/docs/, website/i18n/pt-BR/, examples/)
+
+### Documentation site
+
+Use Node.js 22.14.0 (see `.nvmrc`). The website has a separate lockfile and build:
+
+```bash
+cd website
+npm ci
+npm run typecheck
+npm run build
+npm start
+```
+
+Documentation lives under `website/docs/`, with matching Portuguese guides under `website/i18n/pt-BR/docusaurus-plugin-content-docs/current/`. `npm run build` regenerates TypeDoc API pages from `src/` and checks that all pages are translated. Edit the TypeScript source documentation for API details instead of editing generated `api/reference` pages.
 
 ## Pull Request Guidelines
 

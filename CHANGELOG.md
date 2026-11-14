@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+### Documentation
+
+- Replace the legacy MkDocs documentation with a bilingual Docusaurus site, interactive playground, and generated TypeDoc API reference.
+- Rewrite the README and guides around the verified v3 API, with Shiki-highlighted examples and documentation build checks.
+
 ## [3.0.0] - 2026-11-14
 
 ### Breaking Changes
