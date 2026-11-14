@@ -17,6 +17,14 @@ RBAC makes authorization decisions from roles, permission names, inheritance, an
 
 **Requirements:** Node.js **22.12.0+**. The current major version is **3.x**; review the [migration guide](https://phellipeandrade.github.io/rbac/docs/migration/) when upgrading.
 
+## Documentation
+
+**[Full documentation](https://phellipeandrade.github.io/rbac/docs/intro/)** · **[Interactive playground](https://phellipeandrade.github.io/rbac/playground/)** · **[Generated API reference](https://phellipeandrade.github.io/rbac/docs/api/)** · **[Português (Brasil)](https://phellipeandrade.github.io/rbac/pt-BR/docs/intro/)**
+
+The documentation includes complete guides to roles and inheritance, conditions, patterns, runtime updates, database adapters, framework integrations, security, examples, and migration. API reference pages are generated from the public TypeScript entry points.
+
+See the runnable examples in [`examples/`](examples/) and version history in [`CHANGELOG.md`](CHANGELOG.md).
+
 ## Install
 
 ```bash
@@ -142,13 +150,6 @@ Validation schemas are opt-in via `@rbac/rbac/schemas` (also `/roles.schema`); i
 
 Avoid exposing credentials or sensitive request parameters through custom logs. Database connection errors may propagate from adapters; in-memory permission checks deny access when their conditions fail.
 
-## Documentation
-
-**[Full documentation](https://phellipeandrade.github.io/rbac/docs/intro/)** · **[Interactive playground](https://phellipeandrade.github.io/rbac/playground/)** · **[Generated API reference](https://phellipeandrade.github.io/rbac/docs/api/)** · **[Português (Brasil)](https://phellipeandrade.github.io/rbac/pt-BR/docs/intro/)**
-
-The documentation includes complete guides to roles and inheritance, conditions, patterns, runtime updates, database adapters, framework integrations, security, examples, and migration. API reference pages are generated from the public TypeScript entry points.
-
-See the runnable examples in [`examples/`](examples/) and version history in [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Development and contributing
 
