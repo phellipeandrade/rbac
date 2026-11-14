@@ -23,7 +23,7 @@ Thanks for your interest in contributing! This document outlines how to get star
 ### Building
 
 ```bash
-npm run build    # Compile TypeScript and bundle with Vite
+npm run build    # Compile TypeScript and generate ESM/CommonJS entrypoints
 npm run dev      # Watch mode for development
 ```
 
@@ -32,6 +32,9 @@ npm run dev      # Watch mode for development
 ```bash
 npm test              # Run tests with coverage
 npm run test:watch    # Run tests in watch mode
+npm run test:package  # Verify ESM/CommonJS exports and shared identity
+npm run lint          # Check source with ESLint flat config
+npm run typecheck     # Verify TypeScript types without emitting files
 ```
 
 ### Benchmarks
@@ -60,7 +63,7 @@ npm run bench    # Run performance benchmarks
 
 2. Make your changes and ensure:
    - All tests pass (`npm test`)
-   - Code follows existing style (check `.eslintrc`)
+   - Code follows existing style (run `npm run lint`)
    - TypeScript compiles without errors (`npm run build`)
 
 3. Add tests for new functionality

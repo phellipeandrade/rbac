@@ -18,7 +18,7 @@ The repository includes a benchmark suite that compares RBAC against popular alt
 Run the suite with:
 
 ```bash
-yarn bench
+npm run bench
 ```
 
 The script builds large permission sets, executes identical operations against each library, and prints timing results to the console.

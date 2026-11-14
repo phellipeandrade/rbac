@@ -128,4 +128,7 @@ const canFindProducts = createExpressMiddleware(rbac)('products:find');
 app.get('/products', canFindProducts, handler);
 ```
 
-Swap `createExpressMiddleware` for `createNestMiddleware` or `createFastifyMiddleware` to integrate with other frameworks.
+In NestJS, use `createNestGuard(rbac)('products:find')` with `@UseGuards` for
+route authorization. `createNestMiddleware` is also available for traditional
+`use(req, res, next)` middleware. For Fastify, register
+`createFastifyMiddleware(rbac)('products:find')` as a `preHandler` hook.

@@ -6,8 +6,6 @@ Follow this guide to install the library, define your first role map, and perfor
 
 ```bash
 npm install @rbac/rbac
-# or
-yarn add @rbac/rbac
 ```
 
 The package ships with TypeScript types and works in JavaScript and TypeScript projects.

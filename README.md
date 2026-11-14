@@ -29,7 +29,8 @@
 
 ## Thanks
 
-  This project now uses **Vite** to generate the bundled output
+  The package is compiled with **TypeScript** and exposes CommonJS and ESM
+  entrypoints backed by a single module instance.
 
   Thanks to Karl Düüna ([DeadAlready](https://github.com/DeadAlready)) and his awesome [post on medium](https://blog.nodeswat.com/implement-access-control-in-node-js-8567e7b484d1)
   
@@ -38,7 +39,7 @@
 
 #### Install
 
-`yarn add @rbac/rbac` or `npm install @rbac/rbac`
+Requires **Node.js 22.12 or later**. Install with `npm install @rbac/rbac`.
 
 This library is written in TypeScript and the published package ships with
 its declaration files for a great developer experience.
@@ -47,7 +48,7 @@ its declaration files for a great developer experience.
 
 The package supports both ES modules and CommonJS.
 
-**ES Modules (recommended)**
+**ES Modules**
 
 ```ts
 // Default import
@@ -102,10 +103,14 @@ RBAC expects an object with roles as property names.
 | when          | **Function, Async Function or Promise**       | ```(params , done ) =>  done (null , true )``` 	| **Optional** Promise that should resolve in Truthy or Falsy, an async function that returns a boolean or Promise, or a Callback function that receives params and done as properties, should return done passing errors and result 	|
 | inherits 	| **Array**    	            | ```['user']```                                 	| **Optional** Array of strings, list of roles inherited by this role                                                                                                               	|
 
-###### IMPORTANT! **"when"** property can be a Callback function that receives params and done, an async function that returns a boolean or Promise, or a Promise that resolves in [Truthy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy) or [Falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) values. Example: 
+The **`when`** property accepts a synchronous predicate, an async predicate, a
+Promise, or a legacy Node-style callback. New callback predicates should be
+wrapped explicitly with `callbackWhen` from `@rbac/rbac/helpers`, without
+relying on a function's parameter count. Example:
 
 ```ts
 import type { Roles } from '@rbac/rbac';
+import { callbackWhen } from '@rbac/rbac/helpers';
 
 interface Params {
   registered: boolean;
@@ -113,10 +118,10 @@ interface Params {
 
 const roles: Roles<Params> = {
   supervisor: {
-    can: [{ name: 'products:find', when: (params, done) => {
+    can: [{ name: 'products:find', when: callbackWhen<Params>((params, done) => {
       // done receives error as first argument and Truthy or Falsy value as second argument
       done(null, params.registered);
-    }}]
+    }) }]
   },
   admin: {
     can: [{ name: 'products:*', when: async (params) => {
@@ -191,6 +196,11 @@ const adapter = new MySQLRoleAdapter({
 })
 ```
 
+SQL table names and column names must be valid identifiers (letters, digits, and
+underscores, starting with a letter or underscore). Tables may also use a
+schema-qualified name such as `public.roles`. Invalid names are rejected when
+constructing an SQL adapter.
+
 ### Multi-tenant RBAC
 
 Adapters can optionally receive a `tenantId` parameter to store and retrieve
@@ -228,8 +238,16 @@ const canFindProducts = createExpressMiddleware(rbac)('products:find');
 app.get('/products', canFindProducts, handler);
 ```
 
-For NestJS and Fastify you can use `createNestMiddleware` and `createFastifyMiddleware`
-respectively with a similar API.
+For NestJS, use `createNestGuard(rbac)(operation)` with `@UseGuards(...)` for
+HTTP authorization. Its `canActivate` method follows Nest's guard contract.
+`createNestMiddleware` remains available for applications that register a
+traditional `(req, res, next)` Nest middleware.
+
+For Fastify, use `createFastifyMiddleware(rbac)(operation)` as a `preHandler`
+hook, providing `getRole` and optionally `getParams` for request-specific data.
+
+Validation schemas are available separately via `@rbac/rbac/schemas` (also
+`@rbac/rbac/roles.schema`). Importing the package root does not load Zod.
 
 ### Custom Logger
 
@@ -306,21 +324,24 @@ These are environment-specific measurements, and the reported margins show that 
 #### Contributions are welcome!
 
 1. Build RBAC
-  * Run `npm install` (or `yarn install`) to get RBAC's dependencies
-  * Run `npm run build` to compile the library and produce the minified bundle using Vite
+  * Run `npm ci` (Node.js 22.12+) to install locked dependencies
+  * Run `npm run build` to compile TypeScript and generate the CommonJS/ESM entrypoints
 
 2. Development mode
-  * Having all the dependencies installed run `yarn dev`. This command will generate a non-minified version of your library and will run a watcher so you get the compilation on file change.
+  * Run `npm run dev` to watch TypeScript sources for changes.
 
 3. Running the tests
-  * Run `yarn test` 
+  * Run `npm test` and `npm run test:package`
 
 4. Scripts
-* `npm run build` - produces production version of your library under the `lib` folder and generates `lib/@rbac/rbac.min.js` via Vite
+* `npm run build` - cleans `lib`, compiles TypeScript and generates CommonJS/ESM entrypoints
 * `npm run dev` - produces development version of your library and runs a watcher
-* `npm test` - well ... it runs the tests :)
+* `npm test` - runs unit and regression tests with coverage
 * `npm run test:watch` - same as above but in a watch mode
 * `npm run bench` - run the benchmark suite
+* `npm run test:package` - checks exports and ESM/CommonJS identity
+* `npm run lint` - runs ESLint 9 flat config
+* `npm run typecheck` - runs TypeScript without emitting files
 
 ## License
 

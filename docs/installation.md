@@ -2,15 +2,14 @@
 
 ## Library
 
-Install the package from npm using your preferred package manager:
+Install the package from npm (Node.js 22.12 or later):
 
 ```bash
 npm install @rbac/rbac
-# or
-yarn add @rbac/rbac
 ```
 
-The published bundle ships with its TypeScript declaration files so IDEs and build pipelines pick up types automatically.
+The published package ships with TypeScript declarations for both CommonJS and
+ES modules. Import validation schemas from `@rbac/rbac/schemas` when needed.
 
 ## Optional database drivers
 
