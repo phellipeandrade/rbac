@@ -20,6 +20,23 @@ export const resolveColumns = (
 
 export const resolveTenant = (tenantId?: string): string => tenantId ?? 'default';
 
+// SQL parameters cannot bind identifiers. Reject non-identifiers before they
+// reach a query and quote each allowed part for the selected dialect.
+const identifier = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
+export const quoteSQLIdentifier = (
+  value: string,
+  dialect: 'mysql' | 'postgres',
+  qualified = false
+): string => {
+  const parts = qualified ? value.split('.') : [value];
+  if (parts.some(part => !identifier.test(part))) {
+    throw new TypeError(`Invalid SQL identifier: ${JSON.stringify(value)}`);
+  }
+  const quote = dialect === 'mysql' ? '`' : '"';
+  return parts.map(part => `${quote}${part}${quote}`).join('.');
+};
+
 export const rowsToRoles = <P>(
   rows: ReadonlyArray<Record<string, unknown>>,
   columns: AdapterColumns,

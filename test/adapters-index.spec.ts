@@ -20,7 +20,7 @@ describe('adapters/index', () => {
     
     // Verify that the exports are constructors
     expect(() => new adapters.MongoRoleAdapter({} as any)).toThrow();
-    expect(() => new adapters.MySQLRoleAdapter({} as any)).not.toThrow();
+    expect(() => new adapters.MySQLRoleAdapter({} as any)).toThrow();
     expect(() => new adapters.PostgresRoleAdapter({} as any)).toThrow();
   });
 });

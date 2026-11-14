@@ -139,9 +139,9 @@ class FakePGClient {
   async query(sql: string, params: unknown[]) {
     if (sql.trim().startsWith('SELECT')) {
       const tenantId = params[0] as string;
-      const tableMatch = sql.match(/FROM\s+(\w+)/i);
+      const tableMatch = sql.match(/FROM\s+"?(\w+)"?/i);
       const table = tableMatch ? tableMatch[1] : 'roles';
-      const columnsMatch = sql.match(/SELECT\s+(\w+),\s*(\w+)\s+FROM/i);
+      const columnsMatch = sql.match(/SELECT\s+"?(\w+)"?,\s*"?(\w+)"?\s+FROM/i);
       const nameCol = columnsMatch ? columnsMatch[1] : 'name';
       const roleCol = columnsMatch ? columnsMatch[2] : 'role';
       const tenantTable = (this.tables[table] || {})[tenantId] || {};
@@ -154,7 +154,7 @@ class FakePGClient {
     }
     if (sql.trim().startsWith('INSERT')) {
       const [name, roleStr, tenantId] = params as [string, string, string];
-      const tableMatch = sql.match(/INTO\s+(\w+)/i);
+      const tableMatch = sql.match(/INTO\s+"?(\w+)"?/i);
       const table = tableMatch ? tableMatch[1] : 'roles';
       this.tables[table] = this.tables[table] || {};
       this.tables[table][tenantId] = this.tables[table][tenantId] || {};
