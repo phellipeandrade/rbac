@@ -44,12 +44,12 @@ Deliver `@rbac/core@4.0.0` with a single-options `createRBAC` factory, independe
 - V4 performance phase: `npm run bench:micro` returned exact stable **14,484,315 ops/s** (+10.4% vs single-run v3), interpolated **3,965,550 ops/s** (+18.9%), Set.has stable **15,140,917 ops/s** and interpolated **3,636,781 ops/s**. Same Windows host and Node 22.14.0; each version measured only once, so changes may reflect process/JIT/CPU variability. Full comparison `npm run bench` was updated for v4 but not rerun, as it generates tracked reports.
 - V4 documentation phase: `npm run check:examples` in `website/` passed (45 standalone TypeScript samples, 2 JavaScript syntax samples); `npm run typecheck` passed. TypeDoc generation passes with a dedicated seven-entry-point project. `npm run check:translations` passed: 75 current pages and 88 total pages per locale (including historical 1.x/2.x). `npm run build` successfully produced English and pt-BR Docusaurus output, including both v3 → v4 migration routes. No historical 1.x/2.x documentation was changed.
 - Final workspace verification (2026-11-14): `npm ci --no-audit --no-fund`, `npm run lint`, `npm run typecheck`, `npm test -- --coverage=false` (7 suites / 181 tests), `npm run test:package` (six real, isolated tarballs and CJS/ESM/NodeNext consumers), `npm run examples` and `npm pack --dry-run --workspaces` all passed. Jest still collects coverage via its config; reported source coverage is influenced by how built-package imports are instrumented and was not treated as an authorization assurance metric.
-- Release preparation: documented publication order, registry checks, registry verification, migration instructions and the *unexecuted* old-package deprecation command in `RELEASE_V4.md`; expanded the `@rbac/core` npm README.
+- Release preparation: documented publication order, registry checks, registry verification, migration instructions and the *unexecuted* old-package deprecation command in `RELEASE_V4.md`; expanded the `@rbac/core` npm README. After this README edit, `npm pack --dry-run --workspace=@rbac/core --json` confirmed README.md (2,143 bytes), MIGRATION.md (888 bytes), and 85 files inside the package.
 
 ## Commits and next step
 
-- Baseline tracking commit: `6fe4fd7`. Workspace/API/integration extraction: `77cb0e5`. Isolated tarball packaging: `bac23e7`. Performance comparison: `872d165`.
-- Next: commit the validated documentation, release preparation and CI phases on `feature/rbac-v4`; then request separate authorization for any remote push, merge, publication or deprecation.
+- Baseline tracking commit: `6fe4fd7`. Workspace/API/integration extraction: `77cb0e5`. Isolated tarball packaging: `bac23e7`. Performance comparison: `872d165`. Documentation/site: `e11a7c4`.
+- Next: commit release preparation and CI on `feature/rbac-v4`; then request separate authorization for any remote push, merge, publication or deprecation.
 
 ## Blockers and unresolved questions
 
