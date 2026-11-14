@@ -34,7 +34,7 @@ jobs:
           command: npm run test:package
       - run:
           name: Check published package
-          command: npm pack --dry-run
+          command: npm pack --dry-run --workspaces
 
 workflows:
   verify:

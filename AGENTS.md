@@ -41,6 +41,8 @@ npm test
 npm run build
 npm run test:package
 npm pack --dry-run --workspaces
+npm run examples
+cd website && npm ci && npm run typecheck && npm run build
 ```
 
 Useful focused commands:
@@ -123,3 +125,5 @@ Do not run destructive Git commands, rewrite history, commit, push, or publish p
 - The v4 migration explicitly authorizes a Conventional Commit after each completed, validated phase; inspect `git diff --check` and stage only related files. Record the previous commit hash in the next tracking update. Do not push, publish, create release tags, or deprecate npm packages.
 - Version 4 may change the v3 public API and file layout per `PROJECT.md`. Re-check and update the v3-specific compatibility notes in this file as packages are migrated; all authorization, tenant-isolation, and fail-closed invariants remain mandatory.
 - Never modify or regenerate documentation for historical major versions. Update only `website/docs/` (current v4), current pt-BR translations, v4 root documentation and new migration guides.
+- When changing the public API, regenerate only the current v4 TypeDoc reference. Keep prior-version snapshots separate and immutable.
+- Prior to declaring a v4 milestone complete, run the site example and locale checks, validate generated routes for both languages, and update the v3→v4 migration guide and npm release preparation notes as needed.
