@@ -71,7 +71,25 @@ Validation on 2026-11-14: `npm run bench` (both 15-case small and 18-case large 
 
 Validation: `website/npm run typecheck` and `website/npm run build` passed. The build checked examples and translations (76 current pages; 89 total pages per locale) and generated English and pt-BR static sites.
 
+## Visual identity refresh (2026-11-14)
+
+- Updated the root README and npm package README to display the complete RBAC SVG logo, and linked the shield-and-padlock SVG as a reusable brand asset.
+- Updated Docusaurus favicon, navigation (including a white-wordmark variant for dark mode), homepage hero, social card, current EN/pt-BR introductions, and the site/playground accent palette to blue `#2563EB` and navy `#0F172A`.
+- Preserved the authorization result colors as semantic feedback; existing historical documentation was left unchanged.
+- Validation: root `npm run lint`, website `npm run typecheck` and `npm run build`, SVG XML parsing, generated EN/pt-BR route checks, and `git diff --check` passed. Additional bilingual brand-asset links in current introductions were validated by the subsequent bilingual website build.
+
+## Dependency security remediation (2026-11-14)
+
+- [x] Update `@rbac/schemas` to patched Zod 4 and replace its `when` validator with a synchronous structural check compatible with Zod 4. Preserve all accepted condition shapes and reject malformed inputs without an exception.
+- [x] Refresh root and website lockfiles and apply targeted transitive overrides for vulnerable packages. Remove the unused Mermaid ELK layout integration from the site.
+- [x] Adapt TypeDoc's directory-walking `matchOne` call to `minimatch` 11 for generated current v4 API docs. Keep this compatibility shim until TypeDoc supports `minimatch` 11 natively.
+- [x] Verify root and website `npm audit --json` report zero vulnerabilities locally (critical, high, moderate and low all zero).
+- [x] Verify Node.js 22.14.0 workspace tests, packaging, examples, and bilingual website routes; include the separately prepared SVG/layout changes in the authorized commit.
+
+Validation: `npm ci` (root), `npm run lint`, `npm run typecheck`, `npm test -- --coverage=false` (8 suites, 188 tests), `npm run test:package` (all six isolated package installations and CJS/ESM/NodeNext consumers), `npm run examples`, and `npm pack --dry-run --workspaces` passed. Website `npm run typecheck`, `npm run build`, `npm run check:examples` (45 TS and 2 JS examples), `npm run check:translations` (89 pages per locale) passed. The patch is limited to current v4 references; historical docs remain unchanged. No push, publication, or release tag performed.
+
 ## Blockers and unresolved questions
+
 
 - `@rbac/core` appears unregistered, but an npm 404 is not proof that this account can publish to the `@rbac` scope. Verify registry rights at publication time; the user confirms ownership of `@rbac`.
 - npm publication, old-package deprecation, remote push and release tags require separate authorization.

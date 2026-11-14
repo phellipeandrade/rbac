@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="260" height="288" viewBox="0 0 260 288" role="img" aria-labelledby="title desc">
+  <title id="title">RBAC — shield icon</title>
+  <desc id="desc">A blue shield outline containing a minimalist padlock.</desc>
+  <!-- One shield, one lock. No shadows, gradients or decorative outlines. -->
+  <path d="M130 20 238 63v65c0 65-43 105-108 140C65 233 22 193 22 128V63L130 20Z" fill="none" stroke="#2563EB" stroke-width="11" stroke-linejoin="round"/>
+  <path d="M101 121v-18c0-19 12-33 29-33s29 14 29 33v18" fill="none" stroke="#2563EB" stroke-width="12" stroke-linecap="round"/>
+  <rect x="87" y="121" width="86" height="78" rx="17" fill="#2563EB"/>
+  <circle cx="130" cy="154" r="8" fill="#FFFFFF"/>
+  <rect x="126.2" y="158" width="7.6" height="20" rx="3.8" fill="#FFFFFF"/>
+</svg>

@@ -1,5 +1,9 @@
 # RBAC
 
+<p align="center">
+  <img src="img/rbac-logo.svg" alt="RBAC logo — blue shield and padlock with RBAC wordmark" width="380" />
+</p>
+
 **Hierarchical role-based access control for Node.js and TypeScript.**
 
 [![npm version](https://img.shields.io/npm/v/@rbac/core.svg)](https://www.npmjs.com/package/@rbac/core)
@@ -24,6 +28,10 @@ RBAC makes authorization decisions from roles, permission names, inheritance, an
 The documentation includes complete guides to roles and inheritance, conditions, patterns, runtime updates, database adapters, framework integrations, security, examples, and migration. API reference pages are generated from the public TypeScript entry points.
 
 See the runnable examples in [`examples/`](examples/) and version history in [`CHANGELOG.md`](CHANGELOG.md).
+
+### Brand assets
+
+The [full RBAC logo](img/rbac-logo.svg) and [shield and padlock icon](img/rbac-icon.svg) are transparent, fully vector SVGs with no external font dependencies. The brand colors are **blue `#2563EB`** and **navy `#0F172A`**.
 
 ## Install
 

@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import {motion, useReducedMotion} from 'motion/react';
 import {ArrowRight, ArrowUpRight, Braces, Check, CheckCircle2, ChevronRight, Copy, Database, GitBranch, Layers3, LockKeyhole, ShieldCheck, Terminal, Workflow, Zap} from 'lucide-react';
 import {useCopy} from '../data/copy';
@@ -38,6 +39,7 @@ function Preview() {
 
 export default function Home() {
   const t = useCopy();
+  const brandIcon = useBaseUrl('/img/rbac-icon.svg');
   const reduceMotion = useReducedMotion();
   const [copied, setCopied] = useState(false);
   const copyCode = async () => {await navigator.clipboard.writeText('npm install @rbac/core'); setCopied(true); window.setTimeout(() => setCopied(false), 1600);};
@@ -45,7 +47,7 @@ export default function Home() {
     <main className="rb-home">
       <section className="rb-hero"><div className="rb-container rb-hero-inner">
         <motion.div initial={reduceMotion ? false : {opacity: 0, y: 18}} animate={{opacity: 1, y: 0}} transition={{duration: 0.5}}>
-          <div className="rb-eyebrow"><span className="rb-led"/>{t.eyebrow}</div>
+          <div className="rb-hero-brand"><img src={brandIcon} alt="RBAC shield and padlock" width="56" height="62"/><div className="rb-eyebrow"><span className="rb-led"/>{t.eyebrow}</div></div>
           <h1>{t.heroTitle.split('\n').map((line, i) => <React.Fragment key={line}>{i > 0 && <br/>}{line}</React.Fragment>)}</h1>
           <p className="rb-hero-description">{t.heroDescription}</p>
           <div className="rb-hero-actions"><Link className="rb-button rb-button--primary" to="/docs/intro">{t.getStarted}<ArrowUpRight size={19}/></Link><Link className="rb-button rb-button--outline" to="/playground">{t.openPlayground}<ArrowRight size={18}/></Link></div>

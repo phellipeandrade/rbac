@@ -1,5 +1,7 @@
 # @rbac/core
 
+![RBAC logo](https://raw.githubusercontent.com/phellipeandrade/rbac/master/img/rbac-logo.svg)
+
 Dependency-free hierarchical role-based access control for Node.js and TypeScript.
 
 Requires **Node.js 22.12.0 or later**. Supports CommonJS, ESM, and NodeNext TypeScript consumers.

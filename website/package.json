@@ -36,15 +36,26 @@
     "@docusaurus/module-type-aliases": "3.10.2",
     "@docusaurus/tsconfig": "3.10.2",
     "@docusaurus/types": "3.10.2",
-    "@mermaid-js/layout-elk": "^0.1.9",
     "@shikijs/rehype": "^4.6.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "@types/node": "^22.15.30",
+    "minimatch": "^11.0.8",
     "autoprefixer": "^10.4.21",
     "shiki": "^4.6.0",
     "tailwindcss": "^3.4.17",
     "typedoc": "^0.28.20",
     "typedoc-plugin-markdown": "^4.14.1",
     "typescript": "^5.8.3"
+  },
+  "overrides": {
+    "tinypool@1": "^2.2.0",
+    "serialize-javascript@6": "^7.1.4",
+    "typedoc": {
+      "minimatch": "^11.0.8"
+    },
+    "deepmerge@4": "4.1.1",
+    "uuid@8": "^11.1.1",
+    "katex": "^0.18.2"
   }
 }

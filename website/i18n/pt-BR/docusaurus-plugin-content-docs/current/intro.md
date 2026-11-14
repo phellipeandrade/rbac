@@ -4,6 +4,8 @@ title: Introdução
 sidebar_position: 1
 ---
 
+![RBAC — escudo e cadeado](/img/rbac-icon.svg)
+
 # Autorização previsível
 
 `@rbac/core` é uma biblioteca TypeScript de **controle de acesso baseado em papéis (RBAC)** para Node.js. Defina operações permitidas para cada role, herde permissões de outras roles e consulte se uma operação está autorizada.
@@ -39,3 +41,7 @@ console.log(await rbac.can('unknown', 'documents:read')); // false
 | Express, NestJS e Fastify | [Middlewares](./middlewares.md) |
 
 Continue com a [instalação](./installation.md) ou abra o [playground interativo](/playground).
+
+## Identidade visual
+
+O [logo completo do RBAC](/img/rbac-logo.svg) e o [ícone de escudo e cadeado](/img/rbac-icon.svg) são SVGs vetoriais com fundo transparente e sem dependências de fontes externas. A identidade visual utiliza **azul `#2563EB`** e **azul-escuro `#0F172A`**; o site também inclui uma versão com letras claras para a navegação em fundo escuro.

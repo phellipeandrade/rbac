@@ -10,7 +10,7 @@ const require = createRequire(import.meta.url);
 const config: Config = {
   title: 'RBAC',
   tagline: 'Authorization, made understandable.',
-  favicon: 'img/favicon.svg',
+  favicon: 'img/rbac-icon.svg',
   url: 'https://phellipeandrade.github.io',
   baseUrl: '/rbac/',
   organizationName: 'phellipeandrade',
@@ -93,8 +93,7 @@ const config: Config = {
     image: 'img/social-card.svg',
     colorMode: {defaultMode: 'dark', disableSwitch: false, respectPrefersColorScheme: true},
     navbar: {
-      title: 'RBAC',
-      logo: {alt: 'RBAC logo', src: 'img/mark.svg'},
+      logo: {alt: 'RBAC', src: 'img/rbac-logo.svg', srcDark: 'img/rbac-logo-dark.svg'},
       items: [
         {type: 'docSidebar', sidebarId: 'guide', position: 'left', label: 'Guides'},
         {to: '/playground', label: 'Playground', position: 'left'},

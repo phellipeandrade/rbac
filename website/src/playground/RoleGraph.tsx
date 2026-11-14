@@ -20,7 +20,7 @@ export function RoleGraph({roles, users}: {roles: VisualRole[]; users: VisualUse
       source: `role-${parent}`,
       target: `role-${role.id}`,
       animated: true,
-      markerEnd: {type: MarkerType.ArrowClosed, color: '#8cbf50'}
+      markerEnd: {type: MarkerType.ArrowClosed, color: '#2563EB'}
     })));
     users.forEach((user, index) => {
       nodes.push({

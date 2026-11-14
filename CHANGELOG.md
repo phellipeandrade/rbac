@@ -22,7 +22,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 - Keep the authorization core free of runtime dependencies; database drivers and framework runtimes are optional integrations, and Zod belongs to `@rbac/schemas`.
 - Update the interactive playground and website landing page to use the v4 factory and package imports.
+- Refresh the README, Docusaurus navigation, homepage and playground with the new SVG branding and blue/navy palette.
 - Preserve deny-by-default, additive inheritance, conditional OR evaluation, tenant isolation and bounded cache semantics.
+
+### Fixed
+
+- Keep synchronous Zod role validation fail-safe for invalid `when` values with Zod 4, while accepting supported boolean, Promise and function predicates.
+- Keep TypeDoc reference generation compatible with patched `minimatch` 11 until TypeDoc supports its API directly.
+
+### Security
+
+- Upgrade the optional `@rbac/schemas` package to Zod 4 and update locked transitive dependencies used by the workspaces and documentation site.
+- Apply scoped dependency overrides for patched dependency versions; both root and website `npm audit` report zero known advisories as of 2026-11-14.
 
 ### Performance
 
