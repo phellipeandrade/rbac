@@ -22,7 +22,7 @@ Falhas de condições negam a permissão afetada. Middlewares podem propagar err
 - `addRole()` e `updateRoles()` reconstruem a herança e invalidam caches relevantes da instância.
 - Expressões regulares com estado têm `lastIndex` reiniciado em verificações repetidas, inclusive com flags `g`/`y`.
 
-Meça o desempenho com suas próprias roles e operações. O repositório oferece `npm run bench` e `npm run bench:micro`, mas os resultados dependem do ambiente; não são garantias de throughput.
+Meça o desempenho com suas próprias roles e operações. O repositório oferece `npm run bench`, `npm run bench:engine` e `npm run bench:micro`. Consulte o [relatório de benchmarks](./benchmarks.md) para tabelas, gráficos Mermaid e instruções de reprodução. Os resultados dependem do ambiente; não são garantias de throughput.
 
 ## Armazenamento e concorrência
 

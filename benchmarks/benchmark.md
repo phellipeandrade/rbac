@@ -1,83 +1,101 @@
-# Benchmarks
+# Benchmarking @rbac/core
 
-`@rbac/rbac` ships with two benchmark suites that validate both everyday usage and heavier workloads. The scripts compare our library against AccessControl, RBAC, Easy RBAC and Fast RBAC.
+All benchmarks run against the built workspace package. Use Node.js 22.14.0
+(the repository's `.nvmrc`) and run `npm run build` after changing TypeScript
+source so the benchmark uses the updated JavaScript.
 
-## Running the benchmarks
+## Benchmark suites
 
-### Automatically
+| Command | Purpose | Output |
+| --- | --- | --- |
+| `npm run bench:micro` | Exact grant using stable vs interpolated strings, alongside bare `Set.has` | Terminal |
+| `npm run bench:engine` | Exact, inherited, glob and regex grants, conditional allow/deny, misses and unknown roles | Terminal |
+| `npm run bench` | AccessControl, `rbac`, Easy RBAC and Fast RBAC comparisons with small and 200-resource datasets | JSON, CSV, HTML |
 
-```
+The engine benchmark reports the **median of five samples**, each with
+300,000 awaited `can()` calls after 50,000 warmup calls per scenario. Customize
+its workload using `RBAC_BENCH_ITERATIONS`, `RBAC_BENCH_SAMPLES` and
+`RBAC_BENCH_WARMUP`; use `node benchmarks/engine.js --json` for machine-readable
+output. Every result is verified against the expected authorization decision.
+It measures single-threaded throughput with logging disabled.
+
+## Comparing other libraries
+
+The comparison runner prebuilds operation strings outside timed callbacks.
+In the large dataset, the glob scenario checks `resource0:archive`, covered
+by `resource0:*` but **not** already granted by inheritance. Older report
+files use different workloads and should not be compared directly.
+
+By default, `npm run bench` writes to tracked `benchmarks/results/`. For a
+non-destructive run, redirect its output to a temporary directory:
+
+```powershell
+$env:RBAC_BENCH_OUTPUT_DIR = Join-Path $env:TEMP 'rbac-bench-local'
 npm run bench
 ```
 
-The command runs both suites, prints aggregated statistics in the terminal and writes JSON/CSV/HTML reports to `benchmarks/results/`.
+These libraries do not have identical permission models or APIs. Compare
+scenarios with equivalent effective grants, and measure argument construction
+cost separately. Repeat on the same hardware, Node.js version and power
+profile, without competing CPU-intensive processes. Single-run scores and
+confidence intervals apply only to the tested environment.
 
-### Manually
+## Measured results (2026-11-14)
 
-1. Install the competitor libraries (you can add your own to the list if desired):
+Hardware: Intel Core i7-9700KF; Windows 11 Pro; Node.js v22.14.0.
+Logging disabled. All values below are measured operations per second, not
+guaranteed production throughput.
 
-   ``
-   npm install --no-save accesscontrol easy-rbac rbac fast-rbac
-   ``
+### Direct permission comparison
 
-2. Execute the benchmark runner directly:
-
-   ``
-   node benchmarks/perf.js
-   ``
-
-## Results snapshot (default dataset)
-
-```
-@rbac/rbac - direct permission      7,128,788 ops/sec ±1.19%
-@rbac/rbac - inherited permission   6,163,753 ops/sec ±3.11%
-@rbac/rbac - glob permission        4,350,598 ops/sec ±1.80%
-AccessControl - direct                997,754 ops/sec ±2.11%
-RBAC - direct                          242,790 ops/sec ±3.28%
-Easy RBAC - direct                  5,098,239 ops/sec ±0.93%
-Fast RBAC - direct                  2,807,204 ops/sec ±1.55%
+```mermaid
+xychart-beta
+    title "Direct authorization - million ops/s (200 resources)"
+    x-axis ["@rbac/core", "AccessControl", "rbac", "Easy RBAC", "Fast RBAC"]
+    y-axis "Million ops/s" 0 --> 8
+    bar [7.09, 0.91, 0.11, 5.75, 2.57]
 ```
 
-## Results snapshot (large dataset)
+| Library | Small direct | Large direct | Large inherited | Large glob |
+| --- | ---: | ---: | ---: | ---: |
+| @rbac/core | 7,282,499 | 7,086,106 | 7,009,957 | 3,527,345 |
+| AccessControl | 943,635 | 908,823 | 530,274 | N/A |
+| rbac | 209,160 | 111,538 | 53,201 | N/A |
+| Easy RBAC | 6,119,410 | 5,747,234 | 5,504,564 | 122,253 |
+| Fast RBAC | 2,989,702 | 2,567,862 | 2,629,421 | 2,600,415 |
 
-```
-@rbac/rbac - large direct           3,317,580 ops/sec ±1.57%
-@rbac/rbac - large inherited        3,315,048 ops/sec ±2.96%
-@rbac/rbac - large glob             3,339,478 ops/sec ±1.73%
-@rbac/rbac - large callback          407,451 ops/sec ±5.51%
-@rbac/rbac - large async           2,451,631 ops/sec ±4.70%
-@rbac/rbac - large promise         2,755,967 ops/sec ±1.51%
-AccessControl - large direct          959,961 ops/sec ±1.70%
-RBAC - large direct                   119,891 ops/sec ±2.86%
-Easy RBAC - large direct           3,867,626 ops/sec ±0.63%
-Fast RBAC - large direct           2,542,370 ops/sec ±3.36%
-```
+The large `@rbac/core` suite also measured 388,996 ops/s for
+callback-based conditions (`setImmediate`), 2,152,776 for async predicates,
+and 2,316,798 for resolved Promise predicates. The isolated engine suite
+reported 11,821,309 exact checks/s and 12,864,770 inherited checks/s (median of
+five samples). Its methodology differs from the comparison suite.
 
-## Large-dataset methodology note
+The separate `npm run bench:micro` run reported 14,055,829 ops/s for
+stable-string RBAC exact checks and 3,662,664 for interpolated operations.
+Native `Set.has` measured 16,382,823 and 3,739,846 ops/s respectively.
+This native primitive does not perform a full RBAC authorization.
 
-The large suite currently creates the `@rbac/rbac` and Easy RBAC operation
-string inside each timed callback (for example,
-`${largeDataset.resources[0]}:read`). Fast RBAC receives the pre-existing
-resource string and a literal action as separate arguments. This means the
-reported `@rbac/rbac` large direct/inherited/glob figures include allocating a
-new concatenated string and computing its hash for `Set.has`; the standard
-suite does not.
+Source artifacts: [small JSON](results/rbac-comparison.json),
+[small CSV](results/rbac-comparison.csv),
+[small HTML chart](results/rbac-comparison.chart.html),
+[large JSON](results/rbac-comparison-large.json),
+[large CSV](results/rbac-comparison-large.csv),
+[large HTML chart](results/rbac-comparison-large.chart.html), and
+[engine JSON](results/rbac-engine.json).
 
-`npm run bench:micro` makes the distinction reproducible with 200 exact
-permissions. On the profiling run recorded on 2026-08-28, the exact RBAC path
-was 12.49M ops/s with a stable operation string and 3.19M ops/s when the
-operation was interpolated in the loop. Bare `Set.has` measured 12.24M and
-3.23M ops/s respectively. Consequently the measured slowdown is attributable
-to caller-side string construction/hash work, not a permission-count-dependent
-authorization scan. The suite is left unchanged so historical competitor
-results remain comparable; use pre-built operation strings when measuring
-authorization lookup alone.
+See the [English](../website/docs/benchmarks.md) and
+[pt-BR](../website/i18n/pt-BR/docusaurus-plugin-content-docs/current/benchmarks.md)
+reports for the complete results. Competing packages use different APIs and
+permission models; results do not prove identical semantics or a universal
+performance ranking.
 
-## Why `@rbac/rbac` stays ahead
+## Optimization guardrails
 
-1. **Precompiled permission maps** – roles are flattened once and cached; lookups for direct, inherited and glob permissions remain O(1) regardless of tree depth or resource count.
-2. **Pattern matching cache** – glob/regex checks are memoised per role, so repeated wildcard queries avoid expensive scans even in large hierarchies.
-3. **Async-friendly core** – `can()` treats synchronous, callback, async and promise-based `when` handlers uniformly. The large dataset suite shows that even heavy callback/promise workloads keep multi-million ops/sec throughput.
-4. **Feature completeness without trade-offs** – wildcard support, inheritance, async guards and runtime updates are all enabled simultaneously with no need for separate “simple mode”.
-
-In practice this means you can use expressive glob patterns, deep inheritance chains and asynchronous guards while still outperforming other RBAC libraries by a wide margin.
+- Authorization correctness comes first: do not cache parameter-dependent
+  results or change conditional OR, inheritance and fail-closed semantics.
+- Shared resolved Promises remove repeated allocations for unconditional
+  decisions with logging disabled. With logging enabled, every check still logs.
+- Literal patterns may reuse cached static results; conditional predicates are
+  reevaluated for every request and role updates invalidate the caches.
+- Pattern caches remain bounded; complex regex/glob query semantics remain
+  available when the fast literal path cannot decide.

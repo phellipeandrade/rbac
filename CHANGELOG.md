@@ -27,6 +27,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ### Performance
 
 - In one same-host Node.js 22.14.0 microbenchmark run, v4 exact-match checks measured 14.48M ops/s versus 13.11M for v3 (+10.4%), and interpolated checks 3.97M versus 3.34M (+18.9%). Single runs are not sufficient to establish a repeatable speedup.
+- Reuse already-resolved promises for unconditional authorization decisions with logging disabled, reducing promise allocation in the hot path.
+- Fast-path literal misses and cached unconditional pattern matches while preserving conditional evaluation, wildcard-query semantics, cache bounds, and role update invalidation.
+- Add a correctness-checked engine benchmark for grant, denial, condition, and query scenarios; refresh comparative benchmark methodology and publish current benchmark reports in the README and bilingual site documentation.
 
 ## [3.0.0] - 2026-11-14
 

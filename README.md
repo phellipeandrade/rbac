@@ -151,6 +151,34 @@ Validation schemas are opt-in via `@rbac/schemas`; importing `@rbac/core` does n
 Avoid exposing credentials or sensitive request parameters through custom logs. Database connection errors may propagate from adapters; in-memory permission checks deny access when their conditions fail.
 
 
+## Benchmark results (November 2026)
+
+On **Node.js 22.14.0 / Windows 11 Pro / Intel i7-9700KF**, the v4 comparison suite measured **7,282,499 direct permission checks/s** with `@rbac/core` on the small dataset and **7,086,106 checks/s** with 200 resources. The chart compares direct checks on the same host, measured on November 14, 2026.
+
+```mermaid
+xychart-beta
+    title "Direct authorization - million ops/s (200 resources)"
+    x-axis ["@rbac/core", "AccessControl", "rbac", "Easy RBAC", "Fast RBAC"]
+    y-axis "Million ops/s" 0 --> 8
+    bar [7.09, 0.91, 0.11, 5.75, 2.57]
+```
+
+| Library | Small direct (ops/s) | 200-resource direct (ops/s) |
+| --- | ---: | ---: |
+| **@rbac/core** | **7,282,499** | **7,086,106** |
+| AccessControl | 943,635 | 908,823 |
+| rbac | 209,160 | 111,538 |
+| Easy RBAC | 6,119,410 | 5,747,234 |
+| Fast RBAC | 2,989,702 | 2,567,862 |
+
+These results are specific to the measured workloads; other libraries expose different authorization models and APIs. For inherited, glob, conditional and isolated engine measurements, see the **[complete benchmark report](https://phellipeandrade.github.io/rbac/docs/benchmarks/)** ([Português](https://phellipeandrade.github.io/rbac/pt-BR/docs/benchmarks/)). Raw [JSON/CSV/HTML artifacts](benchmarks/results/) and [reproduction instructions](benchmarks/benchmark.md) are included in the repository.
+
+```bash
+npm run build
+npm run bench:engine
+npm run bench
+```
+
 ## Development and contributing
 
 ```bash

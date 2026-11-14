@@ -22,7 +22,7 @@ Conditional errors deny the affected grant rather than allowing it. Middleware m
 - `addRole()` and `updateRoles()` rebuild inheritance and clear relevant instance permission caches.
 - Shared regex patterns reset stateful `lastIndex` before checking, including global/sticky expressions.
 
-Measure performance with your own role graph and operation distribution. The repository exposes `npm run bench` and `npm run bench:micro`, but these are environment-specific, not guaranteed throughput.
+Measure performance with your own role graph and operation distribution. The repository exposes `npm run bench`, `npm run bench:engine` and `npm run bench:micro`. See the [measured benchmark report](./benchmarks.md) for tables, Mermaid charts and reproduction steps. Scores are environment-specific, not guaranteed throughput.
 
 ## Storage and concurrency
 

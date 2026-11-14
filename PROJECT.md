@@ -52,6 +52,18 @@ Deliver `@rbac/core@4.0.0` with a single-options `createRBAC` factory, independe
 - Baseline tracking commit: `6fe4fd7`. Workspace/API/integration extraction: `77cb0e5`. Isolated tarball packaging: `bac23e7`. Performance comparison: `872d165`. Documentation/site: `e11a7c4`. Release preparation: `a81786f`. CI validation: `c507d3b`.
 - Implementation and local verification complete on `feature/rbac-v4`. Next steps require separate authorization for any remote push, merge, publication or deprecation.
 
+## Post-v4 performance optimization (2026-11-14)
+
+- [x] Profile and optimize core unconditional permission checks while retaining conditional OR, cache invalidation, deny-by-default and logging behavior.
+- [x] Extend security regressions for literal/glob/regex operations, cached patterns, role updates and thrown loggers.
+- [x] Add the independently measured `bench:engine` suite with correctness checks; refine the 200-resource glob workload and stable operation inputs.
+- [x] Refresh comparison JSON/CSV/HTML outputs and record engine results for Node 22.14.0, Windows 11 Pro, Intel i7-9700KF.
+- [x] Publish measured tables, Mermaid `xychart-beta` charts and reproduction notes in README, benchmark methodology and bilingual current-v4 documentation. Historical versions untouched.
+
+Benchmark snapshot: small exact 7,282,499 ops/s; 200-resource exact 7,086,106 ops/s; inherited 7,009,957 ops/s; glob 3,527,345 ops/s. Independent engine suite median: exact 11,821,309 ops/s; inherited 12,864,770 ops/s. These are environment-dependent, and comparator APIs are not all semantically equivalent.
+
+Validation on 2026-11-14: `npm run bench` (both 15-case small and 18-case large suites), `node benchmarks/engine.js --json`, `npm run bench:micro` (stable exact 14,055,829 ops/s, interpolated 3,662,664 ops/s), `npm run lint`, `npm run typecheck`, `npm test -- --coverage=false` (7 suites, 185 tests), `npm run test:package` (six isolated tarballs, CJS/ESM/NodeNext), `npm run examples`, and `npm pack --dry-run --workspaces` passed. Website `npm run typecheck` and `npm run build` passed, including 76 localized current pages and both generated `/docs/benchmarks/` routes. Microbenchmarks vary between runs (the earlier v4 exact measurement was 14,484,315 ops/s). No release or push performed.
+
 ## Blockers and unresolved questions
 
 - `@rbac/core` appears unregistered, but an npm 404 is not proof that this account can publish to the `@rbac` scope. Verify registry rights at publication time; the user confirms ownership of `@rbac`.
