@@ -27,7 +27,7 @@ Deliver `@rbac/core@4.0.0` with a single-options `createRBAC` factory, independe
 - [x] Implement `createRBAC`, `RBACEngine` and `RBACOptions` with correct generic inference and regression coverage.
 - [x] Extract adapters, Express, Fastify, NestJS and Zod integrations without duplicating the core.
 - [x] Validate tenant isolation, SQL identifier safety, prototype names, conditional OR, glob/regex behavior and cache bounds.
-- [ ] Verify CJS/ESM identity, package exports, type consumers and packed npm installations.
+- [x] Verify CJS/ESM identity, package exports, type consumers and packed npm installations.
 - [ ] Compare post-migration benchmarks against measured v3 baseline and explain material changes.
 - [ ] Refresh README, CHANGELOG, examples and current Docusaurus EN/pt-BR docs, add v3 → v4 guide.
 - [ ] Update interactive playground, API generation, examples validation and package documentation.
@@ -40,10 +40,11 @@ Deliver `@rbac/core@4.0.0` with a single-options `createRBAC` factory, independe
 - 2026-11-14 baseline: `npm run build` passed; `npm test -- --coverage=false` passed with 6 suites/179 tests (Jest still collects coverage through its default config).
 - `npm run bench:micro` baseline: RBAC exact stable **13,114,348 ops/s**, interpolated **3,336,184 ops/s**; `Set.has` stable **13,896,559 ops/s**, interpolated **3,572,610 ops/s**. Node 22.14.0, Windows, single run; rerun after migration on the same host. Neither measurement represents other environments.
 - V4 workspace phase: `npm run build`, `npm run lint`, `npm test -- --coverage=false` (7 suites/181 tests), `node test/package-exports.test.mjs`, and `tsc -p test/package-types/tsconfig.json` passed. Packed-tarball verification and website migration pending.
+- V4 packing phase: `node scripts/test-packed.mjs` passed after correcting an isolated TypeScript fixture. All six packages were packed, installed as local tarballs into a clean temporary consumer, and validated for declared files, CJS/ESM exports, authorization, and NodeNext TypeScript declarations.
 
 ## Commits and next step
 
-- Baseline tracking commit: `6fe4fd7`. Workspace/API/integration extraction commit is next; record its resulting hash in the next tracking commit.
+- Baseline tracking commit: `6fe4fd7`. Workspace/API/integration extraction: `77cb0e5`.
 - Next: packed-package tests, docs and examples, site integration, CI and performance comparison.
 
 ## Blockers and unresolved questions
