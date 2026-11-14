@@ -9,6 +9,7 @@ import {entries} from './package-manifest.mjs';
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const scratch = mkdtempSync(path.join(tmpdir(), 'rbac-v4-pack-'));
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const expectedVersion = JSON.parse(readFileSync(path.join(root, 'packages/core/package.json'), 'utf8')).version;
 
 function run(command, args, cwd = root) {
   return execFileSync(command, args, {cwd, encoding: 'utf8',
@@ -21,7 +22,7 @@ try {
     const pkg = `@rbac/${name}`;
     const [info] = JSON.parse(run(npm, ['pack', '-w', pkg, '--json', '--pack-destination', scratch]));
     assert.equal(info.name, pkg);
-    assert.equal(info.version, '4.0.0');
+    assert.equal(info.version, expectedVersion);
     const files = new Set(info.files.map(file => file.path));
     for (const expected of ['package.json', 'README.md', 'MIGRATION.md', 'lib/index.js',
       'lib/index.mjs', 'lib/index.d.ts', 'lib/index.d.cts', 'lib/index.d.mts']) {

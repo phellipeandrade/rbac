@@ -52,8 +52,14 @@ jobs:
           test -s website/build/pt-BR/docs/api/index.html
           test -s website/build/docs/1.x/intro/index.html
           test -s website/build/docs/2.x/intro/index.html
+          test -s website/build/docs/3.x/intro/index.html
+          test -s website/build/docs/3.x/api/index.html
+          test -s website/build/docs/3.x/migration/index.html
           test -s website/build/pt-BR/docs/1.x/intro/index.html
           test -s website/build/pt-BR/docs/2.x/intro/index.html
+          test -s website/build/pt-BR/docs/3.x/intro/index.html
+          test -s website/build/pt-BR/docs/3.x/api/index.html
+          test -s website/build/pt-BR/docs/3.x/migration/index.html
           test -s website/build/docs/migration-1-to-2/index.html
           test -s website/build/docs/migration-2-to-3/index.html
           test -s website/build/docs/migration-3-to-4/index.html

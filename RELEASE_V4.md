@@ -1,10 +1,10 @@
-# RBAC v4.0.0 — Release checklist
+# RBAC v4.0.1 — Patch release checklist
 
-This file prepares the v4 release. **No npm publication, deprecation, push, Git tag, or GitHub Pages deployment is performed by these instructions automatically.** Run the release commands only after approving the release and confirming that the documentation and source changes are merged.
+This file prepares the v4.0.1 patch release following the published v4.0.0 packages. **No npm publication, deprecation, push, Git tag, or GitHub Pages deployment is performed by these instructions automatically.** Run the release commands only after approving the release and confirming that the documentation and source changes are merged.
 
 ## Packages and dependency order
 
-The repository root is a private npm workspace and must not be published. All six public packages use version `4.0.0`:
+The repository root is a private npm workspace and must not be published. All six public packages use version `4.0.1`; the five integration packages require `@rbac/core@4.0.1` exactly:
 
 | Publish order | Package | Runtime dependencies |
 | --- | --- | --- |
@@ -27,14 +27,25 @@ npm test -- --coverage=false
 npm run test:package
 npm run examples
 npm pack --dry-run --workspaces
+npm audit --audit-level=low
 
 cd website
 npm ci
 npm run typecheck
 npm run build
+npm audit --audit-level=low
 ```
 
 `npm run test:package` checks six **real npm tarballs** installed in an isolated consumer, including CommonJS, ESM, shared module identity, types, and optional integration boundaries. Inspect each package's README, `MIGRATION.md`, export map, dependencies, and npm tarball contents.
+
+From the repository root, generate the six **release artifacts** and keep them outside version control:
+
+```bash
+mkdir -p dist/npm
+npm pack --workspaces --pack-destination dist/npm
+```
+
+Verify all six archives use the `4.0.1` version and match the source manifests. Only release the archives that passed the isolated consumer checks.
 
 ## Registry preparation
 
@@ -55,23 +66,23 @@ After the code, migration guide, and site are reviewed and approved, publish the
 
 ```bash
 npm run build
-npm publish --workspace=@rbac/core --access public
-npm publish --workspace=@rbac/adapters --access public
-npm publish --workspace=@rbac/express --access public
-npm publish --workspace=@rbac/fastify --access public
-npm publish --workspace=@rbac/nestjs --access public
-npm publish --workspace=@rbac/schemas --access public
+npm publish dist/npm/rbac-core-4.0.1.tgz --access public
+npm publish dist/npm/rbac-adapters-4.0.1.tgz --access public
+npm publish dist/npm/rbac-express-4.0.1.tgz --access public
+npm publish dist/npm/rbac-fastify-4.0.1.tgz --access public
+npm publish dist/npm/rbac-nestjs-4.0.1.tgz --access public
+npm publish dist/npm/rbac-schemas-4.0.1.tgz --access public
 ```
 
 Check the published registry metadata and install each package in a clean consumer. Do not publish the private root workspace. Each package's `prepack` script requires an up-to-date build.
 
 ```bash
-npm view @rbac/core@4.0.0 version exports dependencies --json
-npm view @rbac/adapters@4.0.0 version dependencies peerDependencies --json
-npm view @rbac/express@4.0.0 version dependencies --json
-npm view @rbac/fastify@4.0.0 version dependencies --json
-npm view @rbac/nestjs@4.0.0 version dependencies --json
-npm view @rbac/schemas@4.0.0 version dependencies --json
+npm view @rbac/core@4.0.1 version exports dependencies --json
+npm view @rbac/adapters@4.0.1 version dependencies peerDependencies --json
+npm view @rbac/express@4.0.1 version dependencies --json
+npm view @rbac/fastify@4.0.1 version dependencies --json
+npm view @rbac/nestjs@4.0.1 version dependencies --json
+npm view @rbac/schemas@4.0.1 version dependencies --json
 ```
 
 ## Deprecation of the previous package (manual; not executed)

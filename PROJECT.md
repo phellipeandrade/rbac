@@ -4,8 +4,8 @@
 
 Deliver `@rbac/core@4.0.0` with a single-options `createRBAC` factory, independently installable integrations, zero runtime dependencies in the core, complete v4 bilingual documentation, and validated npm artifacts. Preserve authorization semantics and all historical documentation/releases.
 
-- Current state: v3.0.0 is on `master`; migration is on `feature/rbac-v4`, based on local `develop` created from `master`.
-- Publishing status: not authorized. `npm view @rbac/core` returned npm E404 on 2026-11-14 (name not found); `npm whoami` returned `phandrade`. The user confirmed ownership of the `@rbac` scope; publish permission for the unregistered name is untested and publication is not authorized. Manual release instructions are in `RELEASE_V4.md`.
+- Current state: v4 migration is on `master`; all six `@rbac/*@4.0.0` packages are published on npm. The subsequent security and branding changes are being prepared as v4.0.1.
+- Publishing status: `npm whoami` returned `phandrade` and `npm view` confirmed v4.0.0 on the registry for all six packages on 2026-11-14. The v4.0.1 tarballs are prepared locally but have not been published. Publication instructions are in `RELEASE_V4.md`.
 - Source baseline: `src/`; target source layout decided per phase. Never edit generated `lib/` or historical website versions.
 
 ## Architecture decisions
@@ -14,7 +14,7 @@ Deliver `@rbac/core@4.0.0` with a single-options `createRBAC` factory, independe
 2. Replace v3's `RBAC(config)(roles)` with `createRBAC({ roles, ...config })`. Use named exports; retire v3 compatibility aliases in v4. Keep `can`, `addRole`, and `updateRoles` semantics.
 3. Keep the engine dependency-free. SQL/database drivers and frameworks remain optional peers or lazy-loaded modules in their own workspace packages; Zod belongs only to schemas.
 4. Ensure CJS and ESM share identity via a CJS implementation and thin ESM facades; test the real packed package from consumers.
-5. Create only v4/current website pages and translation updates, leaving `website/versioned_docs`, `versioned_sidebars` and prior-version translations intact.
+5. Create only v4/current website pages and translation updates, leaving historical versions intact except for the explicitly requested restoration of the missing 3.x archive from the pre-v4 Git snapshot.
 6. Every completed and verified phase gets a Conventional Commit. Do not push, publish, deprecate, or tag without additional authorization.
 
 ## Phases
@@ -88,9 +88,27 @@ Validation: `website/npm run typecheck` and `website/npm run build` passed. The 
 
 Validation: `npm ci` (root), `npm run lint`, `npm run typecheck`, `npm test -- --coverage=false` (8 suites, 188 tests), `npm run test:package` (all six isolated package installations and CJS/ESM/NodeNext consumers), `npm run examples`, and `npm pack --dry-run --workspaces` passed. Website `npm run typecheck`, `npm run build`, `npm run check:examples` (45 TS and 2 JS examples), `npm run check:translations` (89 pages per locale) passed. The patch is limited to current v4 references; historical docs remain unchanged. No push, publication, or release tag performed.
 
+## v4.0.1 npm patch release preparation (2026-11-14)
+
+- [x] Verify all six v4.0.0 packages exist on npm, with authenticated account `phandrade` and the public npm registry configured.
+- [x] Bump the six publishable workspaces to `4.0.1` and pin all five integrations to `@rbac/core@4.0.1`; synchronize the lockfile. The private root workspace was already `4.0.1`.
+- [x] Update the tarball regression test to derive its expected version from the core manifest, and update the changelog and manual release checklist.
+- [x] Run clean `npm ci` for root and website, `npm run lint`, `npm run typecheck`, `npm test -- --coverage=false` (8 suites / 188 tests), `npm run test:package` (six isolated CJS/ESM/NodeNext consumers), `npm run examples`, and `npm pack --dry-run --workspaces --json`.
+- [x] Verify `npm audit --audit-level=low` reports zero vulnerabilities in both root and website dependency graphs.
+- [x] Validate the website production build in English and pt-BR, including 76 current pages and 106 pages per locale across versions. The first run failed in pt-BR with an absent generated `__server/server.bundle.js` while the website's 3.x snapshot/configuration was being modified; the subsequent full run passed for both locales. No cause for the transient missing file was established.
+- [x] Generate `dist/npm/rbac-{core,adapters,express,fastify,nestjs,schemas}-4.0.1.tgz`; inspect all embedded package manifests and validate `npm publish --dry-run --access public` for all six archives.
+- [ ] Publish the v4.0.1 packages to npm, in dependency order, following explicit authorization and registry checks. No push, tag or package deprecation performed.
+
 ## Blockers and unresolved questions
 
 
-- `@rbac/core` appears unregistered, but an npm 404 is not proof that this account can publish to the `@rbac` scope. Verify registry rights at publication time; the user confirms ownership of `@rbac`.
+- All six v4.0.0 packages are registered. Confirm permission and available version numbers again immediately before any v4.0.1 publication.
 - npm publication, old-package deprecation, remote push and release tags require separate authorization.
-- The 3.x website guides were the unversioned `current` documentation before v4; no frozen 3.x Docusaurus snapshot existed. The user explicitly prohibited changes or regeneration of previous-major documentation, so existing 1.x/2.x snapshots were preserved and no new 3.x archive was generated. The former 3.x source remains available in Git history.
+
+## Historical 3.x documentation restoration (2026-11-14)
+
+- [x] Restore 17 English and 17 pt-BR 3.x documentation pages from pre-v4 commit `a4aba71`, using `versioned_docs/version-3.x/` and its localized counterpart; reproduce the historical sidebar structure.
+- [x] Register 3.x as a deprecated archived version while keeping 4.x as `current` / latest, and add CI checks for both 3.x introduction routes.
+- [x] Correct outdated latest-version labels and an orphaned TypeDoc link in the archived API overview; link to the v3.0.0 source because the historical generated TypeDoc tree was not committed.
+- [x] Validate `website/npm run typecheck`, `website/npm run build`, parity of 106 English/pt-BR pages, static 3.x introduction/installation/API/migration routes and 3.x selector links in both languages, and `git diff --check`. Existing 1.x/2.x snapshots remain untouched.
+- Local changes only; deployment requires a separate push/merge to the branch used by GitHub Pages.

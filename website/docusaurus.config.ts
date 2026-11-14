@@ -49,6 +49,7 @@ const config: Config = {
         lastVersion: 'current',
         versions: {
           current: {label: '4.x (latest)', banner: 'none'},
+          '3.x': {label: '3.x (deprecated)', banner: 'unmaintained', noIndex: true},
           '2.x': {label: '2.x (deprecated)', banner: 'unmaintained', noIndex: true},
           '1.x': {label: '1.x (deprecated)', banner: 'unmaintained', noIndex: true}
         },
