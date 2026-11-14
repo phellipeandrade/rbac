@@ -61,6 +61,8 @@ button:disabled {cursor: not-allowed; opacity: .6;}
 .theme-doc-markdown h1 {letter-spacing: -.045em; font-size: clamp(2rem, 4vw, 3rem);}
 .theme-doc-markdown h2 {letter-spacing: -.03em; margin-top: 2.6rem;}
 .theme-doc-markdown code {font-size: .88em;}
+.rb-migration-banner {margin: -0.35rem 0 1.5rem; padding: .95rem 1.2rem; border: 1px solid var(--ifm-color-warning); border-radius: 8px; background: var(--rb-surface); line-height: 1.65;}
+.rb-migration-banner strong {color: var(--ifm-font-color-base);}
 .markdown a {text-decoration-thickness: 1px; text-underline-offset: 3px;}
 
 /* Shiki is the sole highlighter for fenced documentation examples. */

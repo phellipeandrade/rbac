@@ -46,6 +46,12 @@ const config: Config = {
       docs: {
         sidebarPath: './sidebars.ts',
         routeBasePath: 'docs',
+        lastVersion: 'current',
+        versions: {
+          current: {label: '3.x (latest)', banner: 'none'},
+          '2.x': {label: '2.x (deprecated)', banner: 'unmaintained', noIndex: true},
+          '1.x': {label: '1.x (deprecated)', banner: 'unmaintained', noIndex: true}
+        },
         editUrl: 'https://github.com/phellipeandrade/rbac/tree/master/website/',
         rehypePlugins: [[rehypeShiki, {
           themes: {light: 'github-light', dark: 'github-dark'},
@@ -93,6 +99,7 @@ const config: Config = {
         {type: 'docSidebar', sidebarId: 'guide', position: 'left', label: 'Guides'},
         {to: '/playground', label: 'Playground', position: 'left'},
         {type: 'docSidebar', sidebarId: 'api', position: 'left', label: 'API'},
+        {type: 'docsVersionDropdown', position: 'left'},
         {href: 'https://github.com/phellipeandrade/rbac', label: 'GitHub', position: 'right'},
         {type: 'localeDropdown', position: 'right'},
         {type: 'search', position: 'right'}

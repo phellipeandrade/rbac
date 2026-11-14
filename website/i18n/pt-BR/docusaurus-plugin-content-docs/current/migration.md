@@ -7,6 +7,8 @@ title: Migração de integrações existentes
 
 Ao atualizar uma versão antiga do RBAC, revise as chamadas em JavaScript e os caminhos de importação. O pacote atual é distribuído como `@rbac/rbac`, com entradas CommonJS e ESM.
 
+Para atualizar uma versão principal publicada, siga os guias específicos: **[1.x → 2.x](./migration-1-to-2.md)** e **[2.x → 3.x](./migration-2-to-3.md)**. O seletor de versões mantém a documentação histórica **1.x** e **2.x** junto à **3.x (latest)**.
+
 ## Alterações entre versões principais
 
 A versão 2 introduziu a implementação em TypeScript, atualizações de roles em execução, adapters para MongoDB/MySQL/PostgreSQL, middlewares e funções de autorização por tenant. A versão 3 exige **Node.js 22.12.0+**, move os schemas Zod para os subcaminhos opcionais `@rbac/rbac/schemas` e `@rbac/rbac/roles.schema` e rejeita identificadores inválidos de tabelas ou colunas SQL na construção do adapter. Revise essas alterações antes de atualizar integrações antigas.

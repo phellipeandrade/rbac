@@ -1,0 +1,4 @@
+{
+  "guide": ["intro", "installation", "roles-permissions", "conditions", "integrations", "migration"],
+  "api": ["api"]
+}

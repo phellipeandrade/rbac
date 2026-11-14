@@ -7,6 +7,8 @@ title: Migrating existing RBAC integrations
 
 When upgrading from an older RBAC release, review both the JavaScript runtime calls and the package imports. The current package is published as `@rbac/rbac` with CommonJS and ESM entry points.
 
+For a step-by-step upgrade from a published major release, use the dedicated guides: **[1.x → 2.x](./migration-1-to-2.md)** and **[2.x → 3.x](./migration-2-to-3.md)**. The version selector preserves the historical **1.x** and **2.x** documentation alongside **3.x (latest)**.
+
 ## Changes across major versions
 
 Version 2 introduced the TypeScript implementation, runtime role updates, MongoDB/MySQL/PostgreSQL adapters, framework middlewares, and tenant-aware authorization helpers. Version 3 requires **Node.js 22.12.0+**, moves Zod schemas to the opt-in `@rbac/rbac/schemas` and `@rbac/rbac/roles.schema` subpaths, and rejects invalid SQL table or column identifiers during adapter construction. Review these changes before upgrading older code.
