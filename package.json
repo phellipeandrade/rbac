@@ -1,11 +1,13 @@
 {
   "name": "@rbac/rbac",
-  "version": "2.2.3",
+  "version": "3.0.0",
   "description": "Blazing Fast, Zero dependency, Hierarchical Role-Based Access Control for Node.js",
   "main": "./lib/index.cjs",
   "module": "./lib/index.mjs",
   "types": "lib/index.d.ts",
-  "engines": { "node": ">=22.12.0" },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "exports": {
     ".": {
       "import": {
