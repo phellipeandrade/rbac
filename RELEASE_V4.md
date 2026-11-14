@@ -1,6 +1,8 @@
-# RBAC v4.0.1 — Patch release checklist
+# RBAC v4.0.1 — Patch release record and checklist
 
-This file prepares the v4.0.1 patch release following the published v4.0.0 packages. **No npm publication, deprecation, push, Git tag, or GitHub Pages deployment is performed by these instructions automatically.** Run the release commands only after approving the release and confirming that the documentation and source changes are merged.
+The six v4.0.1 packages were published to npm on 2026-11-14 and verified against the public registry. The publication instructions below are retained as a release runbook; do not rerun `npm publish` for the already published versions. No package deprecation, Git push, or GitHub Pages deployment was performed during final verification.
+
+**Verified publication:** `@rbac/core`, `@rbac/adapters`, `@rbac/express`, `@rbac/fastify`, `@rbac/nestjs`, and `@rbac/schemas` each have version `4.0.1` and npm `latest` set to `4.0.1`. Registry SHA-512 integrity values match all six local release tarballs. The six corresponding annotated Git tags were created locally against source commit `40ae396`; pushing them to GitHub remains pending. Installation of the published packages into a new consumer was attempted but blocked by the local execution policy; the previously completed isolated tarball tests remain valid for the matching archives.
 
 ## Packages and dependency order
 
@@ -60,7 +62,7 @@ npm view @rbac/rbac version
 
 The first publication of a new scoped package may return `E404` for `npm view`; this only confirms the package name is absent, not that the current account has publishing rights. Complete npm account security checks and any required two-factor or granular-token authorization before publishing.
 
-## Publication (manual; not executed)
+## Publication commands (historical; already completed)
 
 After the code, migration guide, and site are reviewed and approved, publish the new packages from the repository root in dependency order:
 
@@ -118,7 +120,7 @@ git tag --list '@rbac/*@4.0.1'
 
 Push the reviewed tags to GitHub only when remote publication is authorized; pushing tags is separate from `npm publish`. Prefer explicit tag refs to `git push --tags`, which may also publish unrelated local tags.
 
-The six historical `@rbac/*@4.0.0` tags were created locally, pointing to migration commit `6781750`; the existing `v3.0.0` tag remains unchanged. Version `4.0.1` must not be tagged until its npm publication succeeds.
+The six historical `@rbac/*@4.0.0` tags were created locally, pointing to migration commit `6781750`; the existing `v3.0.0` tag remains unchanged. The six `@rbac/*@4.0.1` tags were created locally after publication, pointing to `40ae396`.
 
 ## Deprecation of the previous package (manual; not executed)
 
