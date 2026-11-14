@@ -3,6 +3,7 @@ import { describe, expect, it, jest } from '@jest/globals';
 import rbac, {
   createExpressMiddleware,
   createNestMiddleware,
+  createNestGuard,
   createFastifyMiddleware
 } from '../src/index';
 
@@ -32,14 +33,6 @@ function mockRes(): MockResponse {
 }
 interface MockExpressRequest {
   role: string;
-}
-
-interface MockNestContext {
-  switchToHttp(): {
-    getRequest(): MockExpressRequest;
-    getResponse(): MockResponse;
-    getNext(): (err?: unknown) => void;
-  };
 }
 
 describe('Middlewares', () => {
@@ -88,17 +81,7 @@ describe('Middlewares', () => {
     const middleware = createNestMiddleware(RBAC)('products:find');
     const res = mockRes();
     const nextFn = jest.fn();
-    const context: MockNestContext & { role: string } = {
-      role: 'user',
-      switchToHttp() {
-        return {
-          getRequest: () => ({ role: 'user' }),
-          getResponse: () => res,
-          getNext: () => nextFn
-        };
-      }
-    } as any;
-    await middleware(context as never, res as never, nextFn);
+    await middleware({ role: 'user' }, res as never, nextFn);
     // The middleware calls next() directly when access is allowed
     expect(nextFn).toHaveBeenCalled();
     expect(res.code).toBeUndefined();
@@ -108,18 +91,30 @@ describe('Middlewares', () => {
     const middleware = createNestMiddleware(RBAC)('products:edit');
     const res = mockRes();
     const nextFn = jest.fn();
-    const context: MockNestContext = {
-      switchToHttp() {
-        return {
-          getRequest: () => ({ role: 'user' }),
-          getResponse: () => res,
-          getNext: () => nextFn
-        };
-      }
-    };
-    await middleware(context as never, res as never, nextFn as never);
+    await middleware({ role: 'user' }, res as never, nextFn);
     expect(nextFn).not.toHaveBeenCalled();
     expect(res.code).toBe(403);
+  });
+
+  it('nest guard follows the CanActivate contract', async () => {
+    const permitted = createNestGuard(RBAC)('products:find');
+    const denied = createNestGuard(RBAC)('products:edit');
+    const context = { switchToHttp: () => ({ getRequest: () => ({ role: 'user' }) }) };
+    await expect(permitted.canActivate(context)).resolves.toBe(true);
+    await expect(denied.canActivate(context)).resolves.toBe(false);
+  });
+
+  it('nest guard forwards typed conditional parameters', async () => {
+    const conditional = rbac<{ owner: boolean }>({ enableLogger: false })({
+      user: { can: [{ name: 'products:edit', when: (params: { owner: boolean }) => params.owner }] }
+    });
+    const guard = createNestGuard(conditional)('products:edit', {
+      getRole: request => request.role ?? '',
+      getParams: request => ({ owner: request.owner === true })
+    });
+    const context = (owner: boolean) => ({ switchToHttp: () => ({ getRequest: () => ({ role: 'user', owner }) }) });
+    await expect(guard.canActivate(context(true))).resolves.toBe(true);
+    await expect(guard.canActivate(context(false))).resolves.toBe(false);
   });
 
   it('fastify middleware allows access', async () => {
@@ -195,16 +190,16 @@ describe('Middlewares', () => {
   });
 
   it('fastify middleware uses custom extractors and denial handler', async () => {
-    const onDenied = jest.fn();
+    const onDenied = jest.fn((_request: unknown, _reply: unknown) => undefined);
     const middleware = createFastifyMiddleware(RBAC)('products:edit', {
-      getRole: req => req.account.role,
-      getParams: req => ({ accountId: req.account.id }),
+      getRole: req => (req as typeof req & { account: { role: string } }).account.role,
+      getParams: req => ({ accountId: (req as typeof req & { account: { id: string } }).account.id }),
       onDenied
     });
     const req = { account: { role: 'user', id: '123' } };
     const reply = mockRes();
 
-    await middleware(req, reply as never);
+    await middleware(req as never, reply as never);
 
     expect(onDenied).toHaveBeenCalledWith(req, reply);
     expect(reply.code).toBeUndefined();

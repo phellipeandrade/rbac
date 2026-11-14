@@ -1,21 +1,38 @@
 import type { RBACInstance } from '../types';
 
-type FastifyRequest = any;
-type FastifyReply = any;
+/** Structural Fastify contract; consumers can supply their own request/reply types. */
+export interface FastifyRequestLike {
+  role?: string;
+  readonly headers?: Readonly<Record<string, unknown>>;
+  readonly body?: unknown;
+  readonly params?: unknown;
+  readonly query?: unknown;
+  readonly method?: string;
+  readonly url?: string;
+}
 
-export interface FastifyOptions<P = unknown> {
-  getRole?: (req: FastifyRequest) => string;
-  getParams?: (req: FastifyRequest) => P;
-  onDenied?: (req: FastifyRequest, reply: FastifyReply) => void;
+export interface FastifyReplyLike {
+  status(code: number): this;
+  send(payload: string): unknown;
+}
+
+export interface FastifyOptions<
+  P = unknown,
+  Request extends FastifyRequestLike = FastifyRequestLike,
+  Reply extends FastifyReplyLike = FastifyReplyLike
+> {
+  getRole?: (req: Request) => string;
+  getParams?: (req: Request) => P;
+  onDenied?: (req: Request, reply: Reply) => void | Promise<void>;
 }
 
 export const createFastifyMiddleware =
-  <P>(rbac: RBACInstance<P>) =>
-  (operation: string | RegExp, options: FastifyOptions<P> = {}) =>
-  async (req: FastifyRequest, reply: FastifyReply): Promise<void> => {
-    const role = options.getRole ? options.getRole(req) : (req as any).role;
+  <P, Request extends FastifyRequestLike = FastifyRequestLike, Reply extends FastifyReplyLike = FastifyReplyLike>(rbac: RBACInstance<P>) =>
+  (operation: string | RegExp, options: FastifyOptions<P, Request, Reply> = {}) =>
+  async (req: Request, reply: Reply): Promise<void> => {
+    const role = options.getRole ? options.getRole(req) : req.role;
     const params = options.getParams ? options.getParams(req) : undefined;
-    const allowed = await rbac.can(role, operation, params as P);
+    const allowed = await rbac.can(role ?? '', operation, params);
     if (allowed) return;
     if (options.onDenied) return options.onDenied(req, reply);
     reply.status(403).send('Forbidden');
