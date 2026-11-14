@@ -28,7 +28,7 @@ Deliver `@rbac/core@4.0.0` with a single-options `createRBAC` factory, independe
 - [x] Extract adapters, Express, Fastify, NestJS and Zod integrations without duplicating the core.
 - [x] Validate tenant isolation, SQL identifier safety, prototype names, conditional OR, glob/regex behavior and cache bounds.
 - [x] Verify CJS/ESM identity, package exports, type consumers and packed npm installations.
-- [ ] Compare post-migration benchmarks against measured v3 baseline and explain material changes.
+- [x] Compare post-migration benchmarks against measured v3 baseline and explain material changes.
 - [ ] Refresh README, CHANGELOG, examples and current Docusaurus EN/pt-BR docs, add v3 → v4 guide.
 - [ ] Update interactive playground, API generation, examples validation and package documentation.
 - [ ] Update CI and GitHub Pages build for the new structure.
@@ -41,10 +41,11 @@ Deliver `@rbac/core@4.0.0` with a single-options `createRBAC` factory, independe
 - `npm run bench:micro` baseline: RBAC exact stable **13,114,348 ops/s**, interpolated **3,336,184 ops/s**; `Set.has` stable **13,896,559 ops/s**, interpolated **3,572,610 ops/s**. Node 22.14.0, Windows, single run; rerun after migration on the same host. Neither measurement represents other environments.
 - V4 workspace phase: `npm run build`, `npm run lint`, `npm test -- --coverage=false` (7 suites/181 tests), `node test/package-exports.test.mjs`, and `tsc -p test/package-types/tsconfig.json` passed. Packed-tarball verification and website migration pending.
 - V4 packing phase: `node scripts/test-packed.mjs` passed after correcting an isolated TypeScript fixture. All six packages were packed, installed as local tarballs into a clean temporary consumer, and validated for declared files, CJS/ESM exports, authorization, and NodeNext TypeScript declarations.
+- V4 performance phase: `npm run bench:micro` returned exact stable **14,484,315 ops/s** (+10.4% vs single-run v3), interpolated **3,965,550 ops/s** (+18.9%), Set.has stable **15,140,917 ops/s** and interpolated **3,636,781 ops/s**. Same Windows host and Node 22.14.0; each version measured only once, so changes may reflect process/JIT/CPU variability. Full comparison `npm run bench` was updated for v4 but not rerun, as it generates tracked reports.
 
 ## Commits and next step
 
-- Baseline tracking commit: `6fe4fd7`. Workspace/API/integration extraction: `77cb0e5`.
+- Baseline tracking commit: `6fe4fd7`. Workspace/API/integration extraction: `77cb0e5`. Isolated tarball packaging: `bac23e7`.
 - Next: packed-package tests, docs and examples, site integration, CI and performance comparison.
 
 ## Blockers and unresolved questions

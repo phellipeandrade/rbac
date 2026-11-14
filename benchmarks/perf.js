@@ -1,6 +1,7 @@
 const { suite, add, save, cycle, complete } = require('benny');
 const asciichart = require('asciichart');
-const RBAC = require('../lib').default;
+const { createRBAC } = require('@rbac/core');
+const { callbackWhen } = require('@rbac/core/helpers');
 const { readFileSync } = require('fs');
 
 // Import other RBAC libraries
@@ -30,7 +31,7 @@ const roles = {
     can: [
       {
         name: CONDITIONAL_OPS.callback,
-        when: (_params, done) => setImmediate(() => done(null, true))
+        when: callbackWhen((_params, done) => setImmediate(() => done(null, true)))
       },
       {
         name: CONDITIONAL_OPS.async,
@@ -118,7 +119,7 @@ function createLargeDataset(resourceCount = DEFAULT_LARGE_RESOURCE_COUNT) {
       can: [
         {
           name: callbackConditional,
-          when: (_params, done) => setImmediate(() => done(null, true))
+          when: callbackWhen((_params, done) => setImmediate(() => done(null, true)))
         },
         {
           name: asyncConditional,
@@ -311,7 +312,7 @@ function logResults(slug) {
 }
 
 async function main() {
-  const rbac = RBAC({ enableLogger: false })(roles);
+  const rbac = createRBAC({ roles, enableLogger: false });
   const ac = setupAccessControl();
   const popularRBAC = setupPopularRBAC();
   const easyRBAC = setupEasyRBAC();
@@ -322,13 +323,13 @@ async function main() {
   const mainSlug = 'rbac-comparison';
   await suite(
     'RBAC Performance Comparison',
-    add('@rbac/rbac - direct permission', async () => {
+    add('@rbac/core - direct permission', async () => {
       await rbac.can('user', 'products:find');
     }),
-    add('@rbac/rbac - inherited permission', async () => {
+    add('@rbac/core - inherited permission', async () => {
       await rbac.can('supervisor', 'products:find');
     }),
-    add('@rbac/rbac - glob permission', async () => {
+    add('@rbac/core - glob permission', async () => {
       await rbac.can('superhero', 'products:delete');
     }),
     add('AccessControl - direct permission', async () => {
@@ -397,7 +398,7 @@ async function main() {
   const largeDataset = createLargeDataset();
   const largeSlug = 'rbac-comparison-large';
 
-  const largeRBAC = RBAC({ enableLogger: false })(largeDataset.rbacRoles);
+  const largeRBAC = createRBAC({ roles: largeDataset.rbacRoles, enableLogger: false });
   const largeAccessControl = setupLargeAccessControl(largeDataset);
   const largePopularRBAC = new PopularRBAC(largeDataset.popularConfig);
   const largeEasyRBAC = new EasyRBAC(largeDataset.easyRoles);
@@ -407,22 +408,22 @@ async function main() {
 
   await suite(
     'RBAC Performance Comparison - Large Dataset',
-    add('@rbac/rbac - large direct', async () => {
+    add('@rbac/core - large direct', async () => {
       await largeRBAC.can('analyst', `${largeDataset.resources[0]}:read`);
     }),
-    add('@rbac/rbac - large inherited', async () => {
+    add('@rbac/core - large inherited', async () => {
       await largeRBAC.can('director', `${largeDataset.resources[0]}:write`);
     }),
-    add('@rbac/rbac - large glob', async () => {
+    add('@rbac/core - large glob', async () => {
       await largeRBAC.can('superadmin', `${largeDataset.resources[0]}:delete`);
     }),
-    add('@rbac/rbac - large callback', async () => {
+    add('@rbac/core - large callback', async () => {
       await largeRBAC.can('auditor', largeDataset.conditionalOps.callback);
     }),
-    add('@rbac/rbac - large async', async () => {
+    add('@rbac/core - large async', async () => {
       await largeRBAC.can('auditor', largeDataset.conditionalOps.async);
     }),
-    add('@rbac/rbac - large promise', async () => {
+    add('@rbac/core - large promise', async () => {
       await largeRBAC.can('auditor', largeDataset.conditionalOps.promise);
     }),
     add('AccessControl - large direct', async () => {
