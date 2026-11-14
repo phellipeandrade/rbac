@@ -12,6 +12,7 @@ const globPatterns: Record<string, string> = {
 
 const replaceGlobToRegex = (glob: string): string =>
   glob
+    .replace(/\\/g, '\\\\')
     .replace(/\./g, '\\.')
     .replace(/\*\*$/g, '(.+)')
     .replace(/(?:\*\*\/|\*\*|\*)/g, str => globPatterns[str]);
