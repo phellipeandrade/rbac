@@ -5,6 +5,6 @@
   <path d="M130 20 238 63v65c0 65-43 105-108 140C65 233 22 193 22 128V63L130 20Z" fill="none" stroke="#2563EB" stroke-width="11" stroke-linejoin="round"/>
   <path d="M101 121v-18c0-19 12-33 29-33s29 14 29 33v18" fill="none" stroke="#2563EB" stroke-width="12" stroke-linecap="round"/>
   <rect x="87" y="121" width="86" height="78" rx="17" fill="#2563EB"/>
-  <circle cx="130" cy="154" r="8" fill="#FFFFFF"/>
-  <rect x="126.2" y="158" width="7.6" height="20" rx="3.8" fill="#FFFFFF"/>
+  <circle cx="130" cy="154" r="8" fill="#0F172A"/>
+  <rect x="126.2" y="158" width="7.6" height="20" rx="3.8" fill="#0F172A"/>
 </svg>

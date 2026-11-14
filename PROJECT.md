@@ -77,6 +77,7 @@ Validation: `website/npm run typecheck` and `website/npm run build` passed. The 
 - Updated Docusaurus favicon, navigation (including a white-wordmark variant for dark mode), homepage hero, social card, current EN/pt-BR introductions, and the site/playground accent palette to blue `#2563EB` and navy `#0F172A`.
 - Preserved the authorization result colors as semantic feedback; existing historical documentation was left unchanged.
 - Validation: root `npm run lint`, website `npm run typecheck` and `npm run build`, SVG XML parsing, generated EN/pt-BR route checks, and `git diff --check` passed. Additional bilingual brand-asset links in current introductions were validated by the subsequent bilingual website build.
+- 2026-11-14 follow-up: synchronized the refreshed icon and full logo into the website's public assets; updated the lock details in the white-wordmark dark-navigation variant while preserving its light wordmark. Website build and `git diff --check` validated.
 
 ## Dependency security remediation (2026-11-14)
 
