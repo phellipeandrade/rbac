@@ -1,6 +1,6 @@
 {
   "name": "@rbac/rbac",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": "Blazing Fast, Zero dependency, Hierarchical Role-Based Access Control for Node.js",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -12,8 +12,12 @@
       "default": "./lib/index.js"
     }
   },
+  "files": [
+    "lib"
+  ],
   "scripts": {
     "build": "tsc && vite build",
+    "prepack": "npm run build",
     "dev": "tsc -w",
     "examples": "node -r ts-node/register ./examples/index.ts",
     "test": "cross-env NODE_ENV=test jest --coverage",
@@ -42,6 +46,9 @@
     "url": "https://github.com/phellipeandrade/rbac/issues"
   },
   "homepage": "https://github.com/phellipeandrade/rbac",
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.51",
     "@babel/core": "^7.0.0-beta.51",

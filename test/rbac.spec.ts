@@ -298,6 +298,35 @@ describe('RBAC', () => {
   });
 
   describe('edge cases', () => {
+    it('should resolve unknown prototype property names as false', async () => {
+      const instance = rbac({ enableLogger: false })({
+        user: { can: ['products:find'] }
+      });
+
+      for (const role of [
+        'constructor',
+        '__proto__',
+        'toString',
+        'hasOwnProperty',
+        'valueOf',
+        'isPrototypeOf'
+      ]) {
+        await expect(instance.can(role, 'products:find')).resolves.toBe(false);
+      }
+    });
+
+    it('should support roles named after Object prototype properties', async () => {
+      const roles = JSON.parse(
+        '{"constructor":{"can":["products:find"]},"__proto__":{"can":["products:edit"]},"toString":{"can":[]},"guest":{"can":[],"inherits":["constructor"]}}'
+      ) as Roles<boolean>;
+      const instance = rbac<boolean>({ enableLogger: false })(roles);
+
+      await expect(instance.can('constructor', 'products:find')).resolves.toBe(true);
+      await expect(instance.can('__proto__', 'products:edit')).resolves.toBe(true);
+      await expect(instance.can('guest', 'products:find')).resolves.toBe(true);
+      await expect(instance.can('toString', 'products:find')).resolves.toBe(false);
+    });
+
     it('should enforce when guards for glob and regex operation queries', async () => {
       const scopedRBAC = rbac<{ owner: boolean }>({ enableLogger: false })({
         user: {

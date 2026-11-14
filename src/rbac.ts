@@ -352,7 +352,7 @@ const indexSimpleGlobs = <P>(
 };
 
 const flattenRoles = <P>(roles: Roles<P>): MappedRoles<P> => {
-  const memo: MappedRoles<P> = {};
+  const memo = Object.create(null) as MappedRoles<P>;
   const visit = (name: string, stack: Set<string>): MappedRole<P> => {
     if (memo[name]) return memo[name];
     if (stack.has(name))
@@ -364,7 +364,9 @@ const flattenRoles = <P>(roles: Roles<P>): MappedRoles<P> => {
         allOps: []
       } as MappedRole<P>;
     stack.add(name);
-    const role = roles[name];
+    const role = Object.prototype.hasOwnProperty.call(roles, name)
+      ? roles[name]
+      : undefined;
     let direct = new Set<string>();
     let conditional = new Map<string, NormalizedWhenFn<P>>();
     let patterns: PatternPermission<P>[] = [];
