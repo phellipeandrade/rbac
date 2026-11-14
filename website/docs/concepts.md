@@ -8,17 +8,17 @@ title: Core concepts
 **User**: identified by your application. RBAC does not maintain user accounts or memberships. **Role**: a named definition, such as `editor`. **Operation**: an application-defined string like `invoices:approve`. **Grant**: an entry in a role's `can` array. **Condition**: optional `when` rule, evaluated with the current request's parameters. **Inheritance**: additive permissions obtained from another role.
 
 ```ts
-import RBAC from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
 
 type RequestContext = { ownerId: string; userId: string };
 
-const auth = RBAC<RequestContext>()({
+const auth = createRBAC<RequestContext>({ roles: {
   reader: { can: ['items:read'] },
   author: {
     inherits: ['reader'],
     can: [{ name: 'items:edit', when: ({ ownerId, userId }: RequestContext) => ownerId === userId }]
   }
-});
+} });
 
 console.log(await auth.can('author', 'items:read')); // true
 console.log(await auth.can('author', 'items:edit', { ownerId: 'a', userId: 'b' })); // false
@@ -30,7 +30,7 @@ The engine evaluates exact grants and matching patterns, includes inherited gran
 
 | Member | Purpose |
 | --- | --- |
-| `RBAC<P>(config?)(roles)` | Create an in-memory authorization instance typed by context `P`. |
+| `createRBAC<P>({ roles, ...options })` | Create an in-memory authorization instance typed by context `P`. |
 | `can(role, operation, params?)` | Resolve permission asynchronously as `Promise<boolean>`. |
 | `addRole(name, definition)` | Add or replace a named role immediately. |
 | `updateRoles(definitions)` | Merge new role definitions by name and invalidate permission caches. |

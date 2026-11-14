@@ -35,7 +35,7 @@ const config: Config = {
           return options;
         },
         configureWebpack() {
-          return {resolve: {alias: {'@rbac-engine': path.resolve('../src/rbac.ts')}}};
+          return {resolve: {alias: {'@rbac-engine': path.resolve('../packages/core/src/index.ts')}}};
         }
       };
     },
@@ -48,7 +48,7 @@ const config: Config = {
         routeBasePath: 'docs',
         lastVersion: 'current',
         versions: {
-          current: {label: '3.x (latest)', banner: 'none'},
+          current: {label: '4.x (latest)', banner: 'none'},
           '2.x': {label: '2.x (deprecated)', banner: 'unmaintained', noIndex: true},
           '1.x': {label: '1.x (deprecated)', banner: 'unmaintained', noIndex: true}
         },

@@ -5,17 +5,17 @@ title: Express, NestJS and Fastify
 
 # Protect routes
 
-Framework integrations are exported at `@rbac/rbac/middlewares` (and from the root). By default, middleware reads `req.role`, checks the requested operation, and responds `403 Forbidden` when denied. **Supply a trusted role** from server-side authentication; never treat a client-provided role as verified.
+Install each framework integration separately: `@rbac/express`, `@rbac/fastify`, or `@rbac/nestjs`, alongside `@rbac/core`. By default, middleware reads `req.role`, checks the requested operation, and responds `403 Forbidden` when denied. **Supply a trusted role** from server-side authentication; never treat a client-provided role as verified.
 
 ## Express
 
 ```ts
 import express from 'express';
-import RBAC from '@rbac/rbac';
-import { createExpressMiddleware } from '@rbac/rbac/middlewares';
+import { createRBAC } from '@rbac/core';
+import { createExpressMiddleware } from '@rbac/express';
 
 const app = express();
-const auth = RBAC()({ reader: { can: ['posts:read'] } });
+const auth = createRBAC({ roles: { reader: { can: ['posts:read'] } } });
 const requirePermission = createExpressMiddleware(auth);
 
 // Demo role only: replace with a role verified by your authentication layer.
@@ -31,11 +31,11 @@ Install Express with `npm install express` (and `npm install -D @types/express` 
 
 ```ts
 import Fastify from 'fastify';
-import RBAC from '@rbac/rbac';
-import { createFastifyMiddleware } from '@rbac/rbac/middlewares';
+import { createRBAC } from '@rbac/core';
+import { createFastifyMiddleware } from '@rbac/fastify';
 
 const fastify = Fastify();
-const auth = RBAC()({ reader: { can: ['posts:read'] } });
+const auth = createRBAC({ roles: { reader: { can: ['posts:read'] } } });
 const requirePermission = createFastifyMiddleware(auth);
 fastify.get('/posts', {
   preHandler: requirePermission('posts:read', {

@@ -5,17 +5,17 @@ title: Express, NestJS e Fastify
 
 # Proteja rotas
 
-As integrações são exportadas por `@rbac/rbac/middlewares` (e pela raiz). Por padrão, o middleware lê `req.role`, verifica a operação e responde `403 Forbidden` se não houver permissão. **Defina uma role confiável** após autenticação no servidor; nunca confie diretamente em uma role enviada pelo cliente.
+Instale cada integração separadamente: `@rbac/express`, `@rbac/fastify` ou `@rbac/nestjs`, além de `@rbac/core`. Por padrão, o middleware lê `req.role`, verifica a operação e responde `403 Forbidden` se não houver permissão. **Defina uma role confiável** após autenticação no servidor; nunca confie diretamente em uma role enviada pelo cliente.
 
 ## Express
 
 ```ts
 import express from 'express';
-import RBAC from '@rbac/rbac';
-import { createExpressMiddleware } from '@rbac/rbac/middlewares';
+import { createRBAC } from '@rbac/core';
+import { createExpressMiddleware } from '@rbac/express';
 
 const app = express();
-const auth = RBAC()({ reader: { can: ['posts:read'] } });
+const auth = createRBAC({ roles: { reader: { can: ['posts:read'] } } });
 const requirePermission = createExpressMiddleware(auth);
 
 // Role apenas para demonstração: substitua por uma role autenticada no servidor.
@@ -31,11 +31,11 @@ Instale com `npm install express` (e `npm install -D @types/express` para TypeSc
 
 ```ts
 import Fastify from 'fastify';
-import RBAC from '@rbac/rbac';
-import { createFastifyMiddleware } from '@rbac/rbac/middlewares';
+import { createRBAC } from '@rbac/core';
+import { createFastifyMiddleware } from '@rbac/fastify';
 
 const fastify = Fastify();
-const auth = RBAC()({ reader: { can: ['posts:read'] } });
+const auth = createRBAC({ roles: { reader: { can: ['posts:read'] } } });
 const requirePermission = createFastifyMiddleware(auth);
 fastify.get('/posts', {
   preHandler: requirePermission('posts:read', {

@@ -24,13 +24,13 @@ flowchart LR
 
 | Diretório | Responsabilidade |
 | --- | --- |
-| `src/rbac.ts` | Fábrica pública, `addRole` e `updateRoles`. |
-| `src/core/role-mapper.ts` | Resolve herança e unifica permissões. |
-| `src/core/permission-checker.ts` | Avaliação efetiva de `can()`. |
-| `src/core/permission-*.ts` | Correspondências, contexto, caches e dados. |
-| `src/utils/when.ts` | Normalização de condições Boolean, Promise, funções e callbacks. |
-| `src/adapters/` | Persistência opcional de papéis. |
-| `src/middlewares/` | Proteção de rotas por framework. |
+| `packages/core/src/rbac.ts` | Fábrica pública, `addRole` e `updateRoles`. |
+| `packages/core/src/core/role-mapper.ts` | Resolve herança e unifica permissões. |
+| `packages/core/src/core/permission-checker.ts` | Avaliação efetiva de `can()`. |
+| `packages/core/src/core/permission-*.ts` | Correspondências, contexto, caches e dados. |
+| `packages/core/src/utils/when.ts` | Normalização de condições Boolean, Promise, funções e callbacks. |
+| `packages/adapters/src/adapters/` | Persistência opcional de papéis. |
+| `packages/{express,fastify,nestjs}/src/` | Proteção de rotas por framework. |
 
 O playground importa o mesmo motor de autorização utilizado pelo pacote, evitando duplicação de lógica. O editor visual apenas transforma o formulário no modelo público do RBAC. Adapters de banco são ilustrados com trechos de configuração porque exigem drivers e credenciais de backend.
 

@@ -7,9 +7,9 @@ import {RoleGraph} from './RoleGraph';
 import {evaluate, initialScenario, referencedRules, type Condition, type Context, type Rule, type Scenario, type VisualRole} from './engine';
 
 const driverExamples = {
-  MongoDB: `import { MongoRoleAdapter } from '@rbac/rbac/adapters';\n\nconst adapter = new MongoRoleAdapter({\n  uri: 'mongodb://localhost:27017',\n  dbName: 'application',\n  collection: 'roles'\n});\nconst roles = await adapter.getRoles('tenant-a');`,
-  MySQL: `import { MySQLRoleAdapter } from '@rbac/rbac/adapters';\n\nconst adapter = new MySQLRoleAdapter({\n  uri: 'mysql://localhost:3306/application',\n  table: 'roles'\n});\nconst roles = await adapter.getRoles('tenant-a');`,
-  PostgreSQL: `import { PostgresRoleAdapter } from '@rbac/rbac/adapters';\n\nconst adapter = new PostgresRoleAdapter({\n  connectionString: 'postgres://localhost:5432/application',\n  table: 'roles'\n});\nconst roles = await adapter.getRoles('tenant-a');`
+  MongoDB: `import { MongoRoleAdapter } from '@rbac/adapters';\n\nconst adapter = new MongoRoleAdapter({\n  uri: 'mongodb://localhost:27017',\n  dbName: 'application',\n  collection: 'roles'\n});\nconst roles = await adapter.getRoles('tenant-a');`,
+  MySQL: `import { MySQLRoleAdapter } from '@rbac/adapters';\n\nconst adapter = new MySQLRoleAdapter({\n  uri: 'mysql://localhost:3306/application',\n  table: 'roles'\n});\nconst roles = await adapter.getRoles('tenant-a');`,
+  PostgreSQL: `import { PostgresRoleAdapter } from '@rbac/adapters';\n\nconst adapter = new PostgresRoleAdapter({\n  connectionString: 'postgres://localhost:5432/application',\n  table: 'roles'\n});\nconst roles = await adapter.getRoles('tenant-a');`
 } as const;
 
 function PermissionRow({rule, onChange, onDelete}: {rule: Rule; onChange: (rule: Rule) => void; onDelete: () => void}) {

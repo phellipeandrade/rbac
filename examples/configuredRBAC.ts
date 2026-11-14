@@ -1,9 +1,6 @@
-import rbac from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
+import type { Roles } from '@rbac/core';
 
-const rbacConfig = {
-  enableLogger: false
-};
-
-const configuredRBAC = rbac(rbacConfig);
-
-export default configuredRBAC;
+export default function configuredRBAC<P = unknown>(roles: Roles<P>) {
+  return createRBAC<P>({ roles, enableLogger: false });
+}

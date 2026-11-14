@@ -24,13 +24,13 @@ flowchart LR
 
 | Directory | Purpose |
 | --- | --- |
-| `src/rbac.ts` | Public factory, runtime `addRole` and `updateRoles`. |
-| `src/core/role-mapper.ts` | Resolve inheritance and flatten grants. |
-| `src/core/permission-checker.ts` | Authoritative `can()` evaluation. |
-| `src/core/permission-*.ts` | Permission matching, context, caches, and data. |
-| `src/utils/when.ts` | Normalize Boolean, Promise, function, and callback predicates. |
-| `src/adapters/` | Optional persistent role adapters. |
-| `src/middlewares/` | Framework-specific route guards. |
+| `packages/core/src/rbac.ts` | Public factory, runtime `addRole` and `updateRoles`. |
+| `packages/core/src/core/role-mapper.ts` | Resolve inheritance and flatten grants. |
+| `packages/core/src/core/permission-checker.ts` | Authoritative `can()` evaluation. |
+| `packages/core/src/core/permission-*.ts` | Permission matching, context, caches, and data. |
+| `packages/core/src/utils/when.ts` | Normalize Boolean, Promise, function, and callback predicates. |
+| `packages/adapters/src/adapters/` | Optional persistent role adapters. |
+| `packages/{express,fastify,nestjs}/src/` | Framework-specific route guards. |
 
 The documentation playground imports the same engine source rather than implementing a separate evaluator. The visual role editor only translates its rule form into the engine's public role model. Database adapters are demonstrated with configuration snippets because they require server-side drivers and credentials.
 

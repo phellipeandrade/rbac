@@ -6,26 +6,26 @@ sidebar_position: 1
 
 # Autorização previsível
 
-`@rbac/rbac` é uma biblioteca TypeScript de **controle de acesso baseado em papéis (RBAC)** para Node.js. Defina operações permitidas para cada role, herde permissões de outras roles e consulte se uma operação está autorizada.
+`@rbac/core` é uma biblioteca TypeScript de **controle de acesso baseado em papéis (RBAC)** para Node.js. Defina operações permitidas para cada role, herde permissões de outras roles e consulte se uma operação está autorizada.
 
 A biblioteca implementa **autorização**, não autenticação: sua aplicação identifica o usuário, determina a role confiável e fornece o contexto. O RBAC retorna uma decisão, e sua aplicação precisa aplicá-la.
 
 ## Uma decisão completa
 
 ```ts showLineNumbers highlight={8-10}
-import RBAC from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
 
-const rbac = RBAC()({
+const rbac = createRBAC({ roles: {
   viewer: { can: ['documents:read'] },
   editor: { inherits: ['viewer'], can: ['documents:edit'] }
-});
+} });
 
 console.log(await rbac.can('editor', 'documents:read')); // true
 console.log(await rbac.can('viewer', 'documents:edit')); // false
 console.log(await rbac.can('unknown', 'documents:read')); // false
 ```
 
-`RBAC(config)(roles)` retorna uma instância com `can()`, `addRole()` e `updateRoles()`. Mesmo para permissões incondicionais, as verificações retornam uma promise. Roles desconhecidas e permissões ausentes são negadas por padrão.
+`createRBAC({ roles, ...options })` retorna uma instância com `can()`, `addRole()` e `updateRoles()`. Mesmo para permissões incondicionais, as verificações retornam uma promise. Roles desconhecidas e permissões ausentes são negadas por padrão.
 
 ## Recursos disponíveis
 

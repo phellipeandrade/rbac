@@ -1,4 +1,5 @@
-import rbac, { MySQLRoleAdapter } from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
+import { MySQLRoleAdapter } from '@rbac/adapters';
 
 async function run(): Promise<void> {
   const adapter = new MySQLRoleAdapter({
@@ -8,7 +9,7 @@ async function run(): Promise<void> {
   });
 
   const roles = await adapter.getRoles();
-  const RBAC = rbac()(roles);
+  const RBAC = createRBAC({ roles });
 
   await RBAC.can('user', 'products:find');
 }

@@ -4,7 +4,7 @@ This directory contains self-contained TypeScript snippets that showcase how to 
 
 ## Core building blocks
 
-- [`configuredRBAC.ts`](./configuredRBAC.ts) creates a reusable RBAC factory configured with logging disabled.
+- [`configuredRBAC.ts`](./configuredRBAC.ts) wraps `createRBAC({ roles, ...options })` with logging disabled.
 - [`roles.ts`](./roles.ts) defines a role hierarchy with conditional permissions using the `when` callback for additional context checks.
 - [`index.ts`](./index.ts) demonstrates how to instantiate RBAC with the predefined roles and perform permission checks for multiple roles.
 - [`basicUsage.ts`](./basicUsage.ts) shows a real-world check where user data is passed as context to evaluate permissions.

@@ -1,5 +1,5 @@
-import RBAC from '@rbac-engine';
-import type {Roles} from '../../../src/types';
+import {createRBAC} from '@rbac-engine';
+import type {Roles} from '../../../packages/core/src/types';
 
 export type Condition = 'always' | 'owner' | 'active';
 export type Rule = {operation: string; condition: Condition};
@@ -22,7 +22,7 @@ export const initialScenario: Scenario = {
 };
 
 // This only translates visual conditions to the package's public `when` API.
-// All actual permission decisions are made by src/rbac.ts and its engine.
+// All actual permission decisions are made by packages/core/src/rbac.ts.
 export function compileRoles(roles: VisualRole[]): Roles<Context> {
   const output: Roles<Context> = Object.create(null);
   for (const role of roles) {
@@ -43,7 +43,7 @@ export function compileRoles(roles: VisualRole[]): Roles<Context> {
 }
 
 export async function evaluate(roles: VisualRole[], requestedRoles: string[], operation: string, context: Context) {
-  const rbac = RBAC<Context>({enableLogger: false})(compileRoles(roles));
+  const rbac = createRBAC<Context>({roles: compileRoles(roles), enableLogger: false});
   for (const role of requestedRoles) {
     if (await rbac.can(role, operation, context)) return true;
   }

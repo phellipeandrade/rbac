@@ -8,16 +8,16 @@ title: Condições e permissões assíncronas
 Uma permissão condicional usa `{name: string, when: When<P>}`. O `when` aceita booleanos, `Promise<boolean>`, predicados síncronos ou assíncronos e funções com callback no estilo Node. Prefira predicados síncronos para verificações simples e assíncronos quando precisar consultar dados.
 
 ```ts
-import RBAC from '@rbac/rbac';
+import { createRBAC } from '@rbac/core';
 
 interface Context { userId: string; ownerId: string; suspended: boolean }
 
-const auth = RBAC<Context>()({
+const auth = createRBAC<Context>({ roles: {
   member: { can: [{
     name: 'records:update',
     when: async ({ userId, ownerId, suspended }: Context) => !suspended && userId === ownerId
   }] }
-});
+} });
 
 console.log(await auth.can('member', 'records:update', {
   userId: '42', ownerId: '42', suspended: false
@@ -29,15 +29,15 @@ console.log(await auth.can('member', 'records:update', {
 O helper `callbackWhen` adapta explicitamente a forma com callback:
 
 ```ts
-import RBAC from '@rbac/rbac';
-import { callbackWhen } from '@rbac/rbac/helpers';
+import { createRBAC } from '@rbac/core';
+import { callbackWhen } from '@rbac/core/helpers';
 
-const auth = RBAC<{ verified: boolean }>()({
+const auth = createRBAC<{ verified: boolean }>({ roles: {
   member: { can: [{
     name: 'profile:update',
     when: callbackWhen((context, done) => done(null, context.verified))
   }] }
-});
+} });
 
 console.log(await auth.can('member', 'profile:update', { verified: true })); // true
 ```
