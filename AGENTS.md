@@ -128,3 +128,11 @@ For public API changes, update the relevant tests, README, `docs/`, `examples/`,
 6. In the final report, summarize the change, list validation commands and their actual results, and call out remaining risks or unverified behavior.
 
 Do not run destructive Git commands, rewrite history, commit, push, or publish packages unless the user explicitly asks for that action.
+
+## Active v4 migration (mandatory session continuity)
+
+- At the start of every coding session, read the repository-root `PROJECT.md`, inspect `git status --short --branch` and recent commits, and resume the earliest unfinished phase.
+- `PROJECT.md` is the authoritative task/decision/validation record. Update it after each significant implementation or test phase. Mark `[x]` only for implemented **and validated** work, and record blockers honestly.
+- The v4 migration explicitly authorizes a Conventional Commit after each completed, validated phase; inspect `git diff --check` and stage only related files. Record the previous commit hash in the next tracking update. Do not push, publish, create release tags, or deprecate npm packages.
+- Version 4 may change the v3 public API and file layout per `PROJECT.md`. Re-check and update the v3-specific compatibility notes in this file as packages are migrated; all authorization, tenant-isolation, and fail-closed invariants remain mandatory.
+- Never modify or regenerate documentation for historical major versions. Update only `website/docs/` (current v4), current pt-BR translations, v4 root documentation and new migration guides.
