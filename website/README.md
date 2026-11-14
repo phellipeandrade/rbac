@@ -1,6 +1,6 @@
 # RBAC documentation site
 
-This Docusaurus application publishes the RBAC guides, interactive playground and generated TypeScript API reference to GitHub Pages. The default locale is English; Brazilian Portuguese is available at `/pt-BR/`.
+This Docusaurus application publishes the RBAC guides, interactive playground and generated TypeScript API reference to GitHub Pages. The default locale is English; Brazilian Portuguese is available at `/pt-BR/`. The native documentation version dropdown includes **3.x (latest)**, **2.x** (based on npm 2.2.3) and **1.x** (based on npm 1.1.0). Previous majors show deprecation notices and migration guides.
 
 ## Local development
 
@@ -19,7 +19,7 @@ npm run check:examples
 npm run build
 ```
 
-The build typechecks each standalone TypeScript example in the root README, English and Brazilian Portuguese guides against the real source entry points. It also syntax-checks JavaScript and parses JSON examples, generates API pages with TypeDoc, checks that documentation pages have equivalent paths in English and Portuguese, and builds both locales. You can also run `npm run check:translations` after `npm run generate:api`.
+The build typechecks each standalone TypeScript example in the root README and **current** English and Brazilian Portuguese guides against the real source entry points. It also syntax-checks JavaScript and parses JSON examples, generates the current API pages with TypeDoc, checks documentation path parity for all versions and both locales, and builds both locales. Historical 1.x/2.x snippets are references to their respective npm artifacts and are not typechecked against the 3.x source. You can also run `npm run check:translations` after `npm run generate:api`.
 
 ## Where to edit
 
@@ -27,6 +27,9 @@ The build typechecks each standalone TypeScript example in the root README, Engl
 | --- | --- |
 | `docs/` | English guides; excludes generated `api/reference/` |
 | `i18n/pt-BR/docusaurus-plugin-content-docs/current/` | Matching Portuguese guides |
+| `versioned_docs/version-1.x/`, `versioned_docs/version-2.x/` | Frozen English guides and API snapshots for old majors |
+| `i18n/pt-BR/docusaurus-plugin-content-docs/version-1.x/`, `version-2.x/` | Matching frozen Portuguese guides |
+| `versions.json`, `versioned_sidebars/` | Native Docusaurus version registration and historical navigation |
 | `sidebars.ts` | Documentation sidebar order |
 | `src/pages/` | Landing page and playground |
 | `src/css/custom.css` | Site and code-block styles |
@@ -34,6 +37,12 @@ The build typechecks each standalone TypeScript example in the root README, Engl
 | `scripts/check-translations.mjs` | Localized documentation path validation |
 | `scripts/check-examples.mjs` | README and bilingual example validation |
 
-Do not edit files under `docs/api/reference/` directly. They are regenerated on every build, including the matching pt-BR reference. API identifiers and source-code comments are preserved in English in both locales. Write hand-authored guides in both languages and keep examples aligned with the actual public exports.
+Do not edit files under `docs/api/reference/` directly. They are regenerated on every build, including the matching pt-BR reference. API identifiers and source-code comments are preserved in English in both locales. Write hand-authored guides in both languages and keep examples aligned with the public exports of the major they document.
+
+## Documentation version policy
+
+Maintain **one documentation snapshot per published npm major**, using its final patch/minor release, rather than one snapshot for every individual release. The historical lines are 1.x (reference 1.1.0) and 2.x (reference 2.2.3); 3.x is the maintained `current` version. Important differences among minors should be documented explicitly when relevant. Older lines display a native Docusaurus unmaintained banner plus links to the sequential migration guides. Historical API pages are hand-authored from published artifacts; TypeDoc always documents `current`.
+
+When publishing the next major, freeze the current documentation using Docusaurus versioning, add localized snapshots and matching sidebars, update `versions.json` and `docusaurus.config.ts`, change `lastVersion`, add migration guides in both languages, and keep GitHub Pages output and CI route checks aligned. Do not remove a previously published major's documentation. Use npm's release history to choose the final patch of each previous major.
 
 Code fences are highlighted with Shiki (`@shikijs/rehype`) and styled for light and dark modes. Use fenced code blocks with a language tag (`ts`, `js`, `bash`, `json` or `sql`). Append `showLineNumbers` to display line numbers and `highlight={2,4-6}` to highlight specific lines (both options can be combined). Keep all examples executable wherever practical.
