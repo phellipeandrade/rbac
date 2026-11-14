@@ -1,125 +1,42 @@
-# .circleci/config.yml
 version: 2.1
 
 jobs:
-  build:
+  verify:
     docker:
-      - image: cimg/node:20.19.0
+      - image: cimg/node:22.14.0
     working_directory: ~/rbac
-
     steps:
       - checkout
-
-      # Cache dependencies
       - restore_cache:
           keys:
-            - v2-deps-{{ checksum "yarn.lock" }}
-            - v2-deps-
-
+            - npm-v1-{{ checksum "package-lock.json" }}
       - run:
-          name: Install Dependencies
-          command: yarn install
-
+          name: Install locked dependencies
+          command: npm ci --no-audit --no-fund
       - save_cache:
           paths:
-            - node_modules
-            - ~/.cache/yarn
-          key: v2-deps-{{ checksum "yarn.lock" }}
-
-      # Install middleware dependencies
+            - ~/.npm
+          key: npm-v1-{{ checksum "package-lock.json" }}
       - run:
-          name: Install Middleware Dependencies
-          command: |
-            yarn add -D express @types/express @types/node
-
-      # Build and verify minification
+          name: Lint
+          command: npm run lint
       - run:
-          name: Build Project
-          command: |
-            # Build the package
-            yarn build
-            
-            # Verify minification
-            if [ ! -f "lib/@rbac/rbac.min.js" ]; then
-              echo "Error: Minified file not found"
-              exit 1
-            fi
-            
-            # Verify file size (should be significantly smaller than source)
-            source_size=$(stat -c %s "lib/index.js")
-            minified_size=$(stat -c %s "lib/@rbac/rbac.min.js")
-            
-            if [ $minified_size -ge $source_size ]; then
-              echo "Error: Minified file is not smaller than source"
-              exit 1
-            fi
-            
-            echo "✅ Minification verified successfully"
-
-      # Cache build artifacts
-      - save_cache:
-          paths:
-            - lib
-            - dist
-          key: v2-build-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "package.json" }}
-
+          name: Typecheck
+          command: npm run typecheck
       - run:
-          name: Run Tests
-          command: yarn test
-
-  test-npm:
-    docker:
-      - image: cimg/node:20.19.0
-    working_directory: ~/rbac
-
-    steps:
-      - checkout
-
-      # Install build dependencies
+          name: Build
+          command: npm run build
       - run:
-          name: Install Build Dependencies
-          command: |
-            yarn add -D typescript vite
-            yarn list typescript vite # Verify dependencies are installed
-
-      # Always run build first since lib is gitignored
+          name: Unit and regression tests
+          command: npm test
       - run:
-          name: Build Project
-          command: yarn build
-
-      # Test the package artifact that would be published to npm
+          name: ESM/CommonJS and package exports
+          command: npm run test:package
       - run:
-          name: Pack Built Package
-          command: npm pack --pack-destination test/npm-test
-
-      # Install database adapters in main project
-      - run:
-          name: Install Database Adapters
-          command: |
-            yarn add mongodb mysql2 pg
-            yarn list mongodb mysql2 pg # Verify dependencies are installed
-
-      # Install test dependencies
-      - run:
-          name: Install Test Dependencies
-          command: |
-            cd test/npm-test
-            npm install
-            npm ls mongodb # Verify MongoDB is installed
-
-      # Run npm test
-      - run:
-          name: Test npm Package
-          command: |
-            cd test/npm-test
-            npm install ./*.tgz --no-save --package-lock=false
-            npm test
+          name: Check published package
+          command: npm pack --dry-run
 
 workflows:
-  test-workflow:
+  verify:
     jobs:
-      - build
-      - test-npm:
-          requires:
-            - build
-
+      - verify

@@ -12,5 +12,6 @@ export async function createTenantRBAC<P>(
 }
 
 export * from './middlewares';
-export * from './roles.schema';
+export * from './adapters';
+export type { RBACConfig, RBACInstance, Role, Roles, When, WhenCallback, WhenFunction } from './types';
 export default RBAC;

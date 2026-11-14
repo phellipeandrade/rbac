@@ -1,16 +1,17 @@
 {
   "compilerOptions": {
-    "target": "es2018",
+    "target": "ES2022",
     "module": "commonjs",
     "rootDir": "src",
     "outDir": "lib",
     "declaration": true,
+    "sourceMap": true,
+    "declarationMap": true,
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node", "@jest/globals"],
-    "allowJs": true,
-    "checkJs": false
+    "types": ["node"],
+    "skipLibCheck": true
   },
   "include": ["src/**/*"],
   "exclude": ["test", "jest.setup.ts"]
