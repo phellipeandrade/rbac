@@ -33,3 +33,8 @@ node_modules
 
 .nyc_output
 .DS_Store
+website/node_modules/
+website/.docusaurus/
+website/build/
+website/docs/api/reference/
+website/i18n/pt-BR/docusaurus-plugin-content-docs/current/api/reference/

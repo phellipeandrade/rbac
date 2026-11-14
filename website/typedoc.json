@@ -1,0 +1,30 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["../src/index.ts", "../src/adapters/index.ts", "../src/middlewares/index.ts", "../src/helpers.ts", "../src/roles.schema.ts"],
+  "entryPointStrategy": "resolve",
+  "tsconfig": "../tsconfig.json",
+  "plugin": ["typedoc-plugin-markdown"],
+  "out": "docs/api/reference",
+  "readme": "none",
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "disableSources": true,
+  "hideBreadcrumbs": true,
+  "cleanOutputDir": true,
+  "intentionallyNotExported": [
+    "NormalizedWhenFn",
+    "AdapterColumns",
+    "ExpressRequestLike",
+    "ExpressResponseLike",
+    "ExpressNextFunction",
+    "ExpressOptions",
+    "FastifyRequestLike",
+    "FastifyReplyLike",
+    "FastifyOptions",
+    "NestOptions",
+    "NestRequest",
+    "NestResponse",
+    "NestNextFunction",
+    "NestExecutionContext"
+  ]
+}
