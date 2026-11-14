@@ -122,3 +122,12 @@ Validation: `npm ci` (root), `npm run lint`, `npm run typecheck`, `npm test -- -
 - Revalidated on Node 22.14.0/npm 10.9.2: root lint and typecheck; Jest (8 suites, 188 tests); six isolated packaged CJS/ESM/NodeNext consumers; examples; and `npm pack --dry-run --workspaces --json`. Website typecheck and bilingual production build passed, with 45 TypeScript/2 JavaScript examples and 106 pages per language across documentation versions.
 - Confirmed the six existing `dist/npm/*-4.0.1.tgz` SHA-256 values match those from the prior packaging phase. All six npm registry `latest` versions remain `4.0.0`; `4.0.1` has not been published. No push, tag or npm publication was performed as part of this validation.
 - These checks cover known dependency alerts and currently reported GitHub code/secret scanning findings; they do not constitute a comprehensive manual security assessment of every possible application integration.
+
+## v4.0.1 npm release candidate — final preparation (2026-11-14)
+
+- [x] Re-check the public npm registry and authenticated publisher (`phandrade`): all six packages still have `4.0.0` as `latest`, and none has a published `4.0.1` version.
+- [x] Verify release candidate at source commit `40ae396` (including the updated SVG brand assets), with a clean Git tree before recording this verification.
+- [x] Run fresh `npm ci`, lint, typecheck, 8 Jest suites / 188 tests, packaged consumer tests across all six workspaces, examples, and `npm audit --audit-level=low` at the repository root. All passed; audit returned zero vulnerabilities.
+- [x] Run fresh `npm ci`, typecheck, examples/translation checks, bilingual website production build, and audit in `website/`. All passed; 106 documentation pages per locale and zero audit vulnerabilities.
+- [x] Rebuild all six `4.0.1` tarballs into ignored `dist/npm/`, record their SHA-256 hashes in `dist/npm/SHA256SUMS.txt`, and pass `npm publish --dry-run --access public --json` on each archive.
+- [ ] Publish the six packages in dependency order from `RELEASE_V4.md` after final release authorization; verify npm registry metadata and installability afterward. No actual publication, deprecation or release tag in this preparation phase.
