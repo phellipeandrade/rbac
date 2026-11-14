@@ -1,4 +1,4 @@
-import type { RBACInstance } from '../types';
+import type { RBACEngine } from '@rbac/core';
 import type { BaseMiddlewareOptions } from './types';
 import type { NestExecutionContext, NestNextFunction, NestRequest, NestResponse } from './nest.types';
 
@@ -6,7 +6,7 @@ export type NestOptions<P = unknown> = BaseMiddlewareOptions<P, NestRequest, Nes
 
 /** NestMiddleware.use(req, res, next), compatible with the existing API. */
 export const createNestMiddleware =
-  <P>(rbac: RBACInstance<P>) =>
+  <P>(rbac: RBACEngine<P>) =>
   (operation: string | RegExp, options: NestOptions<P> = {}) =>
   async (req: NestRequest, res: NestResponse, next: NestNextFunction): Promise<void> => {
     try {
@@ -23,7 +23,7 @@ export const createNestMiddleware =
 
 /** Nest CanActivate-style guard; returning false lets Nest issue HTTP 403. */
 export const createNestGuard =
-  <P>(rbac: RBACInstance<P>) =>
+  <P>(rbac: RBACEngine<P>) =>
   (operation: string | RegExp, options: Pick<NestOptions<P>, 'getRole' | 'getParams'> = {}) => ({
     async canActivate(context: NestExecutionContext): Promise<boolean> {
       const request = context.switchToHttp().getRequest();
@@ -32,5 +32,3 @@ export const createNestGuard =
       return rbac.can(role ?? '', operation, params);
     }
   });
-
-export default createNestMiddleware;

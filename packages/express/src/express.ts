@@ -1,4 +1,4 @@
-import type { RBACInstance } from '../types';
+import type { RBACEngine } from '@rbac/core';
 import type { BaseMiddlewareOptions } from './types';
 
 /** Framework-independent types compatible with Express request handlers. */
@@ -24,7 +24,7 @@ export type ExpressOptions<
 > = BaseMiddlewareOptions<P, Request, Response, ExpressNextFunction>;
 
 export const createExpressMiddleware =
-  <P, Request extends ExpressRequestLike = ExpressRequestLike, Response extends ExpressResponseLike = ExpressResponseLike>(rbac: RBACInstance<P>) =>
+  <P, Request extends ExpressRequestLike = ExpressRequestLike, Response extends ExpressResponseLike = ExpressResponseLike>(rbac: RBACEngine<P>) =>
   (operation: string | RegExp, options: ExpressOptions<P, Request, Response> = {}) =>
   async (req: Request, res: Response, next: ExpressNextFunction): Promise<void> => {
     try {
@@ -38,5 +38,3 @@ export const createExpressMiddleware =
       next(err);
     }
   };
-
-export default createExpressMiddleware;

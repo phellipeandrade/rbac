@@ -1,4 +1,4 @@
-import type { Role, Roles } from '../types';
+import type { Role, Roles } from '@rbac/core';
 import type { RoleAdapter } from './adapter';
 import { parseStoredRole, quoteSQLIdentifier, resolveColumns, resolveTenant, rowsToRoles } from './common';
 import type { AdapterColumnOptions, AdapterColumns } from './common';

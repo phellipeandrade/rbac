@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 
 describe('adapters/index', () => {
   it('should export all adapter modules', async () => {
-    const adapters = await import('../src/adapters');
+    const adapters = await import('@rbac/adapters');
     
     // Check that all expected exports are available
     expect(adapters).toHaveProperty('MongoRoleAdapter');
@@ -16,7 +16,7 @@ describe('adapters/index', () => {
   });
 
   it('should have proper exports structure', async () => {
-    const adapters = await import('../src/adapters');
+    const adapters = await import('@rbac/adapters');
     
     // Verify that the exports are constructors
     expect(() => new adapters.MongoRoleAdapter({} as any)).toThrow();

@@ -1,22 +1,22 @@
 import { describe, expect, it } from '@jest/globals';
-import RBAC from '../src/index';
-import { quoteSQLIdentifier } from '../src/adapters/common';
-import { MySQLRoleAdapter } from '../src/adapters/mysql';
-import { PostgresRoleAdapter } from '../src/adapters/postgres';
-import { cacheGet, cacheSet, ROLE_CACHE_LIMIT, MATCH_CACHE_LIMIT } from '../src/utils/bounded-cache';
-import { createPermissionCaches } from '../src/core/permission-cache';
-import { callbackWhen, normalizeWhen } from '../src/utils/when';
+import { createRBAC } from '@rbac/core';
+import { quoteSQLIdentifier } from '../packages/adapters/src/adapters/common';
+import { MySQLRoleAdapter } from '../packages/adapters/src/adapters/mysql';
+import { PostgresRoleAdapter } from '../packages/adapters/src/adapters/postgres';
+import { cacheGet, cacheSet, ROLE_CACHE_LIMIT, MATCH_CACHE_LIMIT } from '../packages/core/src/utils/bounded-cache';
+import { createPermissionCaches } from '../packages/core/src/core/permission-cache';
+import { callbackWhen, normalizeWhen } from '../packages/core/src/utils/when';
 
 describe('Conditional authorization regression', () => {
   it('retains distinct conditions on the same glob within a role and across inheritance', async () => {
-    const rbac = RBAC<{ owner: boolean; editor: boolean }>({ enableLogger: false })({
+    const rbac = createRBAC<{ owner: boolean; editor: boolean }>({ ...({ enableLogger: false }), roles: {
       owner: { can: [{ name: 'files:*', when: (p: { owner: boolean; editor: boolean }) => p.owner }] },
       editor: { can: [{ name: 'files:*', when: (p: { owner: boolean; editor: boolean }) => p.editor }] },
       combined: {
         inherits: ['owner', 'editor'],
         can: [{ name: 'files:*', when: (p: { owner: boolean; editor: boolean }) => p.owner && p.editor }]
       }
-    });
+    } });
     await expect(rbac.can('combined', 'files:read', { owner: true, editor: false })).resolves.toBe(true);
     await expect(rbac.can('combined', 'files:read', { owner: false, editor: true })).resolves.toBe(true);
     await expect(rbac.can('combined', 'files:read', { owner: false, editor: false })).resolves.toBe(false);
@@ -24,24 +24,24 @@ describe('Conditional authorization regression', () => {
   });
 
   it('ORs duplicate exact conditional permissions without caching a parameter-dependent result', async () => {
-    const rbac = RBAC<{ first: boolean; second: boolean }>({ enableLogger: false })({
+    const rbac = createRBAC<{ first: boolean; second: boolean }>({ ...({ enableLogger: false }), roles: {
       role: { can: [
         { name: 'approve', when: (p: { first: boolean; second: boolean }) => p.first },
         { name: 'approve', when: (p: { first: boolean; second: boolean }) => p.second }
       ] }
-    });
+    } });
     await expect(rbac.can('role', 'approve', { first: true, second: false })).resolves.toBe(true);
     await expect(rbac.can('role', 'approve', { first: false, second: true })).resolves.toBe(true);
     await expect(rbac.can('role', 'approve', { first: false, second: false })).resolves.toBe(false);
   });
 
   it('preserves conditional regex grants alongside identical patterns', async () => {
-    const rbac = RBAC<boolean>({ enableLogger: false })({
+    const rbac = createRBAC<boolean>({ ...({ enableLogger: false }), roles: {
       role: { can: [
         { name: '/^files:.*$/', when: (params: boolean) => params },
         { name: '/^files:.*$/', when: (params: boolean) => !params }
       ] }
-    });
+    } });
     await expect(rbac.can('role', 'files:read', true)).resolves.toBe(true);
     await expect(rbac.can('role', 'files:read', false)).resolves.toBe(true);
   });

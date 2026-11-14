@@ -1,6 +1,6 @@
 const { createDefaultPreset } = require("ts-jest");
 
-const tsJestTransformCfg = createDefaultPreset().transform;
+const tsJestTransformCfg = createDefaultPreset({tsconfig: '<rootDir>/tsconfig.base.json'}).transform;
 
 /** @type {import("jest").Config} **/
 module.exports = {
@@ -9,7 +9,7 @@ module.exports = {
     ...tsJestTransformCfg,
   },
   collectCoverage: true,
-  collectCoverageFrom: ["src/**/*.{ts,tsx}", "!src/**/*.d.ts"],
+  collectCoverageFrom: ["packages/*/src/**/*.{ts,tsx}", "!packages/**/*.d.ts"],
   coverageDirectory: "coverage",
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   testMatch: ["<rootDir>/test/**/*.spec.ts"],

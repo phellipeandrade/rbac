@@ -1,4 +1,4 @@
-import type { RBACInstance } from '../types';
+import type { RBACEngine } from '@rbac/core';
 
 /** Structural Fastify contract; consumers can supply their own request/reply types. */
 export interface FastifyRequestLike {
@@ -27,7 +27,7 @@ export interface FastifyOptions<
 }
 
 export const createFastifyMiddleware =
-  <P, Request extends FastifyRequestLike = FastifyRequestLike, Reply extends FastifyReplyLike = FastifyReplyLike>(rbac: RBACInstance<P>) =>
+  <P, Request extends FastifyRequestLike = FastifyRequestLike, Reply extends FastifyReplyLike = FastifyReplyLike>(rbac: RBACEngine<P>) =>
   (operation: string | RegExp, options: FastifyOptions<P, Request, Reply> = {}) =>
   async (req: Request, reply: Reply): Promise<void> => {
     const role = options.getRole ? options.getRole(req) : req.role;
@@ -37,5 +37,3 @@ export const createFastifyMiddleware =
     if (options.onDenied) return options.onDenied(req, reply);
     reply.status(403).send('Forbidden');
   };
-
-export default createFastifyMiddleware;

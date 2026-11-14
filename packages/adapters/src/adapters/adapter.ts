@@ -1,4 +1,4 @@
-import type { Role, Roles } from '../types';
+import type { Role, Roles } from '@rbac/core';
 
 export interface RoleAdapter<P = unknown> {
   getRoles(tenantId?: string): Promise<Roles<P>>;

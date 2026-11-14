@@ -1,0 +1,45 @@
+{
+  "version": "4.0.0",
+  "license": "MIT",
+  "author": "Phellipe Andrade",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/phellipeandrade/rbac.git"
+  },
+  "homepage": "https://github.com/phellipeandrade/rbac",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "lib",
+    "README.md",
+    "MIGRATION.md"
+  ],
+  "scripts": {
+    "prepack": "node ../../scripts/prepack.mjs"
+  },
+  "name": "@rbac/nestjs",
+  "description": "NestJS middleware and guard for RBAC",
+  "main": "./lib/index.js",
+  "module": "./lib/index.mjs",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./lib/index.d.mts",
+        "default": "./lib/index.mjs"
+      },
+      "require": {
+        "types": "./lib/index.d.cts",
+        "default": "./lib/index.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@rbac/core": "4.0.0"
+  }
+}

@@ -4,6 +4,11 @@ export interface RBACConfig {
   colors?: boolean;
 }
 
+/** Configuration and roles for the single-step v4 factory. */
+export interface RBACOptions<P = unknown> extends RBACConfig {
+  roles: Roles<P>;
+}
+
 export type WhenCallback<P = unknown> = (
   params: P,
   done: (err: unknown, result?: boolean) => void
@@ -48,7 +53,7 @@ export interface MappedRole<P = unknown> {
 
 export type MappedRoles<P = unknown> = Record<string, MappedRole<P>>;
 
-export interface RBACInstance<P = unknown> {
+export interface RBACEngine<P = unknown> {
   can: (role: string, operation: string | RegExp, params?: P) => Promise<boolean>;
   updateRoles: (roles: Roles<P>) => void;
   addRole: (roleName: string, role: Role<P>) => void;

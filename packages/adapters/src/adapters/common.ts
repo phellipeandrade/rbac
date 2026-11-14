@@ -1,4 +1,4 @@
-import type { Role, Roles } from '../types';
+import type { Role, Roles } from '@rbac/core';
 
 export interface AdapterColumns {
   name: string;

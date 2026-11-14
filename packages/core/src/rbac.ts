@@ -1,12 +1,9 @@
 import { createPermissionChecker } from './core/permission-checker';
 import { flattenRoles } from './core/role-mapper';
-import type { RBACConfig, Role, Roles } from './types';
+import type { RBACEngine, RBACOptions, Role, Roles } from './types';
 
-export type { RBACConfig, Role, Roles } from './types';
-
-const RBAC =
-  <P>(config: RBACConfig = {}) =>
-  (roles: Roles<P>) => {
+/** Create a dependency-free, mutable authorization engine. */
+export const createRBAC = <P = unknown>({ roles, ...config }: RBACOptions<P>): RBACEngine<P> => {
     let allRoles = { ...roles };
     let mappedRoles = flattenRoles(allRoles);
     const matchCache = new Map<string, Map<string, boolean>>();
@@ -35,6 +32,4 @@ const RBAC =
       updateRoles,
       addRole
     };
-  };
-
-export default RBAC;
+};

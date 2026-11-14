@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { Role, Roles, When } from './types';
+import type { Role, Roles, When } from '@rbac/core';
 
 // Schema to validate the `when` property of a role operation
 export const whenSchema: z.ZodType<When> = z.union([
