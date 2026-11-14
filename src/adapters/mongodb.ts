@@ -1,18 +1,17 @@
-let MongoClient: any;
-function loadMongoClient() {
-  if (!MongoClient) {
-    try {
-      MongoClient = require('mongodb').MongoClient;
-    } catch (err) {
-      throw new Error('Please install "mongodb" to use MongoRoleAdapter');
-    }
-  }
-  return MongoClient;
-}
 import type { Role, Roles } from '../types';
 import type { RoleAdapter } from './adapter';
 import { resolveColumns, resolveTenant, rowsToRoles } from './common';
 import type { AdapterColumnOptions, AdapterColumns } from './common';
+import type { MongoCollection, MongoConnection, MongoDriver } from './driver-types';
+import { connectOnce, loadOptionalDriver } from './driver-utils';
+
+let MongoClient: MongoDriver['MongoClient'] | undefined;
+const loadMongoClient = (): MongoDriver['MongoClient'] => {
+  if (!MongoClient) {
+    MongoClient = loadOptionalDriver<MongoDriver>('mongodb', 'MongoRoleAdapter').MongoClient;
+  }
+  return MongoClient;
+};
 
 export interface MongoAdapterOptions {
   uri: string;
@@ -22,23 +21,17 @@ export interface MongoAdapterOptions {
 }
 
 export class MongoRoleAdapter<P = unknown> implements RoleAdapter<P> {
-  private client: any;
-  private db?: any;
-  private collectionName: string;
+  private readonly client: MongoConnection;
   private readonly columns: AdapterColumns;
-  constructor(private options: MongoAdapterOptions) {
+  private readonly getCollection = connectOnce<MongoCollection>(async () => {
+    await this.client.connect();
+    return this.client.db(this.options.dbName).collection(this.options.collection);
+  });
+
+  constructor(private readonly options: MongoAdapterOptions) {
     const Mongo = loadMongoClient();
     this.client = new Mongo(options.uri);
-    this.collectionName = options.collection;
     this.columns = resolveColumns(options.columns, 'tenantId');
-  }
-
-  private async getCollection(): Promise<any> {
-    if (!this.db) {
-      await this.client.connect();
-      this.db = this.client.db(this.options.dbName);
-    }
-    return this.db.collection(this.collectionName);
   }
 
   async getRoles(tenantId?: string): Promise<Roles<P>> {

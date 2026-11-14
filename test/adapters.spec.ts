@@ -1,4 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
+import { parseStoredRole, resolveColumns, rowsToRoles } from '../src/adapters/common';
+import { connectOnce } from '../src/adapters/driver-utils';
 
 class FakeMongoCollection {
   docs: Array<Record<string, unknown>>;
@@ -55,16 +57,20 @@ class FakeMongoDB {
   }
 }
 
+let lastMongoClient: FakeMongoClient | undefined;
 class FakeMongoClient {
   uri: string;
   dbInstance: FakeMongoDB;
+  connectCalls = 0;
 
   constructor(uri: string) {
     this.uri = uri;
     this.dbInstance = new FakeMongoDB();
+    lastMongoClient = this;
   }
 
   connect() {
+    this.connectCalls += 1;
     return Promise.resolve();
   }
 
@@ -109,20 +115,24 @@ class FakeMySQLConnection {
 }
 
 let lastMySQLConnection: FakeMySQLConnection | undefined;
+let mysqlConnectCalls = 0;
 
 function createFakeMySQLConnection() {
+  mysqlConnectCalls += 1;
   lastMySQLConnection = new FakeMySQLConnection();
   return Promise.resolve(lastMySQLConnection);
 }
 
 class FakePGClient {
   tables: Record<string, Record<string, Record<string, unknown>>>;
+  connectCalls = 0;
 
   constructor() {
     this.tables = {};
   }
 
   connect() {
+    this.connectCalls += 1;
     return Promise.resolve();
   }
 
@@ -227,6 +237,13 @@ describe('Role Adapters', () => {
       expect(rolesA.user.can).toEqual(['a']);
       expect(rolesB.user.can).toEqual(['b']);
     });
+
+    it('should share the same MongoDB connection across concurrent calls', async () => {
+      const { MongoRoleAdapter } = require('../src/adapters/mongodb');
+      const adapter = new MongoRoleAdapter({ uri: '', dbName: 'db', collection: 'roles' });
+      await Promise.all([adapter.getRoles(), adapter.getRoles(), adapter.getRoles()]);
+      expect(lastMongoClient?.connectCalls).toBe(1);
+    });
   });
 
   describe('MySQLRoleAdapter', () => {
@@ -272,6 +289,14 @@ describe('Role Adapters', () => {
       expect(lastMySQLConnection?.tables).toHaveProperty('custom_roles');
       const roles = await adapter.getRoles();
       expect(roles.user.can).toEqual(['a']);
+    });
+
+    it('should create one MySQL connection for concurrent calls', async () => {
+      const { MySQLRoleAdapter } = require('../src/adapters/mysql');
+      const adapter = new MySQLRoleAdapter({ table: 'roles' });
+      const initialConnections = mysqlConnectCalls;
+      await Promise.all([adapter.getRoles(), adapter.getRoles(), adapter.getRoles()]);
+      expect(mysqlConnectCalls - initialConnections).toBe(1);
     });
   });
 
@@ -319,6 +344,13 @@ describe('Role Adapters', () => {
       const roles = await adapter.getRoles();
       expect(roles.user.can).toEqual(['a']);
     });
+
+    it('should connect to PostgreSQL once for concurrent calls', async () => {
+      const { PostgresRoleAdapter } = require('../src/adapters/postgres');
+      const adapter = new PostgresRoleAdapter({ table: 'roles' });
+      await Promise.all([adapter.getRoles(), adapter.getRoles(), adapter.getRoles()]);
+      expect(lastPGClient?.connectCalls).toBe(1);
+    });
   });
 
   describe('multi-tenant behavior', () => {
@@ -341,5 +373,36 @@ describe('Role Adapters', () => {
       expect(bFind).toBe(true);
       expect(aWrong).toBe(false);
     });
+  });
+});
+
+describe('Adapter shared utilities', () => {
+  it('preserves special role names without changing the result prototype', () => {
+    const roles = rowsToRoles(
+      [{ name: '__proto__', role: '{"can":["read"]}' }],
+      resolveColumns(undefined, 'tenant_id'),
+      parseStoredRole
+    );
+    expect(Object.getPrototypeOf(roles)).toBeNull();
+    expect(roles['__proto__'].can).toEqual(['read']);
+  });
+
+  it('accepts parsed JSON objects returned by database drivers', () => {
+    const parsed = { can: ['read'] };
+    expect(parseStoredRole(parsed)).toBe(parsed);
+  });
+
+  it('retries opening a connection if the previous attempt failed', async () => {
+    let attempts = 0;
+    const getConnection = connectOnce(async () => {
+      attempts += 1;
+      if (attempts === 1) throw new Error('temporary connection error');
+      return 'connected';
+    });
+
+    const firstAttempts = await Promise.allSettled([getConnection(), getConnection()]);
+    expect(firstAttempts.every(result => result.status === 'rejected')).toBe(true);
+    await expect(getConnection()).resolves.toBe('connected');
+    expect(attempts).toBe(2);
   });
 });

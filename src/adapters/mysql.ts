@@ -1,47 +1,40 @@
-let mysql: any;
-function loadMySQL() {
-  if (!mysql) {
-    try {
-      mysql = require('mysql2/promise');
-    } catch (err) {
-      throw new Error('Please install "mysql2" to use MySQLRoleAdapter');
-    }
-  }
-  return mysql;
-}
 import type { Role, Roles } from '../types';
 import type { RoleAdapter } from './adapter';
 import { parseStoredRole, resolveColumns, resolveTenant, rowsToRoles } from './common';
 import type { AdapterColumnOptions, AdapterColumns } from './common';
+import type { MySQLConnection, MySQLDriver } from './driver-types';
+import { connectOnce, loadOptionalDriver } from './driver-utils';
+
+let mysql: MySQLDriver | undefined;
+const loadMySQL = (): MySQLDriver => {
+  if (!mysql) {
+    mysql = loadOptionalDriver<MySQLDriver>('mysql2/promise', 'MySQLRoleAdapter');
+  }
+  return mysql;
+};
 
 export interface MySQLAdapterOptions {
   uri?: string;
-  config?: any;
+  config?: string | object;
   table: string;
   columns?: AdapterColumnOptions;
 }
 
 export class MySQLRoleAdapter<P = unknown> implements RoleAdapter<P> {
-  private connection?: any;
   private readonly columns: AdapterColumns;
-  constructor(private options: MySQLAdapterOptions) {
-    this.columns = resolveColumns(options.columns, 'tenant_id');
-  }
+  private readonly getConnection = connectOnce<MySQLConnection>(async () => {
+    const driver = loadMySQL();
+    return driver.createConnection(this.options.uri || this.options.config || {});
+  });
 
-  private async getConnection(): Promise<any> {
-    if (!this.connection) {
-      const driver = loadMySQL();
-      this.connection = this.options.uri
-        ? await driver.createConnection(this.options.uri)
-        : await driver.createConnection(this.options.config || {});
-    }
-    return this.connection;
+  constructor(private readonly options: MySQLAdapterOptions) {
+    this.columns = resolveColumns(options.columns, 'tenant_id');
   }
 
   async getRoles(tenantId?: string): Promise<Roles<P>> {
     const conn = await this.getConnection();
     const cols = this.columns;
-    const [rows] = await conn.query(
+    const [rows] = await conn.query<Array<Record<string, unknown>>>(
       `SELECT \`${cols.name}\`, \`${cols.role}\` FROM \`${this.options.table}\` WHERE \`${cols.tenantId}\` = ?`,
       [resolveTenant(tenantId)]
     );

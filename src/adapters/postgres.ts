@@ -1,41 +1,36 @@
-let PG: any;
-function loadPG() {
-  if (!PG) {
-    try {
-      PG = require('pg');
-    } catch (err) {
-      throw new Error('Please install "pg" to use PostgresRoleAdapter');
-    }
-  }
-  return PG;
-}
 import type { Role, Roles } from '../types';
 import type { RoleAdapter } from './adapter';
 import { parseStoredRole, resolveColumns, resolveTenant, rowsToRoles } from './common';
 import type { AdapterColumnOptions, AdapterColumns } from './common';
+import type { PostgresConnection, PostgresDriver } from './driver-types';
+import { connectOnce, loadOptionalDriver } from './driver-utils';
+
+let PG: PostgresDriver | undefined;
+const loadPG = (): PostgresDriver => {
+  if (!PG) {
+    PG = loadOptionalDriver<PostgresDriver>('pg', 'PostgresRoleAdapter');
+  }
+  return PG;
+};
 
 export interface PostgresAdapterOptions {
   table: string;
   columns?: AdapterColumnOptions;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export class PostgresRoleAdapter<P = unknown> implements RoleAdapter<P> {
-  private client: any;
-  private connected = false;
+  private readonly client: PostgresConnection;
   private readonly columns: AdapterColumns;
-  constructor(private options: PostgresAdapterOptions) {
+  private readonly getClient = connectOnce<PostgresConnection>(async () => {
+    await this.client.connect();
+    return this.client;
+  });
+
+  constructor(private readonly options: PostgresAdapterOptions) {
     const { Client } = loadPG();
     this.columns = resolveColumns(options.columns, 'tenant_id');
     this.client = new Client(options);
-  }
-
-  private async getClient(): Promise<any> {
-    if (!this.connected) {
-      await this.client.connect();
-      this.connected = true;
-    }
-    return this.client;
   }
 
   async getRoles(tenantId?: string): Promise<Roles<P>> {
