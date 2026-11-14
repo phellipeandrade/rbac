@@ -111,4 +111,13 @@ Validation: `npm ci` (root), `npm run lint`, `npm run typecheck`, `npm test -- -
 - [x] Register 3.x as a deprecated archived version while keeping 4.x as `current` / latest, and add CI checks for both 3.x introduction routes.
 - [x] Correct outdated latest-version labels and an orphaned TypeDoc link in the archived API overview; link to the v3.0.0 source because the historical generated TypeDoc tree was not committed.
 - [x] Validate `website/npm run typecheck`, `website/npm run build`, parity of 106 English/pt-BR pages, static 3.x introduction/installation/API/migration routes and 3.x selector links in both languages, and `git diff --check`. Existing 1.x/2.x snapshots remain untouched.
-- Local changes only; deployment requires a separate push/merge to the branch used by GitHub Pages.
+- The restored 3.x snapshot is committed in `c0c9e1f`, which matches `origin/master`; the live GitHub Pages deployment was not checked in this phase.
+
+## Post-commit security and v4.0.1 validation (2026-11-14)
+
+- Confirmed the local and remote `master` pointed to `c0c9e1f` before this verification update, with a clean Git working tree.
+- Authenticated GitHub API checks on the repository's default `master` branch returned **zero open Dependabot alerts**, **zero open code-scanning alerts**, and **zero open secret-scanning alerts**. Dependabot's `dismissed` and `auto_dismissed` lists were also empty. Recent dependency findings (including Zod, minimatch, tinypool, glob, deepmerge and serialize-javascript) have `fixed` status; previously reported findings were resolved rather than dismissed.
+- Fresh `npm audit --json` checks for both repository root and `website/` returned **zero vulnerabilities at every severity**.
+- Revalidated on Node 22.14.0/npm 10.9.2: root lint and typecheck; Jest (8 suites, 188 tests); six isolated packaged CJS/ESM/NodeNext consumers; examples; and `npm pack --dry-run --workspaces --json`. Website typecheck and bilingual production build passed, with 45 TypeScript/2 JavaScript examples and 106 pages per language across documentation versions.
+- Confirmed the six existing `dist/npm/*-4.0.1.tgz` SHA-256 values match those from the prior packaging phase. All six npm registry `latest` versions remain `4.0.0`; `4.0.1` has not been published. No push, tag or npm publication was performed as part of this validation.
+- These checks cover known dependency alerts and currently reported GitHub code/secret scanning findings; they do not constitute a comprehensive manual security assessment of every possible application integration.
