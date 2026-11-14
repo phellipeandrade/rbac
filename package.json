@@ -20,6 +20,7 @@
     "lint": "eslint packages --max-warnings 0",
     "typecheck": "npm run build && tsc -p test/package-types",
     "bench": "node ./benchmarks/perf.js",
+    "bench:engine": "node ./benchmarks/engine.js",
     "bench:micro": "node ./benchmarks/micro.js"
   },
   "repository": {

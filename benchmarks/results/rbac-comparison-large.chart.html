@@ -28,7 +28,7 @@
   </head>
   <body>
     <div class="container">
-      <canvas id="chart1794654177836" width="16" height="9"></canvas>
+      <canvas id="chart1794678794490" width="16" height="9"></canvas>
     </div>
     <script>
       const format = (num) => {
@@ -51,18 +51,18 @@
           chunked.map((chunk) => chunk.join('')).join(' ') + fractionStr
         )
       }
-      const ctx1794654177836 = document
-        .getElementById('chart1794654177836')
+      const ctx1794678794490 = document
+        .getElementById('chart1794678794490')
         .getContext('2d')
-      const chart1794654177836 = new Chart(ctx1794654177836, {
+      const chart1794678794490 = new Chart(ctx1794678794490, {
         type: 'bar',
         data: {
-          labels: ["@rbac/rbac - large direct","@rbac/rbac - large inherited","@rbac/rbac - large glob","@rbac/rbac - large callback","@rbac/rbac - large async","@rbac/rbac - large promise","AccessControl - large direct","AccessControl - large inherited","AccessControl - large admin","Popular RBAC - large direct","Popular RBAC - large inherited","Popular RBAC - large admin","Easy RBAC - large direct","Easy RBAC - large inherited","Easy RBAC - large glob","Fast RBAC - large direct","Fast RBAC - large inherited","Fast RBAC - large glob"],
+          labels: ["@rbac/core - large direct","@rbac/core - large inherited","@rbac/core - large glob","@rbac/core - large callback","@rbac/core - large async","@rbac/core - large promise","AccessControl - large direct","AccessControl - large inherited","AccessControl - large admin","Popular RBAC - large direct","Popular RBAC - large inherited","Popular RBAC - large admin","Easy RBAC - large direct","Easy RBAC - large inherited","Easy RBAC - large glob","Fast RBAC - large direct","Fast RBAC - large inherited","Fast RBAC - large glob"],
           datasets: [
             {
-              data: [395934,579837,533091,84314,411722,292185,195688,117404,58400,27302,13770,12257,859458,769510,20050,624763,655411,694295],
-              backgroundColor: ["hsl(55.284, 85%, 55%)","hsl(80.964, 85%, 55%)","hsl(74.43599999999999, 85%, 55%)","hsl(11.772000000000002, 85%, 55%)","hsl(57.48, 85%, 55%)","hsl(40.800000000000004, 85%, 55%)","hsl(27.323999999999995, 85%, 55%)","hsl(16.391999999999996, 85%, 55%)","hsl(8.148000000000007, 85%, 55%)","hsl(3.8160000000000087, 85%, 55%)","hsl(1.9199999999999933, 85%, 55%)","hsl(1.7160000000000082, 85%, 55%)","hsl(120, 85%, 55%)","hsl(107.43599999999999, 85%, 55%)","hsl(2.795999999999998, 85%, 55%)","hsl(87.228, 85%, 55%)","hsl(91.512, 85%, 55%)","hsl(96.93599999999999, 85%, 55%)"],
-              borderColor: ["hsl(55.284, 85%, 55%)","hsl(80.964, 85%, 55%)","hsl(74.43599999999999, 85%, 55%)","hsl(11.772000000000002, 85%, 55%)","hsl(57.48, 85%, 55%)","hsl(40.800000000000004, 85%, 55%)","hsl(27.323999999999995, 85%, 55%)","hsl(16.391999999999996, 85%, 55%)","hsl(8.148000000000007, 85%, 55%)","hsl(3.8160000000000087, 85%, 55%)","hsl(1.9199999999999933, 85%, 55%)","hsl(1.7160000000000082, 85%, 55%)","hsl(120, 85%, 55%)","hsl(107.43599999999999, 85%, 55%)","hsl(2.795999999999998, 85%, 55%)","hsl(87.228, 85%, 55%)","hsl(91.512, 85%, 55%)","hsl(96.93599999999999, 85%, 55%)"],
+              data: [7086106,7009957,3527345,388996,2152776,2316798,908823,530274,452300,111538,53201,52392,5747234,5504564,122253,2567862,2629421,2600415],
+              backgroundColor: ["hsl(120, 85%, 55%)","hsl(118.71600000000001, 85%, 55%)","hsl(59.736000000000004, 85%, 55%)","hsl(6.587999999999994, 85%, 55%)","hsl(36.455999999999996, 85%, 55%)","hsl(39.227999999999994, 85%, 55%)","hsl(15.395999999999997, 85%, 55%)","hsl(8.976000000000004, 85%, 55%)","hsl(7.655999999999994, 85%, 55%)","hsl(1.883999999999992, 85%, 55%)","hsl(0.8999999999999999, 85%, 55%)","hsl(0.8879999999999939, 85%, 55%)","hsl(97.33200000000001, 85%, 55%)","hsl(93.21600000000001, 85%, 55%)","hsl(2.076000000000005, 85%, 55%)","hsl(43.488, 85%, 55%)","hsl(44.532, 85%, 55%)","hsl(44.040000000000006, 85%, 55%)"],
+              borderColor: ["hsl(120, 85%, 55%)","hsl(118.71600000000001, 85%, 55%)","hsl(59.736000000000004, 85%, 55%)","hsl(6.587999999999994, 85%, 55%)","hsl(36.455999999999996, 85%, 55%)","hsl(39.227999999999994, 85%, 55%)","hsl(15.395999999999997, 85%, 55%)","hsl(8.976000000000004, 85%, 55%)","hsl(7.655999999999994, 85%, 55%)","hsl(1.883999999999992, 85%, 55%)","hsl(0.8999999999999999, 85%, 55%)","hsl(0.8879999999999939, 85%, 55%)","hsl(97.33200000000001, 85%, 55%)","hsl(93.21600000000001, 85%, 55%)","hsl(2.076000000000005, 85%, 55%)","hsl(43.488, 85%, 55%)","hsl(44.532, 85%, 55%)","hsl(44.040000000000006, 85%, 55%)"],
               borderWidth: 2,
             },
           ],

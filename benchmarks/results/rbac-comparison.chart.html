@@ -28,7 +28,7 @@
   </head>
   <body>
     <div class="container">
-      <canvas id="chart1794654053642" width="16" height="9"></canvas>
+      <canvas id="chart1794678675414" width="16" height="9"></canvas>
     </div>
     <script>
       const format = (num) => {
@@ -51,18 +51,18 @@
           chunked.map((chunk) => chunk.join('')).join(' ') + fractionStr
         )
       }
-      const ctx1794654053642 = document
-        .getElementById('chart1794654053642')
+      const ctx1794678675414 = document
+        .getElementById('chart1794678675414')
         .getContext('2d')
-      const chart1794654053642 = new Chart(ctx1794654053642, {
+      const chart1794678675414 = new Chart(ctx1794678675414, {
         type: 'bar',
         data: {
-          labels: ["@rbac/rbac - direct permission","@rbac/rbac - inherited permission","@rbac/rbac - glob permission","AccessControl - direct permission","AccessControl - inherited permission","AccessControl - admin permission","Popular RBAC - direct permission","Popular RBAC - inherited permission","Popular RBAC - admin permission","Easy RBAC - direct permission","Easy RBAC - inherited permission","Easy RBAC - glob permission","Fast RBAC - direct permission","Fast RBAC - inherited permission","Fast RBAC - glob permission"],
+          labels: ["@rbac/core - direct permission","@rbac/core - inherited permission","@rbac/core - glob permission","AccessControl - direct permission","AccessControl - inherited permission","AccessControl - admin permission","Popular RBAC - direct permission","Popular RBAC - inherited permission","Popular RBAC - admin permission","Easy RBAC - direct permission","Easy RBAC - inherited permission","Easy RBAC - glob permission","Fast RBAC - direct permission","Fast RBAC - inherited permission","Fast RBAC - glob permission"],
           datasets: [
             {
-              data: [705928,686871,421587,151024,174504,131539,37070,39727,54229,1125560,79608,694815,538553,633620,656352],
-              backgroundColor: ["hsl(75.264, 85%, 55%)","hsl(73.224, 85%, 55%)","hsl(44.952, 85%, 55%)","hsl(16.104000000000003, 85%, 55%)","hsl(18.6, 85%, 55%)","hsl(14.027999999999997, 85%, 55%)","hsl(3.9480000000000075, 85%, 55%)","hsl(4.2360000000000015, 85%, 55%)","hsl(5.783999999999992, 85%, 55%)","hsl(120, 85%, 55%)","hsl(8.483999999999991, 85%, 55%)","hsl(74.076, 85%, 55%)","hsl(57.42, 85%, 55%)","hsl(67.548, 85%, 55%)","hsl(69.97200000000001, 85%, 55%)"],
-              borderColor: ["hsl(75.264, 85%, 55%)","hsl(73.224, 85%, 55%)","hsl(44.952, 85%, 55%)","hsl(16.104000000000003, 85%, 55%)","hsl(18.6, 85%, 55%)","hsl(14.027999999999997, 85%, 55%)","hsl(3.9480000000000075, 85%, 55%)","hsl(4.2360000000000015, 85%, 55%)","hsl(5.783999999999992, 85%, 55%)","hsl(120, 85%, 55%)","hsl(8.483999999999991, 85%, 55%)","hsl(74.076, 85%, 55%)","hsl(57.42, 85%, 55%)","hsl(67.548, 85%, 55%)","hsl(69.97200000000001, 85%, 55%)"],
+              data: [7282499,7330012,3982917,943635,668308,568819,209160,201247,198746,6119410,364966,3091113,2989702,2871606,2840481],
+              backgroundColor: ["hsl(119.22, 85%, 55%)","hsl(120, 85%, 55%)","hsl(65.208, 85%, 55%)","hsl(15.444000000000004, 85%, 55%)","hsl(10.944000000000006, 85%, 55%)","hsl(9.312000000000006, 85%, 55%)","hsl(3.419999999999993, 85%, 55%)","hsl(3.3, 85%, 55%)","hsl(3.2519999999999922, 85%, 55%)","hsl(100.176, 85%, 55%)","hsl(5.976000000000004, 85%, 55%)","hsl(50.604, 85%, 55%)","hsl(48.948, 85%, 55%)","hsl(47.016, 85%, 55%)","hsl(46.5, 85%, 55%)"],
+              borderColor: ["hsl(119.22, 85%, 55%)","hsl(120, 85%, 55%)","hsl(65.208, 85%, 55%)","hsl(15.444000000000004, 85%, 55%)","hsl(10.944000000000006, 85%, 55%)","hsl(9.312000000000006, 85%, 55%)","hsl(3.419999999999993, 85%, 55%)","hsl(3.3, 85%, 55%)","hsl(3.2519999999999922, 85%, 55%)","hsl(100.176, 85%, 55%)","hsl(5.976000000000004, 85%, 55%)","hsl(50.604, 85%, 55%)","hsl(48.948, 85%, 55%)","hsl(47.016, 85%, 55%)","hsl(46.5, 85%, 55%)"],
               borderWidth: 2,
             },
           ],

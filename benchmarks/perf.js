@@ -3,6 +3,9 @@ const asciichart = require('asciichart');
 const { createRBAC } = require('@rbac/core');
 const { callbackWhen } = require('@rbac/core/helpers');
 const { readFileSync } = require('fs');
+const { join } = require('node:path');
+
+const outputDir = process.env.RBAC_BENCH_OUTPUT_DIR || 'benchmarks/results';
 
 // Import other RBAC libraries
 const AccessControl = require('accesscontrol');
@@ -269,7 +272,7 @@ function setupLargeAccessControl(dataset) {
 
 function logResults(slug) {
   const data = JSON.parse(
-    readFileSync(`benchmarks/results/${slug}.json`, 'utf8')
+    readFileSync(join(outputDir, `${slug}.json`), 'utf8')
   );
   const ops = data.results.map(r => r.ops);
   console.log(`\n${data.name} ops/sec:`, ops.map(o => Math.round(o)).join(', '));
@@ -371,21 +374,21 @@ async function main() {
     cycle(),
     complete(),
     save({
-      folder: 'benchmarks/results',
+      folder: outputDir,
       file: mainSlug,
       version: '1.0.0',
       details: true,
       includeRawSamples: true
     }),
     save({
-      folder: 'benchmarks/results',
+      folder: outputDir,
       file: mainSlug,
       format: 'chart.html',
       details: true,
       includeRawSamples: true
     }),
     save({
-      folder: 'benchmarks/results',
+      folder: outputDir,
       file: mainSlug,
       format: 'csv',
       details: true,
@@ -404,18 +407,24 @@ async function main() {
   const largeEasyRBAC = new EasyRBAC(largeDataset.easyRoles);
   const largeFastRBAC = new FastRBAC({ roles: largeDataset.fastRoles });
 
+  // Build operation strings before timing. A wildcard check must use an
+  // operation that is not already granted directly through inheritance.
+  const largeRead = largeDataset.readOps[0];
+  const largeWrite = largeDataset.writeOps[0];
+  const largeGlob = `${largeDataset.resources[0]}:archive`;
+
   await largePopularRBAC.init();
 
   await suite(
     'RBAC Performance Comparison - Large Dataset',
     add('@rbac/core - large direct', async () => {
-      await largeRBAC.can('analyst', `${largeDataset.resources[0]}:read`);
+      await largeRBAC.can('analyst', largeRead);
     }),
     add('@rbac/core - large inherited', async () => {
-      await largeRBAC.can('director', `${largeDataset.resources[0]}:write`);
+      await largeRBAC.can('director', largeWrite);
     }),
     add('@rbac/core - large glob', async () => {
-      await largeRBAC.can('superadmin', `${largeDataset.resources[0]}:delete`);
+      await largeRBAC.can('superadmin', largeGlob);
     }),
     add('@rbac/core - large callback', async () => {
       await largeRBAC.can('auditor', largeDataset.conditionalOps.callback);
@@ -458,13 +467,13 @@ async function main() {
       );
     }),
     add('Easy RBAC - large direct', async () => {
-      await largeEasyRBAC.can('analyst', `${largeDataset.resources[0]}:read`);
+      await largeEasyRBAC.can('analyst', largeRead);
     }),
     add('Easy RBAC - large inherited', async () => {
-      await largeEasyRBAC.can('director', `${largeDataset.resources[0]}:write`);
+      await largeEasyRBAC.can('director', largeWrite);
     }),
     add('Easy RBAC - large glob', async () => {
-      await largeEasyRBAC.can('superadmin', `${largeDataset.resources[0]}:delete`);
+      await largeEasyRBAC.can('superadmin', largeGlob);
     }),
     add('Fast RBAC - large direct', async () => {
       await largeFastRBAC.can('analyst', largeDataset.resources[0], 'read');
@@ -473,26 +482,26 @@ async function main() {
       await largeFastRBAC.can('director', largeDataset.resources[0], 'write');
     }),
     add('Fast RBAC - large glob', async () => {
-      await largeFastRBAC.can('superadmin', largeDataset.resources[0], 'delete');
+      await largeFastRBAC.can('superadmin', largeDataset.resources[0], 'archive');
     }),
     cycle(),
     complete(),
     save({
-      folder: 'benchmarks/results',
+      folder: outputDir,
       file: largeSlug,
       version: '1.0.0',
       details: true,
       includeRawSamples: true
     }),
     save({
-      folder: 'benchmarks/results',
+      folder: outputDir,
       file: largeSlug,
       format: 'chart.html',
       details: true,
       includeRawSamples: true
     }),
     save({
-      folder: 'benchmarks/results',
+      folder: outputDir,
       file: largeSlug,
       format: 'csv',
       details: true,
@@ -503,4 +512,7 @@ async function main() {
   logResults(largeSlug);
 }
 
-main().catch(console.error);
+main().catch(error => {
+  console.error(error);
+  process.exitCode = 1;
+});

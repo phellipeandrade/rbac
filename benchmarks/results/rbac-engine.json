@@ -1,0 +1,17 @@
+{
+  "node": "v22.14.0",
+  "iterations": 300000,
+  "samples": 5,
+  "opsPerSecond": {
+    "exact grant": 11821309,
+    "inherited grant": 12864770,
+    "simple glob grant": 5220169,
+    "regex grant": 2685078,
+    "conditional sync": 2357719,
+    "conditional async": 2596618,
+    "conditional deny": 2489162,
+    "unmatched operation": 5162996,
+    "unknown role": 14075652,
+    "regex query": 1168111
+  }
+}
