@@ -85,6 +85,41 @@ npm view @rbac/nestjs@4.0.1 version dependencies --json
 npm view @rbac/schemas@4.0.1 version dependencies --json
 ```
 
+## Git tags for each npm package release
+
+Use an annotated Git tag per package and version: `@rbac/core@4.0.1`, `@rbac/adapters@4.0.1`, `@rbac/express@4.0.1`, `@rbac/fastify@4.0.1`, `@rbac/nestjs@4.0.1`, and `@rbac/schemas@4.0.1`. This allows independent package releases in the future. All six packages share the same source commit when released together.
+
+**Only create each tag after that exact version is confirmed published to the public npm registry.** Use the source commit that produced the tested tarballs (verify it before publishing). Run from the repository root in PowerShell:
+
+```powershell
+$releaseCommit = git rev-parse HEAD
+$names = 'core', 'adapters', 'express', 'fastify', 'nestjs', 'schemas'
+foreach ($name in $names) {
+    $package = "@rbac/$name"
+    $published = npm view "${package}@4.0.1" version
+    if ($LASTEXITCODE -ne 0 -or $published.Trim() -ne '4.0.1') {
+        throw "$package@4.0.1 is not yet available on npm"
+    }
+
+    $manifest = (git show "${releaseCommit}:packages/$name/package.json" | Out-String | ConvertFrom-Json)
+    if ($manifest.name -ne $package -or $manifest.version -ne '4.0.1') {
+        throw "The chosen release commit does not contain $package@4.0.1"
+    }
+
+    $tag = "${package}@4.0.1"
+    git show-ref --verify --quiet "refs/tags/$tag"
+    if ($LASTEXITCODE -eq 0) { throw "Tag already exists: $tag" }
+    git tag -a $tag $releaseCommit -m "Release $tag to npm"
+    if ($LASTEXITCODE -ne 0) { throw "Could not create tag: $tag" }
+}
+
+git tag --list '@rbac/*@4.0.1'
+```
+
+Push the reviewed tags to GitHub only when remote publication is authorized; pushing tags is separate from `npm publish`. Prefer explicit tag refs to `git push --tags`, which may also publish unrelated local tags.
+
+The six historical `@rbac/*@4.0.0` tags were created locally, pointing to migration commit `6781750`; the existing `v3.0.0` tag remains unchanged. Version `4.0.1` must not be tagged until its npm publication succeeds.
+
 ## Deprecation of the previous package (manual; not executed)
 
 **Only after** the six v4 packages are available, the migration guide is live, and consumers can install the new package, prepare to mark the old package deprecated without deleting its releases:

@@ -131,3 +131,10 @@ Validation: `npm ci` (root), `npm run lint`, `npm run typecheck`, `npm test -- -
 - [x] Run fresh `npm ci`, typecheck, examples/translation checks, bilingual website production build, and audit in `website/`. All passed; 106 documentation pages per locale and zero audit vulnerabilities.
 - [x] Rebuild all six `4.0.1` tarballs into ignored `dist/npm/`, record their SHA-256 hashes in `dist/npm/SHA256SUMS.txt`, and pass `npm publish --dry-run --access public --json` on each archive.
 - [ ] Publish the six packages in dependency order from `RELEASE_V4.md` after final release authorization; verify npm registry metadata and installability afterward. No actual publication, deprecation or release tag in this preparation phase.
+
+## npm package release tags (2026-11-14)
+
+- [x] Confirm all six `@rbac/*@4.0.0` packages are present on the public npm registry and that source commit `6781750` contains the corresponding `4.0.0` package manifests.
+- [x] Create six annotated **local** package-specific tags (`@rbac/{core,adapters,express,fastify,nestjs,schemas}@4.0.0`) pointing to `6781750`; retain the existing `v3.0.0` tag.
+- [x] Document the version-checked tagging workflow for `4.0.1` in `RELEASE_V4.md` so tags are created only for packages actually published.
+- [ ] Push the historical v4.0.0 tags to the remote when explicitly authorized. Publishing v4.0.1 to npm and creating its six tags remain pending.
