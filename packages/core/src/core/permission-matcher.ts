@@ -12,7 +12,7 @@ export const createDirectChecker = <P>(
   const matchQuery = createQueryMatcher<P>(getRoleCache, log);
   const matchLiteral = createLiteralMatcher<P>(getPatternCache, log);
 
-  return async (
+  return (
     role: string,
     resolvedRole: MappedRole<P>,
     operation: string | RegExp,
@@ -21,7 +21,11 @@ export const createDirectChecker = <P>(
     skipFalseLog = false
   ): Promise<boolean> => {
     if (typeof operation === 'string' && resolvedRole.direct.has(operation)) {
-      return log(role, operation, true, logEnabled);
+      try {
+        return Promise.resolve(log(role, operation, true, logEnabled));
+      } catch (error) {
+        return Promise.reject(error);
+      }
     }
 
     const whenFn = typeof operation === 'string'

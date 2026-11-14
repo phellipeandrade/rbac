@@ -104,3 +104,82 @@ describe('Explicit callback predicates', () => {
     }
   });
 });
+
+describe('Fast authorization path', () => {
+  it('keeps literal misses fast without skipping glob and regex queries', async () => {
+    const rbac = createRBAC({
+      roles: { reader: { can: ['reports:read'] } },
+      enableLogger: false
+    });
+    await expect(rbac.can('reader', 'reports:write')).resolves.toBe(false);
+    await expect(rbac.can('reader', 'reports:*')).resolves.toBe(true);
+    await expect(rbac.can('reader', '/^reports:read$/')).resolves.toBe(true);
+    await expect(rbac.can('reader', /^reports:read$/)).resolves.toBe(true);
+    await expect(rbac.can('unknown', 'reports:read')).resolves.toBe(false);
+    expect(rbac.can('reader', 'reports:read')).toBeInstanceOf(Promise);
+  });
+
+  it('does not grant wildcard queries through the indexed literal-glob shortcut', async () => {
+    const rbac = createRBAC({
+      roles: { reader: { can: ['reports:*'] } },
+      enableLogger: false
+    });
+    await expect(rbac.can('reader', 'reports:edit')).resolves.toBe(true);
+    await expect(rbac.can('reader', 'reports:arch*')).resolves.toBe(false);
+    await expect(rbac.can('reader', 'reports:arch*')).resolves.toBe(false);
+    await expect(rbac.can('reader', 'reports:*')).resolves.toBe(true);
+  });
+
+  it('invalidates static pattern caches on role updates without caching conditions', async () => {
+    const rbac = createRBAC<{ allowed: boolean }>({
+      roles: {
+        reader: { can: ['/^items:[0-9]+$/', 'events:42'] },
+        guarded: { can: [{ name: 'items:*', when: ({ allowed }: { allowed: boolean }) => allowed }] }
+      },
+      enableLogger: false
+    });
+    for (let i = 0; i < 3; i += 1) {
+      await expect(rbac.can('reader', 'items:42')).resolves.toBe(true);
+      await expect(rbac.can('reader', 'items:word')).resolves.toBe(false);
+      await expect(rbac.can('reader', /^events:42$/)).resolves.toBe(true);
+      await expect(rbac.can('guarded', 'items:42', { allowed: false })).resolves.toBe(false);
+      await expect(rbac.can('guarded', 'items:42', { allowed: true })).resolves.toBe(true);
+    }
+    rbac.updateRoles({ reader: { can: ['items:word'] } });
+    await expect(rbac.can('reader', 'items:42')).resolves.toBe(false);
+    await expect(rbac.can('reader', 'items:word')).resolves.toBe(true);
+    await expect(rbac.can('reader', /^events:42$/)).resolves.toBe(false);
+  });
+
+  it('logs every fast decision and turns logger exceptions into rejected promises', async () => {
+    const records: Array<[string, string | RegExp, boolean, boolean | undefined]> = [];
+    const rbac = createRBAC({
+      roles: { reader: { can: ['files:read', 'reports:*', '/^logs:[0-9]+$/'] } },
+      enableLogger: true,
+      colors: false,
+      logger: (role, operation, result, colors) => records.push([role, operation, result, colors])
+    });
+    await rbac.can('reader', 'files:read');
+    await rbac.can('reader', 'reports:edit');
+    await rbac.can('reader', 'logs:1');
+    await rbac.can('reader', 'logs:1'); // cached pattern grant
+    await rbac.can('reader', 'missing');
+    await rbac.can('missing', 'files:read');
+    expect(records).toEqual([
+      ['reader', 'files:read', true, false],
+      ['reader', 'reports:edit', true, false],
+      ['reader', 'logs:1', true, false],
+      ['reader', 'logs:1', true, false],
+      ['reader', 'missing', false, false],
+      ['missing', 'files:read', false, false]
+    ]);
+
+    const failingLogger = createRBAC({
+      roles: { reader: { can: ['files:read'] } },
+      enableLogger: true,
+      logger: () => { throw new Error('logger failure'); }
+    });
+    await expect(failingLogger.can('reader', 'files:read')).rejects.toThrow('logger failure');
+    await expect(failingLogger.can('reader', 'missing')).rejects.toThrow('logger failure');
+  });
+});
