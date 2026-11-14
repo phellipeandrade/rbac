@@ -11,28 +11,21 @@ function loadMySQL() {
 }
 import type { Role, Roles } from '../types';
 import type { RoleAdapter } from './adapter';
+import { parseStoredRole, resolveColumns, resolveTenant, rowsToRoles } from './common';
+import type { AdapterColumnOptions, AdapterColumns } from './common';
 
 export interface MySQLAdapterOptions {
   uri?: string;
   config?: any;
   table: string;
-  columns?: {
-    name?: string;
-    role?: string;
-    tenantId?: string;
-  };
+  columns?: AdapterColumnOptions;
 }
 
 export class MySQLRoleAdapter<P = unknown> implements RoleAdapter<P> {
   private connection?: any;
-  private defaultTenant = 'default';
+  private readonly columns: AdapterColumns;
   constructor(private options: MySQLAdapterOptions) {
-    this.options.columns = {
-      name: 'name',
-      role: 'role',
-      tenantId: 'tenant_id',
-      ...this.options.columns
-    };
+    this.columns = resolveColumns(options.columns, 'tenant_id');
   }
 
   private async getConnection(): Promise<any> {
@@ -47,46 +40,31 @@ export class MySQLRoleAdapter<P = unknown> implements RoleAdapter<P> {
 
   async getRoles(tenantId?: string): Promise<Roles<P>> {
     const conn = await this.getConnection();
-    const cols = this.options.columns as {
-      name: string;
-      role: string;
-      tenantId: string;
-    };
+    const cols = this.columns;
     const [rows] = await conn.query(
       `SELECT \`${cols.name}\`, \`${cols.role}\` FROM \`${this.options.table}\` WHERE \`${cols.tenantId}\` = ?`,
-      [tenantId ?? this.defaultTenant]
+      [resolveTenant(tenantId)]
     );
-    return (rows as any[]).reduce<Roles<P>>((acc, row) => {
-      acc[row[cols.name]] = JSON.parse(row[cols.role]);
-      return acc;
-    }, {} as Roles<P>);
+    return rowsToRoles<P>(rows, cols, parseStoredRole);
   }
 
   async addRole(roleName: string, role: Role<P>, tenantId?: string): Promise<void> {
     const conn = await this.getConnection();
-    const cols = this.options.columns as {
-      name: string;
-      role: string;
-      tenantId: string;
-    };
+    const cols = this.columns;
     await conn.query(
       `INSERT INTO \`${this.options.table}\` (\`${cols.name}\`, \`${cols.role}\`, \`${cols.tenantId}\`) VALUES (?, ?, ?)`,
-      [roleName, JSON.stringify(role), tenantId ?? this.defaultTenant]
+      [roleName, JSON.stringify(role), resolveTenant(tenantId)]
     );
   }
 
   async updateRoles(roles: Roles<P>, tenantId?: string): Promise<void> {
     const conn = await this.getConnection();
-    const cols = this.options.columns as {
-      name: string;
-      role: string;
-      tenantId: string;
-    };
+    const cols = this.columns;
     await Promise.all(
       Object.entries(roles).map(([name, role]) =>
         conn.query(
           `REPLACE INTO \`${this.options.table}\` (\`${cols.name}\`, \`${cols.role}\`, \`${cols.tenantId}\`) VALUES (?, ?, ?)`,
-          [name, JSON.stringify(role), tenantId ?? this.defaultTenant]
+          [name, JSON.stringify(role), resolveTenant(tenantId)]
         )
       )
     );
