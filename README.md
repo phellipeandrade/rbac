@@ -287,13 +287,14 @@ Run `npm run bench` to execute the performance suite. The script runs two end-to
 
 For each scenario the suite generates detailed reports (JSON/CSV/HTML chart) under `benchmarks/results/` and prints a human-readable summary (ops/sec, margins, standard deviation, samples, etc.).
 
-```
-$ npm run bench
-RBAC Performance Comparison ops/sec: 6859456, 6193737, 4427263, ...
-RBAC Performance Comparison - Large Dataset ops/sec: 3277352, 3396327, 3424089, ...
-```
+One local run measured the following throughput for `@rbac/rbac` (ops/sec; ± reported run margin):
 
-The baseline run shows @rbac/rbac leading all categories; the large dataset confirms the same behaviour when conditional checks and large permission sets come into play.
+| Scenario | Direct | Inherited | Glob | Callback condition | Async condition | Promise condition |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Baseline | 705,928 ±53.14% | 686,871 ±36.93% | 421,587 ±41.87% | — | — | — |
+| Large dataset | 395,934 ±25.88% | 579,837 ±9.21% | 533,091 ±17.08% | 84,314 ±19.78% | 411,722 ±18.06% | 292,185 ±34.54% |
+
+These are environment-specific measurements, and the reported margins show that results can vary between runs. The baseline comparison does not show `@rbac/rbac` leading every category; for example, Easy RBAC measured 1,125,560 ops/sec for direct permission checks in this run. See the JSON, CSV and HTML chart reports in `benchmarks/results/` for the full comparison.
 
 ## More Information
 
