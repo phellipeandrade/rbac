@@ -1,3 +1,5 @@
+import { cacheGet, cacheSet, REGEX_CACHE_LIMIT, GLOB_CACHE_LIMIT } from './bounded-cache';
+
 const isRegex = (value: unknown): value is RegExp => value instanceof RegExp;
 
 export const isGlob = (value: unknown): value is string =>
@@ -21,25 +23,26 @@ const globCache = new Map<string, RegExp>();
 
 export const regexFromOperation = (value: string | RegExp): RegExp | null => {
   if (isRegex(value)) return value;
-  const cached = regexCache.get(value);
+  // Bare strings are literal operation names. Only /pattern/flags denotes regex.
+  const match = /^\/(.*)\/([dgimsuvy]*)$/.exec(value);
+  if (!match) return null;
+  const cached = cacheGet(regexCache, value);
   if (cached) return cached;
   try {
-    const flags = value.replace(/.*\/([gimsuy]*)$/, '$1');
-    const pattern = value.replace(new RegExp('^/(.*?)/' + flags + '$'), '$1');
-    const regex = new RegExp(pattern, flags);
-    regexCache.set(value, regex);
+    const regex = new RegExp(match[1], match[2]);
+    cacheSet(regexCache, value, regex, REGEX_CACHE_LIMIT);
     return regex;
-  } catch (e) {
+  } catch {
     return null;
   }
 };
 
 export const globToRegex = (glob: string | string[]): RegExp => {
   if (Array.isArray(glob)) return new RegExp('^' + joinGlobs(glob) + '$');
-  const cached = globCache.get(glob);
+  const cached = cacheGet(globCache, glob);
   if (cached) return cached;
   const regex = new RegExp('^' + replaceGlobToRegex(glob) + '$');
-  globCache.set(glob, regex);
+  cacheSet(globCache, glob, regex, GLOB_CACHE_LIMIT);
   return regex;
 };
 

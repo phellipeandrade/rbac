@@ -1,4 +1,5 @@
 import { globToRegex } from '../utils/patterns';
+import { cacheGet, cacheSet, MATCH_CACHE_LIMIT } from '../utils/bounded-cache';
 import type { PermissionCaches } from './permission-cache';
 import type { PermissionCheckContext, PermissionLogger, WhenEvaluator } from './permission-context';
 
@@ -7,7 +8,7 @@ const cacheAndReturn = (
   key: string,
   value: boolean
 ): boolean => {
-  cache.set(key, value);
+  cacheSet(cache, key, value, MATCH_CACHE_LIMIT);
   return value;
 };
 
@@ -32,7 +33,7 @@ export const createQueryMatcher = <P>(
     ? `glob:${operation as string}`
     : `regex:${regex.toString()}`;
   const cache = getRoleCache(role);
-  const cached = cache.get(cacheKey);
+  const cached = cacheGet(cache, cacheKey);
   if (cached !== undefined) {
     return log(role, operation, cached, logEnabled);
   }

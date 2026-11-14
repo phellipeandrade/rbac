@@ -1,5 +1,6 @@
 import { isGlob, regexFromOperation } from '../utils/patterns';
 import type { NormalizedWhenFn } from '../types';
+import { cacheGet, cacheSet, OPERATION_CACHE_LIMIT, ROLE_CACHE_LIMIT } from '../utils/bounded-cache';
 
 export type PatternMatchCacheValue<P> = NormalizedWhenFn<P>[] | true | null;
 
@@ -22,10 +23,10 @@ export const createPermissionCaches = <P>(
   >();
 
   const getRoleCache = (roleName: string): Map<string, boolean> => {
-    let cached = matchCache.get(roleName);
+    let cached = cacheGet(matchCache, roleName);
     if (!cached) {
       cached = new Map<string, boolean>();
-      matchCache.set(roleName, cached);
+      cacheSet(matchCache, roleName, cached, ROLE_CACHE_LIMIT);
     }
     return cached;
   };
@@ -33,10 +34,10 @@ export const createPermissionCaches = <P>(
   const getPatternCache = (
     roleName: string
   ): Map<string, PatternMatchCacheValue<P>> => {
-    let cached = patternMatchCache.get(roleName);
+    let cached = cacheGet(patternMatchCache, roleName);
     if (!cached) {
       cached = new Map<string, PatternMatchCacheValue<P>>();
-      patternMatchCache.set(roleName, cached);
+      cacheSet(patternMatchCache, roleName, cached, ROLE_CACHE_LIMIT);
     }
     return cached;
   };
@@ -44,12 +45,12 @@ export const createPermissionCaches = <P>(
   const getOperationHint = (
     op: string
   ): { regex: RegExp | null; isGlob: boolean } => {
-    let hint = operationHintCache.get(op);
+    let hint = cacheGet(operationHintCache, op);
     if (hint) return hint;
     const regex = regexFromOperation(op);
     const isGlobOperation = !regex ? isGlob(op) : false;
     hint = { regex, isGlob: isGlobOperation };
-    operationHintCache.set(op, hint);
+    cacheSet(operationHintCache, op, hint, OPERATION_CACHE_LIMIT);
     return hint;
   };
 

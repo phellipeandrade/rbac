@@ -34,24 +34,35 @@ export const flattenRoles = <P>(roles: Roles<P>): MappedRoles<P> => {
         for (const parent of role.inherits) {
           const parentRole = visit(parent, stack);
           for (const op of parentRole.direct) direct.add(op);
-          for (const [k, v] of parentRole.conditional) conditional.set(k, v);
+          for (const [k, v] of parentRole.conditional) {
+            const previous = conditional.get(k);
+            conditional.set(k, previous ? async params => (await previous(params)) || v(params) : v);
+          }
           patterns.push(...parentRole.patterns);
         }
       }
       const built = buildPermissionData(role.can);
       for (const op of built.direct) direct.add(op);
-      for (const [k, v] of built.conditional) conditional.set(k, v);
+      for (const [k, v] of built.conditional) {
+        const previous = conditional.get(k);
+        conditional.set(k, previous ? async params => (await previous(params)) || v(params) : v);
+      }
       patterns.push(...built.patterns);
     }
     stack.delete(name);
     const seen = new Set<string>();
     const unique: PatternPermission<P>[] = [];
     for (const p of patterns) {
-      const key = p.name + p.regex.source;
-      if (!seen.has(key)) {
-        seen.add(key);
+      // A conditional grant must remain independent of another grant for the
+      // same pattern. Only identical unconditional grants can be collapsed.
+      if (p.when !== true) {
         unique.push(p);
+        continue;
       }
+      const key = JSON.stringify([p.name, p.regex.source, p.regex.flags]);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      unique.push(p);
     }
     const mapped: MappedRole<P> = {
       direct,

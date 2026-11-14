@@ -63,7 +63,7 @@ export const supportsColor = (): boolean => {
     // Default to no color support
     colorSupportCache = false;
     return false;
-  } catch (error) {
+  } catch {
     // On any error, default to plain text output
     colorSupportCache = false;
     return false;

@@ -1,4 +1,5 @@
 import type { NormalizedWhenFn } from '../types';
+import { cacheGet, cacheSet, MATCH_CACHE_LIMIT } from '../utils/bounded-cache';
 import type { PermissionCaches } from './permission-cache';
 import type { PermissionCheckContext, PermissionLogger, WhenEvaluator } from './permission-context';
 
@@ -32,7 +33,7 @@ export const createLiteralMatcher = <P>(
   }
 
   const patternCache = getPatternCache(role);
-  let cachedWhen = patternCache.get(operationString);
+  let cachedWhen = cacheGet(patternCache, operationString);
   if (cachedWhen === undefined) {
     const matches: NormalizedWhenFn<P>[] = [];
     cachedWhen = null;
@@ -53,7 +54,7 @@ export const createLiteralMatcher = <P>(
       cachedWhen = matches;
     }
 
-    patternCache.set(operationString, cachedWhen);
+    cacheSet(patternCache, operationString, cachedWhen, MATCH_CACHE_LIMIT);
   }
 
   if (cachedWhen === true) {

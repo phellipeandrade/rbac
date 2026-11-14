@@ -16,24 +16,25 @@ export const buildPermissionData = <P = unknown>(
   for (const p of permissions) {
     if (typeof p === 'string') {
       const regex = regexFromOperation(p);
-      if (isGlob(p)) {
-        patterns.push({ name: p, regex: globToRegex(p), when: true });
-      } else if (regex) {
+      if (regex) {
         patterns.push({ name: p, regex, when: true });
+      } else if (isGlob(p)) {
+        patterns.push({ name: p, regex: globToRegex(p), when: true });
       } else {
         direct.add(p);
       }
     } else {
       const when = normalizeWhen(p.when);
       const regex = regexFromOperation(p.name);
-      if (isGlob(p.name)) {
-        patterns.push({ name: p.name, regex: globToRegex(p.name), when });
-      } else if (regex) {
+      if (regex) {
         patterns.push({ name: p.name, regex, when });
+      } else if (isGlob(p.name)) {
+        patterns.push({ name: p.name, regex: globToRegex(p.name), when });
       } else if (when === true) {
         direct.add(p.name);
       } else {
-        conditional.set(p.name, when);
+        const previous = conditional.get(p.name);
+        conditional.set(p.name, previous ? async params => (await previous(params)) || when(params) : when);
       }
     }
   }
