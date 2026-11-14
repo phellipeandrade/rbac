@@ -49,8 +49,8 @@ Deliver `@rbac/core@4.0.0` with a single-options `createRBAC` factory, independe
 
 ## Commits and next step
 
-- Baseline tracking commit: `6fe4fd7`. Workspace/API/integration extraction: `77cb0e5`. Isolated tarball packaging: `bac23e7`. Performance comparison: `872d165`. Documentation/site: `e11a7c4`. Release preparation: `a81786f`.
-- Next: commit CI on `feature/rbac-v4`; then request separate authorization for any remote push, merge, publication or deprecation.
+- Baseline tracking commit: `6fe4fd7`. Workspace/API/integration extraction: `77cb0e5`. Isolated tarball packaging: `bac23e7`. Performance comparison: `872d165`. Documentation/site: `e11a7c4`. Release preparation: `a81786f`. CI validation: `c507d3b`.
+- Implementation and local verification complete on `feature/rbac-v4`. Next steps require separate authorization for any remote push, merge, publication or deprecation.
 
 ## Blockers and unresolved questions
 
