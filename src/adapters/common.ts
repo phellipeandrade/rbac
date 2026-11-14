@@ -33,4 +33,6 @@ export const rowsToRoles = <P>(
 };
 
 export const parseStoredRole = <P>(value: unknown): Role<P> =>
-  (typeof value === 'string' ? JSON.parse(value) : value) as Role<P>;
+  (typeof value === 'string' || Buffer.isBuffer(value)
+    ? JSON.parse(String(value))
+    : value) as Role<P>;

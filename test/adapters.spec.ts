@@ -392,6 +392,11 @@ describe('Adapter shared utilities', () => {
     expect(parseStoredRole(parsed)).toBe(parsed);
   });
 
+  it('decodes JSON buffers returned by database drivers', () => {
+    const raw = Buffer.from('{"can":["write"]}');
+    expect(parseStoredRole(raw)).toEqual({ can: ['write'] });
+  });
+
   it('retries opening a connection if the previous attempt failed', async () => {
     let attempts = 0;
     const getConnection = connectOnce(async () => {
