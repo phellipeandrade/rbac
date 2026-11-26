@@ -26,4 +26,6 @@ Meça o desempenho com suas próprias roles e operações. O repositório oferec
 
 ## Armazenamento e concorrência
 
-Os adapters SQL vinculam parâmetros de dados e validam/escapam identificadores. Defina schema e chaves únicas coerentes com a estratégia de upsert. Informe um tenant correto a cada requisição. Cada instância guarda um snapshot em memória; após alterações externas, recarregue e use `updateRoles()` ou reconstrua a instância. Em serviços distribuídos, coordene a atualização entre processos.
+Os adapters SQL vinculam parâmetros de dados e validam/escapam identificadores. Defina schema e chaves únicas coerentes com a estratégia de upsert. Informe um tenant correto a cada requisição.
+
+Cada instância guarda um snapshot em memória. Ao recarregar todas as roles do banco, [crie e use uma nova instância](./runtime.md#reload-the-complete-role-set). `updateRoles()` mescla definições por nome. Por isso, roles excluídas que ficaram fora da recarga ainda podem conceder acesso direto e por herança. Coordene a substituição entre os processos que atendem o tenant.

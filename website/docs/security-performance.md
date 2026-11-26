@@ -26,4 +26,6 @@ Measure performance with your own role graph and operation distribution. The rep
 
 ## Storage and concurrency
 
-SQL adapters bind data values and validate/quote identifiers. Choose a schema and unique keys consistent with the adapter's upsert strategy. Use a distinct tenant ID on every request. Each RBAC instance keeps an in-memory snapshot; when external storage changes, reload and call `updateRoles()` or reconstruct the instance. In long-running services, coordinate update delivery across processes.
+SQL adapters bind data values and validate/quote identifiers. Choose a schema and unique keys consistent with the adapter's upsert strategy. Use a distinct tenant ID on every request.
+
+Each RBAC instance keeps an in-memory snapshot. When reloading the complete set of stored roles, [create and use a new instance](./runtime.md#reload-the-complete-role-set). `updateRoles()` merges definitions by name, so deleted roles omitted from the reload can still authorize access directly and through inheritance. Coordinate the replacement across the processes serving the tenant.

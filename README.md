@@ -142,7 +142,7 @@ const tenantAuth = await createTenantRBAC(adapter, 'tenant-a');
 console.log(await tenantAuth.can('reader', 'documents:read'));
 ```
 
-This example assumes a running MongoDB instance and existing tenant role records. `createTenantRBAC` loads the roles **once**; reload or update the instance when persistent policies change. See the [adapter guide](https://phellipeandrade.github.io/rbac/docs/adapters/) for schema requirements, custom columns, and tenant isolation.
+This example assumes a running MongoDB instance and existing tenant role records. `createTenantRBAC` loads the roles **once**. To reload the complete set of stored roles, call it again for the same tenant and replace the instance used by subsequent checks. In-memory `updateRoles()` retains role names omitted from the update. See the [adapter guide](https://phellipeandrade.github.io/rbac/docs/adapters/) for schema requirements, custom columns, and tenant isolation.
 
 ## Frameworks, schemas, and configuration
 

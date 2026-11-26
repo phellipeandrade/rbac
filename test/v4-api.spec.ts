@@ -12,6 +12,24 @@ describe('v4 public factory', () => {
     await expect(engine.can('editor', 'posts:delete')).resolves.toBe(true);
     await expect(engine.can('editor', 'posts:write')).resolves.toBe(false);
   });
+
+  it('drops a deleted role and its inherited grants when rebuilding from a full snapshot', async () => {
+    const editor = { inherits: ['admin'], can: ['posts:edit'] };
+    const engine = createRBAC({ roles: { admin: { can: ['posts:delete'] }, editor } });
+    await expect(engine.can('admin', 'posts:delete')).resolves.toBe(true);
+    await expect(engine.can('editor', 'posts:delete')).resolves.toBe(true);
+
+    const remainingRoles = { editor };
+    engine.updateRoles(remainingRoles);
+    await expect(engine.can('admin', 'posts:delete')).resolves.toBe(true);
+    await expect(engine.can('editor', 'posts:delete')).resolves.toBe(true);
+
+    const reloaded = createRBAC({ roles: remainingRoles });
+    await expect(reloaded.can('admin', 'posts:delete')).resolves.toBe(false);
+    await expect(reloaded.can('editor', 'posts:delete')).resolves.toBe(false);
+    await expect(reloaded.can('editor', 'posts:edit')).resolves.toBe(true);
+  });
+
   it('fails closed for unknown/prototype-like roles and predicate errors', async () => {
     const engine = createRBAC({roles: {
       toString: {can: ['safe']},

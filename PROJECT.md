@@ -147,3 +147,9 @@ Validation: `npm ci` (root), `npm run lint`, `npm run typecheck`, `npm test -- -
 - [x] Create six annotated local Git tags `@rbac/<package>@4.0.1`, each targeting source commit `40ae396`, after verifying package sources did not change before publication.
 - [ ] Independently install and smoke-test the published registry releases in a new consumer. The attempted local command was rejected by the execution policy, so this check remains unverified; the earlier packed-tarball consumer tests passed.
 - [ ] Push the v4.0.0 and v4.0.1 Git tags to `origin` when explicitly authorized. No tag push, deprecation or GitHub release was executed here.
+
+## Role reload documentation (2026-11-25)
+
+- [x] Update the README and current English and pt-BR guides to show how to replace the engine after reloading the complete set of stored roles.
+- [x] Cover direct and inherited permissions after a role is deleted. The test verifies that a merge retains the omitted role and a fresh engine removes its grants while retaining the editor's own permission.
+- Base commit: `c83e94a`. With Node 22.14.0 and npm 10.9.2, lint, workspace build, all 189 Jest tests, examples, website typecheck and the bilingual website build passed. Verified both generated links to the new guide section.
