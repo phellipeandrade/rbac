@@ -147,3 +147,10 @@ Validation: `npm ci` (root), `npm run lint`, `npm run typecheck`, `npm test -- -
 - [x] Create six annotated local Git tags `@rbac/<package>@4.0.1`, each targeting source commit `40ae396`, after verifying package sources did not change before publication.
 - [ ] Independently install and smoke-test the published registry releases in a new consumer. The attempted local command was rejected by the execution policy, so this check remains unverified; the earlier packed-tarball consumer tests passed.
 - [ ] Push the v4.0.0 and v4.0.1 Git tags to `origin` when explicitly authorized. No tag push, deprecation or GitHub release was executed here.
+
+## Complete role replacement (2026-11-25)
+
+- [x] Add `replaceRoles()` so a running engine can apply a complete role set. Both update paths compile inheritance and allocate fresh matching caches before subsequent checks use the new policy. `updateRoles()` continues to merge definitions by name.
+- [x] Verify direct and inherited revocation, cached grants and denials, empty replacement, and a condition that is still running during replacement. Document the API and the tenant reload example in English and pt-BR.
+- Base commit: `c83e94a`. With Node 22.14.0 and npm 10.9.2, lint, typecheck, all 190 Jest tests, packed CJS/ESM and TypeScript consumers, pack dry run, examples, and the bilingual website build passed. Verified the generated runtime links and API reference in both languages.
+- Five paired microbenchmark runs on this host gave median stable exact throughput of 25.08M ops/s before and 25.27M after. Interpolated exact throughput was 9.23M before and 9.19M after.

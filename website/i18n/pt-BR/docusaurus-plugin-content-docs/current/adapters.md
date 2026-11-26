@@ -31,6 +31,8 @@ console.log(await auth.can('reader', 'documents:read')); // true
 
 `createTenantRBAC(adapter, tenantId, config?)` carrega as roles do tenant **uma vez** e cria uma instância RBAC independente em memória. Omitir `tenantId` nos métodos do adapter utiliza o tenant `default`. Informe o tenant de forma consistente em todas as operações de leitura e escrita. A aplicação deve autenticar e validar esse identificador.
 
+Para recarregar todas as roles desse tenant, chame `auth.replaceRoles(await adapter.getRoles('acme'))`. Isso atualiza o motor em memória. Veja o efeito da exclusão de roles no [guia de atualizações em execução](./runtime.md#reload-the-complete-role-set).
+
 ## Mapeamento de tabelas e colunas
 
 As estruturas de armazenamento devem existir previamente. Em SQL, os campos padrão são `name`, `role` (role serializada) e `tenant_id`; no MongoDB, `name`, `role` e `tenantId`. É possível alterá-los por `columns`:

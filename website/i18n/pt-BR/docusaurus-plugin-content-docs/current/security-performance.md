@@ -19,11 +19,13 @@ Falhas de condições negam a permissão afetada. Middlewares podem propagar err
 
 - A correspondência entre permissões e padrões utiliza caches limitados.
 - Resultados condicionais dependentes de `params` são avaliados a cada chamada, sem cache.
-- `addRole()` e `updateRoles()` reconstruem a herança e invalidam caches relevantes da instância.
+- `addRole()`, `updateRoles()` e `replaceRoles()` reconstroem a herança e invalidam os caches de correspondência de permissões.
 - Expressões regulares com estado têm `lastIndex` reiniciado em verificações repetidas, inclusive com flags `g`/`y`.
 
 Meça o desempenho com suas próprias roles e operações. O repositório oferece `npm run bench`, `npm run bench:engine` e `npm run bench:micro`. Consulte o [relatório de benchmarks](./benchmarks.md) para tabelas, gráficos Mermaid e instruções de reprodução. Os resultados dependem do ambiente; não são garantias de throughput.
 
 ## Armazenamento e concorrência
 
-Os adapters SQL vinculam parâmetros de dados e validam/escapam identificadores. Defina schema e chaves únicas coerentes com a estratégia de upsert. Informe um tenant correto a cada requisição. Cada instância guarda um snapshot em memória; após alterações externas, recarregue e use `updateRoles()` ou reconstrua a instância. Em serviços distribuídos, coordene a atualização entre processos.
+Os adapters SQL vinculam parâmetros de dados e validam/escapam identificadores. Defina schema e chaves únicas coerentes com a estratégia de upsert. Informe um tenant correto a cada requisição.
+
+Cada instância guarda um snapshot em memória. Após ler com sucesso o conjunto completo de roles do banco, [aplique-o com `replaceRoles()`](./runtime.md#reload-the-complete-role-set) para remover as permissões das roles excluídas. Coordene a atualização entre os processos que atendem o tenant.

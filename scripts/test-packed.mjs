@@ -56,6 +56,9 @@ const auth = core.createRBAC({roles: {viewer: {can: ['files:read']}}, enableLogg
 assert.equal(await auth.can('viewer', 'files:read'), true);
 assert.equal(await auth.can('viewer', 'files:write'), false);
 assert.equal(await auth.can('missing', 'files:read'), false);
+auth.replaceRoles({editor: {can: ['files:write']}});
+assert.equal(await auth.can('viewer', 'files:read'), false);
+assert.equal(await auth.can('editor', 'files:write'), true);
 console.log('Installed tarballs: six CJS/ESM packages, API, isolation and deny-by-default OK');
 `);
   run(process.execPath, ['probe.mjs'], scratch);
@@ -70,6 +73,7 @@ import {MongoRoleAdapter, createTenantRBAC} from '@rbac/adapters';
 import {rolesSchema} from '@rbac/schemas';
 const options: RBACOptions<boolean> = {roles: {viewer: {can: ['read']}}, enableLogger: false};
 const engine: RBACEngine<boolean> = createRBAC(options);
+engine.replaceRoles({viewer: {can: [{name: 'read', when: (allowed: boolean) => allowed}]}});
 void engine.can('viewer', 'read', true);
 // @ts-expect-error Invalid context type must be rejected.
 void engine.can('viewer', 'read', 'invalid');
@@ -84,7 +88,9 @@ import {createRBAC} from '@rbac/core';
 import type {RBACOptions} from '@rbac/core';
 import {callbackWhen} from '@rbac/core/helpers';
 const options: RBACOptions<boolean> = {roles: {viewer: {can: [{name: 'read', when: callbackWhen<boolean>((p, done) => done(null, p))}]}}};
-void createRBAC(options).can('viewer', 'read', true);
+const engine = createRBAC(options);
+engine.replaceRoles(options.roles);
+void engine.can('viewer', 'read', true);
 `);
   writeFileSync(path.join(scratch, 'tsconfig.json'), JSON.stringify({compilerOptions: {
     strict: true, target: 'ES2022', module: 'NodeNext', moduleResolution: 'NodeNext',

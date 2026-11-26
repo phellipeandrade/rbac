@@ -21,6 +21,11 @@ async function run(): Promise<void> {
     [USER]: { can: [PRODUCTS_FIND, PRODUCTS_CREATE] }
   });
   await RBAC.can(USER, PRODUCTS_CREATE); // true
+
+  RBAC.replaceRoles(baseRoles);
+  await RBAC.can('editor', PRODUCTS_UPDATE); // false
+  await RBAC.can(USER, PRODUCTS_CREATE); // false
+  await RBAC.can(USER, PRODUCTS_FIND); // true
 }
 
 run().catch(console.error);

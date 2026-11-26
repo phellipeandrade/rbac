@@ -30,7 +30,7 @@ console.log(await rbac.can('reader', 'articles:edit')); // false
 console.log(await rbac.can('unknown', 'articles:read')); // false
 ```
 
-`createRBAC({ roles, ...options })` returns an engine with `can(role, operation, params?)`, `addRole(name, definition)`, and `updateRoles(roles)`. Import the `RBACOptions` and `RBACEngine` types from the package root. For callback-based conditions, import `callbackWhen` from `@rbac/core/helpers`.
+`createRBAC({ roles, ...options })` returns an engine with `can(role, operation, params?)`, `addRole(name, definition)`, `updateRoles(roles)`, and `replaceRoles(roles)`. Use `updateRoles()` for partial changes and `replaceRoles()` for a complete role set. Import the `RBACOptions` and `RBACEngine` types from the package root. For callback-based conditions, import `callbackWhen` from `@rbac/core/helpers`.
 
 The engine supports inherited roles, exact permissions, globs, regular expressions, asynchronous conditions, and runtime updates. Permission checks **deny by default**, including when a condition throws or rejects. Do not treat client-supplied parameters as trusted authorization evidence.
 

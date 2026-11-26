@@ -24,7 +24,7 @@ flowchart LR
 
 | Directory | Purpose |
 | --- | --- |
-| `packages/core/src/rbac.ts` | Public factory, runtime `addRole` and `updateRoles`. |
+| `packages/core/src/rbac.ts` | Public factory and runtime role updates (`addRole`, `updateRoles`, `replaceRoles`). |
 | `packages/core/src/core/role-mapper.ts` | Resolve inheritance and flatten grants. |
 | `packages/core/src/core/permission-checker.ts` | Authoritative `can()` evaluation. |
 | `packages/core/src/core/permission-*.ts` | Permission matching, context, caches, and data. |

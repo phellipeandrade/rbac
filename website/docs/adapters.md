@@ -31,6 +31,8 @@ console.log(await auth.can('reader', 'documents:read')); // true
 
 `createTenantRBAC(adapter, tenantId, config?)` reads the tenant's roles **once** and constructs an independent in-memory RBAC instance. Passing no tenant ID to adapter methods uses the tenant named `default`. Specify the tenant consistently for every read/write. Your application is responsible for authenticating and validating the tenant ID.
 
+To refresh all roles for this tenant, call `auth.replaceRoles(await adapter.getRoles('acme'))`. This updates the in-memory engine. See [runtime role updates](./runtime.md#reload-the-complete-role-set) for the effect of removing roles.
+
 ## Table and column mapping
 
 The storage must already exist. SQL expects name, serialized role, and tenant ID columns. Default SQL names are `name`, `role`, and `tenant_id`; MongoDB uses `name`, `role`, and `tenantId`. Change them with `columns`:
