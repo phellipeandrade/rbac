@@ -34,5 +34,6 @@ The engine evaluates exact grants and matching patterns, includes inherited gran
 | `can(role, operation, params?)` | Resolve permission asynchronously as `Promise<boolean>`. |
 | `addRole(name, definition)` | Add or replace a named role immediately. |
 | `updateRoles(definitions)` | Merge new role definitions by name and invalidate permission caches. |
+| `replaceRoles(definitions)` | Replace the complete role set and invalidate permission caches. |
 
 The generic `P` describes authorization context, not a user object stored by RBAC. See [security guidance](./security-performance.md) for deriving trusted roles.

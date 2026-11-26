@@ -57,4 +57,6 @@ export interface RBACEngine<P = unknown> {
   can: (role: string, operation: string | RegExp, params?: P) => Promise<boolean>;
   updateRoles: (roles: Roles<P>) => void;
   addRole: (roleName: string, role: Role<P>) => void;
+  /** Replace the entire role set for subsequent checks, including inherited grants. */
+  replaceRoles: (roles: Roles<P>) => void;
 }

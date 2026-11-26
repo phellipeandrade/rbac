@@ -34,5 +34,6 @@ O motor procura permissões exatas e padrões compatíveis, inclui permissões h
 | `can(role, operation, params?)` | Verifica a autorização como `Promise<boolean>`. |
 | `addRole(name, definition)` | Adiciona ou substitui uma role imediatamente. |
 | `updateRoles(definitions)` | Mescla definições por nome e invalida os caches de permissão. |
+| `replaceRoles(definitions)` | Substitui todas as definições e invalida os caches de permissão. |
 
 O genérico `P` descreve o contexto de autorização; o RBAC não armazena um objeto de usuário. Veja [segurança](./security-performance.md) para orientações sobre roles confiáveis.

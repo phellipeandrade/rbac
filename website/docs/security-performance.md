@@ -19,11 +19,13 @@ Conditional errors deny the affected grant rather than allowing it. Middleware m
 
 - Permission and pattern matching use bounded caches for repeated lookups.
 - Conditional outcomes depending on `params` are evaluated on every call and not cached.
-- `addRole()` and `updateRoles()` rebuild inheritance and clear relevant instance permission caches.
+- `addRole()`, `updateRoles()`, and `replaceRoles()` rebuild inheritance and invalidate permission matching caches.
 - Shared regex patterns reset stateful `lastIndex` before checking, including global/sticky expressions.
 
 Measure performance with your own role graph and operation distribution. The repository exposes `npm run bench`, `npm run bench:engine` and `npm run bench:micro`. See the [measured benchmark report](./benchmarks.md) for tables, Mermaid charts and reproduction steps. Scores are environment-specific, not guaranteed throughput.
 
 ## Storage and concurrency
 
-SQL adapters bind data values and validate/quote identifiers. Choose a schema and unique keys consistent with the adapter's upsert strategy. Use a distinct tenant ID on every request. Each RBAC instance keeps an in-memory snapshot; when external storage changes, reload and call `updateRoles()` or reconstruct the instance. In long-running services, coordinate update delivery across processes.
+SQL adapters bind data values and validate/quote identifiers. Choose a schema and unique keys consistent with the adapter's upsert strategy. Use a distinct tenant ID on every request.
+
+Each RBAC instance keeps an in-memory snapshot. After a successful read of the complete role set, [apply it with `replaceRoles()`](./runtime.md#reload-the-complete-role-set) to remove grants from roles deleted in storage. Coordinate the update across the processes that serve the tenant.

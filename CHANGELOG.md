@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+### Added
+
+- Add `replaceRoles(roles)` to apply a complete role set in the same engine instance, removing omitted roles and their inherited grants from subsequent permission checks.
+
 ## [4.0.1] - 2026-11-14
 
 ### Changed

@@ -27,7 +27,7 @@ console.log(await rbac.can('viewer', 'documents:edit')); // false
 console.log(await rbac.can('unknown', 'documents:read')); // false
 ```
 
-`createRBAC({ roles, ...options })` retorna uma instância com `can()`, `addRole()` e `updateRoles()`. Mesmo para permissões incondicionais, as verificações retornam uma promise. Roles desconhecidas e permissões ausentes são negadas por padrão.
+`createRBAC({ roles, ...options })` retorna uma instância com `can()`, `addRole()`, `updateRoles()` e `replaceRoles()`. Mesmo para permissões incondicionais, as verificações retornam uma promise. Roles desconhecidas e permissões ausentes são negadas por padrão.
 
 ## Recursos disponíveis
 

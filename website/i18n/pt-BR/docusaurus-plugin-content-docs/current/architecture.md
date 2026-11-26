@@ -24,7 +24,7 @@ flowchart LR
 
 | Diretório | Responsabilidade |
 | --- | --- |
-| `packages/core/src/rbac.ts` | Fábrica pública, `addRole` e `updateRoles`. |
+| `packages/core/src/rbac.ts` | Fábrica pública e alterações de roles em execução (`addRole`, `updateRoles`, `replaceRoles`). |
 | `packages/core/src/core/role-mapper.ts` | Resolve herança e unifica permissões. |
 | `packages/core/src/core/permission-checker.ts` | Avaliação efetiva de `can()`. |
 | `packages/core/src/core/permission-*.ts` | Correspondências, contexto, caches e dados. |

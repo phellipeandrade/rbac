@@ -11,7 +11,7 @@ This directory contains self-contained TypeScript snippets that showcase how to 
 
 ## Updating roles at runtime
 
-- [`updateRoles.ts`](./updateRoles.ts) illustrates how to add new roles and merge updates without restarting your application.
+- [`updateRoles.ts`](./updateRoles.ts) shows how to add roles, merge partial updates, and replace the complete role set in one engine.
 
 ## Database adapters
 

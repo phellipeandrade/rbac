@@ -27,7 +27,7 @@ console.log(await rbac.can('viewer', 'documents:edit')); // false
 console.log(await rbac.can('unknown', 'documents:read')); // false
 ```
 
-`createRBAC({ roles, ...options })` returns an instance with `can()`, `addRole()`, and `updateRoles()`. Permission checks always return a promise, even for unconditional grants. Undefined roles and missing grants are denied by default.
+`createRBAC({ roles, ...options })` returns an instance with `can()`, `addRole()`, `updateRoles()`, and `replaceRoles()`. Permission checks always return a promise, even for unconditional grants. Undefined roles and missing grants are denied by default.
 
 ## What the library provides
 

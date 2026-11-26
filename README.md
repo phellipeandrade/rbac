@@ -59,13 +59,14 @@ async function main() {
 void main();
 ```
 
-`createRBAC({ roles, ...options })` returns an instance with three methods:
+`createRBAC({ roles, ...options })` returns these methods:
 
 | Method | Description |
 | --- | --- |
 | `can(role, operation, params?)` | Resolves to `Promise<boolean>`; unmatched operations and unknown roles are denied. |
 | `addRole(name, definition)` | Adds or replaces one role, immediately rebuilding the permission hierarchy. |
 | `updateRoles(roles)` | Merges definitions into existing roles and invalidates matching caches. |
+| `replaceRoles(roles)` | Replaces the complete role set and removes grants from omitted roles. |
 
 The `can` parameter `operation` accepts a string or `RegExp`. Roles require a `can` array of operation strings or `{name, when}` grants; `inherits` is an optional array of role names.
 
@@ -122,7 +123,7 @@ auth.updateRoles({ support: { can: ['tickets:read', 'tickets:reply'] } });
 console.log(await auth.can('support', 'tickets:reply')); // true
 ```
 
-Updates merge role **definitions**, replacing the definition of any role name supplied.
+`updateRoles()` replaces the definition of each supplied role and retains omitted roles. Use `replaceRoles()` with the complete role set to remove omitted roles and their inherited grants while keeping the same engine instance. See the [runtime guide](https://phellipeandrade.github.io/rbac/docs/runtime/).
 
 ## Database adapters and multi-tenancy
 
@@ -142,7 +143,7 @@ const tenantAuth = await createTenantRBAC(adapter, 'tenant-a');
 console.log(await tenantAuth.can('reader', 'documents:read'));
 ```
 
-This example assumes a running MongoDB instance and existing tenant role records. `createTenantRBAC` loads the roles **once**; reload or update the instance when persistent policies change. See the [adapter guide](https://phellipeandrade.github.io/rbac/docs/adapters/) for schema requirements, custom columns, and tenant isolation.
+This example assumes a running MongoDB instance and existing tenant role records. `createTenantRBAC` loads roles **once**. To refresh the complete role set, call `tenantAuth.replaceRoles(await adapter.getRoles('tenant-a'))`. See the [adapter guide](https://phellipeandrade.github.io/rbac/docs/adapters/) for schema requirements, custom columns, and tenant isolation.
 
 ## Frameworks, schemas, and configuration
 
